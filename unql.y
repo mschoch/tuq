@@ -314,11 +314,11 @@ expression_list:  expression { logDebugGrammar("EXPRESSION_LIST - EXPRESSION")
                                parsingStack.Push(curr)
                              }
         |   expression COMMA expression_list { logDebugGrammar("EXPRESSION_LIST - EXPRESSION COMMA EXPRESSION_LIST")
-                                               last := parsingStack.Pop().([]interface{})
                                                rest := parsingStack.Pop().([]interface{})
-                                               for _,v := range last {
-                                                 rest = append(rest,v)
-                                               }
+                                               last := parsingStack.Pop().(interface{})
+                                               //for _,v := range last {
+                                                 rest = append(rest,last)
+                                               //}
                                                parsingStack.Push(rest)
                                              }
 ;
