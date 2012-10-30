@@ -34,6 +34,7 @@ Support for joins, sub-queries, and Couchbase View optimizations is not yet plan
 * Query is tokenized (using nex)
 * Query is parsed (using goyacc)
 * Parsed Query is converted to an ElasticSearch Query
+* ElasticSearch result documents are retrieved from Couchbase
 * Result rows are evalated
 
 ## Examples
