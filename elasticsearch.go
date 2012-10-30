@@ -12,14 +12,14 @@ import (
 const FunctionPrefix = "__func__"
 
 type CouchbaseElasticSearchDoc struct {
-	Meta CouchbaseDocMeta `json:meta`
+	Meta CouchbaseDocMeta `json:"meta"`
 }
 
 type CouchbaseDocMeta struct {
-	Id         string `json:id`
-	Rev        string `json:rev"`
+	Id         string `json:"id"`
+	Rev        string `json:"rev"`
 	Expiration int    `json:"expiration"`
-	Flags      int    `json:flags"`
+	Flags      int    `json:"flags"`
 }
 
 func ESDocMetaMatchingQuery(datasource string, query map[string]interface{}) ([]CouchbaseDocMeta, error) {
