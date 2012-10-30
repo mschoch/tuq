@@ -9,10 +9,10 @@ Support for joins, sub-queries, and Couchbase View optimizations is not yet plan
 ## Things that work
 * Interactive query editor, with readline like support and command history
 * SELECT
-** with no expression returns whole wrapped documents (doc + meta)
-** with JavaScript expression, evaluated in the context of the row returned (see examples below)
-** expression can contain aggregate functions min(),max(),avg(),count()
-*** normal rules about what fields you can bring back during aggregate queries apply
+ * with no expression returns whole wrapped documents (doc + meta)
+ * with JavaScript expression, evaluated in the context of the row returned (see examples below)
+ * expression can contain aggregate functions min(),max(),avg(),count()
+  * normal rules about what fields you can bring back during aggregate queries apply
 * FROM with ONLY 1 datasource
 * WHERE clause to filter records
 * GROUP BY with ONLY 1 expression
