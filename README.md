@@ -38,6 +38,8 @@ Support for joins, sub-queries, and Couchbase View optimizations is not yet plan
 
 ## Examples
 
+Basic query pulling back 1 full document
+
     unql-couchbase> SELECT FROM beer-sample LIMIT 1
     [
         {
@@ -62,8 +64,27 @@ Support for joins, sub-queries, and Couchbase View optimizations is not yet plan
             }
         }
     ]
+    
+Reformat the result row into new document, including an array.
+    
+    unql-couchbase> SELECT { "beer-name": doc.name, "abv_ibu_array": [doc.abv, doc.ibu] } FROM beer-sample LIMIT 1 OFFSET 5
+    [
+        {
+            "abv_ibu_array": [
+                0,
+                5.8
+            ],
+            "beer-name": "Old BullDog Extra Special"
+        }
+    ]
+
+Show a query with a WHERE clause.  This one not matching any rows, returning empty result set.
+
     unql-couchbase> SELECT FROM beer-sample WHERE doc.abv > 12 && doc.abv < 12.1
     []
+    
+Show a similar query that does match rows.
+    
     unql-couchbase> SELECT FROM beer-sample WHERE doc.abv > 12 && doc.abv < 12.2
     [
         {
@@ -86,6 +107,9 @@ Support for joins, sub-queries, and Couchbase View optimizations is not yet plan
             }
         }
     ]
+    
+Show using ORDER BY to find the beer with the highest alcohol content.
+    
     unql-couchbase> SELECT FROM beer-sample ORDER BY doc.abv DESC LIMIT 1
     [
         {
@@ -110,6 +134,9 @@ Support for joins, sub-queries, and Couchbase View optimizations is not yet plan
             }
         }
     ]
+    
+Group all the documents based on their type (beer or brewery) and show the count of each category.
+    
     unql-couchbase> SELECT { "type": doc.type, "count": count(doc.type) } FROM beer-sample GROUP BY doc.type
     [
         {
@@ -121,6 +148,12 @@ Support for joins, sub-queries, and Couchbase View optimizations is not yet plan
             "type": "brewery"
         }
     ]
+    
+A  more complex example, WHERE uses "doc.style.analyzed" to refer to the string field that was analyzed by ElasticSearch.  Essentially
+this matches beers with a style containing the term "lager".  Also beers with 0 abv are exluded.  Then we group the beers by "doc.style".
+This uses the not-analyzed field, so we group on the exact styles.  Finally, we added an aggregate function on another field.  This output
+also returns the average ABV for each beer style.
+    
     unql-couchbase> SELECT {"style":doc.style, "count":count(doc.style), "avg_abv": avg(doc.abv)} FROM beer-sample WHERE doc.style.analyzed == "lager" && doc.abv > 0 GROUP BY doc.style
     [
         {
