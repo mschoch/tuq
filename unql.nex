@@ -1,0 +1,95 @@
+/[0-9]+/          {                      
+                    lval.n,_ = strconv.Atoi(yylex.Text());
+                    logDebugTokens("INT: %d", lval.n); 
+                    return INT 
+                  }
+/[0-9]+\.[0-9]*/  { 
+                    lval.f,_ = strconv.ParseFloat(yylex.Text(), 64);
+                    logDebugTokens("REAL: %f", lval.f);  
+                    return REAL 
+                  }
+/\"[^\"]*\"/          { 
+                    lval.s = yylex.Text()[1:len(yylex.Text())-1];
+                    logDebugTokens("STRING: %s", lval.s);
+                    return STRING }
+/SELECT|select/          { logDebugTokens("SELECT"); return SELECT }
+/DISTINCT|distinct/        { logDebugTokens("DISTINCT"); return DISTINCT }
+/ALL|all/             { logDebugTokens("ALL"); return ALL }
+/AS|as/              { logDebugTokens("AS"); return AS }
+/FROM|from/            { logDebugTokens("FROM"); return FROM }
+/WHERE|where/           { logDebugTokens("WHERE"); return WHERE }
+/GROUP|group/           { logDebugTokens("GROUP"); return GROUP }
+/BY|by/              { logDebugTokens("BY"); return BY }
+/HAVING|having/          { logDebugTokens("HAVING"); return HAVING }
+/FLATTEN|flatten/         { logDebugTokens("FLATTEN"); return FLATTEN }
+/EACH|each/            { logDebugTokens("EACH"); return EACH }
+/UNION|union/           { logDebugTokens("UNION"); return UNION }
+/INTERSECT|intersect/       { logDebugTokens("INTERSECT"); return INTERSECT }
+/EXCEPT|except/          { logDebugTokens("EXCEPT"); return EXCEPT }
+/ORDER|order/           { logDebugTokens("ORDER"); return ORDER }
+/LIMIT|limit/           { logDebugTokens("LIMIT"); return LIMIT }
+/OFFSET|offset/          { logDebugTokens("OFFSET"); return OFFSET }
+/ASC|asc/             { logDebugTokens("ASC"); return ASC }
+/DESC|desc/            { logDebugTokens("DESC"); return DESC }
+/TRUE|true/            { logDebugTokens("TRUE"); return TRUE }
+/FALSE|false/           { logDebugTokens("FALSE"); return FALSE }
+/MAX|max/             { logDebugTokens("MAX"); return MAX }
+/MIN|min/             { logDebugTokens("MIN"); return MIN }
+/AVG|avg/             { logDebugTokens("AVG"); return AVG }
+/COUNT|count/           { logDebugTokens("COUNT"); return COUNT }
+/PRAGMA|pragma/         { logDebugTokens("PRAGMA"); return PRAGMA }
+/DEBUG|debug/           { logDebugTokens("DEBUG"); return DEBUG }
+/[a-z][a-z0-9\-]*/  { 
+                        lval.s = yylex.Text();
+                        logDebugTokens("IDENTIFIER: %s", lval.s);
+                        return IDENTIFIER 
+                    }
+/[a-z][a-z0-9\-]*(\.[a-z][a-z0-9\-]*)*/  {
+                            lval.s = yylex.Text();
+                            logDebugTokens("PROPERTY: %s", lval.s);
+                            return PROPERTY
+                          }
+/\=/              { logDebugTokens("ASSIGN"); return ASSIGN }
+/\+/              { logDebugTokens("PLUS"); return PLUS }
+/-/               { logDebugTokens("MINUS"); return MINUS }
+/\*/              { logDebugTokens("MULT"); return MULT }
+/\//              { logDebugTokens("DIV"); return DIV }
+/\%/              { logDebugTokens("MOD"); return MOD }
+/\&\&/            { logDebugTokens("AND"); return AND }
+/\|\|/            { logDebugTokens("OR"); return OR }
+/\!/              { logDebugTokens("NOT"); return NOT }
+/\=\=/            { logDebugTokens("EQ"); return EQ }
+/\</              { logDebugTokens("LT"); return LT }
+/\<\=/            { logDebugTokens("LTE"); return LTE }
+/\>/              { logDebugTokens("GT"); return GT }
+/\>\=/            { logDebugTokens("GTE"); return GTE }
+/\!\=/            { logDebugTokens("NE"); return NE }
+/\<\>/            { logDebugTokens("NE"); return NE }
+/\./              { logDebugTokens("DOT"); return DOT }
+/\(/              { logDebugTokens("LPAREN"); return LPAREN }
+/\)/              { logDebugTokens("RPAREN"); return RPAREN }
+/\,/              { logDebugTokens("COMMA"); return COMMA }
+/\{/              { logDebugTokens("LBRACE"); return LBRACE }
+/\}/              { logDebugTokens("RBRACE"); return RBRACE }
+/\[/              { logDebugTokens("LBRACKET"); return LBRACKET }
+/\]/              { logDebugTokens("RBRACKET"); return RBRACKET }
+/\?/              { logDebugTokens("QUESTION"); return QUESTION }
+/\:/              { logDebugTokens("COLON"); return COLON }
+/[ \t\n]+/        { logDebugTokens("WHITESPACE (count=%d)", len(yylex.Text())) /* eat up whitespace */ }
+/./               { log.Printf("see problem"); return int(yylex.Text()[0]) }
+//
+package main
+
+import("strconv")
+import("log")
+
+func logDebugTokens(format string, v ...interface{}) {
+    if *debugTokens && len(v) > 0 {
+        log.Printf("DEBUG TOKEN " + format, v)
+    } else if *debugTokens {
+        log.Printf("DEBUG TOKEN " + format)
+    }
+}
+
+func required_to_make_nex_happy_with_main_somewhere_else() {
+}

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)http://unql.sqlite.org/index.html/wiki?name=UnQL+Syntax+Notes -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>UnQL: UnQL Syntax Notes</title>
+<link rel="alternate" type="application/rss+xml" title="RSS Feed" href="http://unql.sqlite.org/index.html/timeline.rss">
+<link rel="stylesheet" href="./UnQL  UnQL Syntax Notes_files/style.css" type="text/css" media="screen">
+</head>
+<body>
+<div class="header">
+  <div class="logo">
+    <!-- <img src="/index.html/logo" alt="logo" /> -->
+  </div>
+  <div class="title"><small>UnQL</small><br>UnQL Syntax Notes</div>
+  <div class="status">Not logged in</div>
+</div>
+<div class="mainmenu"><a href="http://unql.sqlite.org/index.html/wiki?name=UnQL">Home</a> <a href="http://unql.sqlite.org/index.html/timeline">Timeline</a> <a href="http://unql.sqlite.org/index.html/dir?ci=tip">Files</a> <a href="http://unql.sqlite.org/index.html/brlist">Branches</a> <a href="http://unql.sqlite.org/index.html/taglist">Tags</a> <a href="http://unql.sqlite.org/index.html/reportlist">Tickets</a> <a href="http://unql.sqlite.org/index.html/wiki">Wiki</a> <a href="http://unql.sqlite.org/index.html/login">Login</a> </div>
+<div class="submenu">
+<a class="label" href="http://unql.sqlite.org/index.html/whistory?name=UnQL+Syntax+Notes">History</a>
+</div>
+<div class="content">
+<script>
+function gebi(x){
+if(/^#/.test(x)) x = x.substr(1);
+var e = document.getElementById(x);
+if(!e) throw new Error("Expecting element with ID "+x);
+else return e;}
+</script>
+
+
+<ol>
+<li><p>An UnQL database consists of zero or more collections.
+</p><ol type="a">
+<li>There might also be indices for improving performance.  
+Indices can be specified explicitly.  Or, some database engine
+implementations might deduce appropriate indices and create them
+automatically.
+</li></ol>
+
+<p></p></li><li><p>
+Each collection is an unordered set of documents.
+
+</p></li><li><p>
+A document is a unit of data that can be represented by JSON.
+</p><ol type="a">
+<li><p> The on-disk format and the client/server wire format may be something
+completely different, as long as it has at least as much expressive power
+as JSON.  Again, that is an implementation detail.  For the purposes of
+this document, the data will be assumed to be JSON.
+</p></li><li><p> Note that a document need not be a JSON object.  It might be
+a single integer, a single floating-point value, a single string,
+or an array.  A document is not required to be contained in {...},
+though that is the common case.
+</p></li></ol>
+
+<p></p></li><li><p>
+The names of collections must consist of alphanumeric characters and 
+underscores and must begin with an alphabetic character.
+</p><ol type="a">
+<li><p> Fields within JSON objects may be named arbitrarily, subject to the
+rules of JSON.  There is no restriction on the use of "$" or "." characters
+in object field names.  However, good style recommends following the same
+rules for object field names as are required for collection names.
+</p></li></ol>
+
+<p></p></li><li><p>
+A new collection may be created using the CREATE COLLECTION statement
+as follows:
+</p><blockquote><pre>CREATE COLLECTION <i>collection-name</i>
+</pre></blockquote>
+
+<ol type="a">
+<li><p>
+If a collection with the same name already exists, the CREATE COLLECTION
+statement is a no-op.  There is no need for an "IF NOT EXISTS" clause.
+
+</p></li><li><p>
+A collection will be created automatically if an insert or upsert is made
+against a collection that does not previously exist.
+</p></li></ol>
+
+<p></p></li><li><p>
+A collection can be removed from a database using the DROP COLLECTION statement
+as follows:
+</p><blockquote><pre>DROP COLLECTION <i>collection-name</i>
+</pre></blockquote>
+
+<ol type="a">
+<li><p>
+If no such collection exists, the DROP COLLECTION
+statement is a no-op.  There is no need for an "IF EXISTS" clause.
+
+</p></li><li><p>
+Dropping a collection removes all documents that were part of that
+collection.
+
+</p></li><li><p>
+Dropping a collection removes any indices associated with that
+collection.
+
+</p></li><li><p>
+If all documents are removed from a collection and the collection does
+not have any user-defined indices, then the database engine
+may drop the collection automatically.
+</p></li></ol>
+
+<p></p></li><li><p>
+Within a document, floating point values are preserved to an accuracy of
+at least 15 significant digits.
+</p><ol type="a">
+<li><p>
+Overflows and divisions by zero involving floating point values
+do not raise errors but rather return NaN, +Inf, or -Inf, as appropriate.
+</p></li></ol>
+
+<p></p></li><li><p>
+Integers are represented with an implementation-defined precision.
+</p><ol type="a">
+<li><p>
+The implementation defined precision must be at least 64 bits and
+it is recommended to be at least 10Kb.
+</p></li></ol>
+
+<p></p></li><li><p>
+Implementations may publish well-define limits on the length of any
+document.
+</p><ol type="a">
+<li><p>
+The maximum document length should be measured in megabytes or greater.
+</p></li></ol>
+
+<p></p></li><li><p>
+Implementations may publish well-define limits on the length of any
+string.
+</p><ol type="a">
+<li><p>
+It is recommended that the length of a string be limited only by the
+limit on the length of a document.  In other words, a maximum-size
+document that consist of only a string should be allowed.
+</p></li></ol>
+
+<p></p></li><li><p>
+Binary data can be represented as strings with appropriate escapes for
+backslash, double-quote, and zero characters.
+
+</p></li><li><p>
+Documents may be added to a collection using an INSERT statement:
+</p><blockquote><pre>INSERT INTO <i>collection-name</i> VALUE <i>expression</i>
+</pre></blockquote>
+<ol type="a">
+<li><p>
+The named collection is created automatically if it does not previously
+exist.
+</p></li><li><p>
+The <i>expression</i> can be any javascript-style expression that evaluates
+to a single JSON value.
+</p><ul>
+<li>Object field names need not appear in double-quotes, as long as they
+contain only alphanumeric characters and underscores and begin with either
+an alphabetic character or an underscore.
+</li><li>Values can involve arithmetic expressions which are resolved before
+th results is stored in the database.  For example:  5+9 is stored as 14.
+</li><li>The <i>expression</i> is usually a JSON object, but can also be a
+floating-point value, and integer, a string, or an array.
+</li></ul>
+<p></p></li><li><p>
+An <i>expression</i> may also contain subqueries of the form
+"(SELECT ...)".  Subqueries may be correlated.
+</p></li></ol>
+
+<p></p></li><li><p>
+Documents may also be inserted as the result of a query:
+</p><blockquote><pre>INSERT INTO <i>collection-name</i> <i>query</i>
+</pre></blockquote>
+<ol type="a">
+<li><p>
+The named collection is created automatically if it does not previously
+exist.
+</p></li><li><p>
+The syntax for <i>query</i> is described in the sequal.  
+Basically, any content that can be requested from the database by
+the application can also be fed back into a collection using this
+style of INSERT statement.
+</p></li></ol>
+
+<p></p></li><li><p>
+Documents may be removed from a collection using the DELETE statement:
+</p><blockquote><pre>DELETE FROM <i>collection-name</i> WHERE <i>expression</i>
+</pre></blockquote>
+<ol type="a">
+<li><p>
+Only those documents for which <i>expression</i> is true are removed
+from the collection.
+</p><ul>
+<li>A "null" value is not true.
+</li><li>A numeric value other than 0 or 0.0 is true.
+</li><li>A string value is not true unless it can be interpreted as a non-zero
+    numeric value.
+</li><li>Arrays and objects are not true.
+</li></ul>
+<p></p></li><li><p>
+The WHERE clause is optional.  If the WHERE clause is omitted,
+all documents are removed from the collection.  If there are no
+explicit indices on the collection, this might also cause the collection
+to be automatically dropped.
+</p></li></ol>
+
+<p></p></li><li><p>
+Documents can be changed using the UPDATE statement:
+</p><blockquote><pre>UPDATE <i>collection-name</i> SET <i>changes</i> WHERE <i>expression</i>
+  ELSE INSERT VALUE <i>expression</i>
+</pre></blockquote>
+<ol type="a">
+<li><p>The <i>changes</i> is a comma-separated
+list of "<i>field</i>=<i>expression</i>" statements that cause
+JSON object fields to taken on new values.  New fields are created
+within the JSON object as necessary.
+</p></li><li><p>The option WHERE clause controls which documents in the collection
+are updated.  If the WHERE clause is omitted, all documents are updated.
+</p></li><li><p>The optional ELSE INSERT clause causes the JSON value from the
+following expression to be inserted into the collection if the WHERE
+clause matched no terms in the collection.  The ELSE INSERT clause is 
+used to implement "upsert".
+</p></li></ol>
+
+<p></p></li><li><p>
+Query syntax is as follows:
+</p><blockquote><pre>SELECT <i>optional-expression</i>
+  FROM <i>data-sources</i>
+ WHERE <i>expression</i>
+ GROUP BY <i>expression-list</i>
+HAVING <i>expression</i>
+ ORDER BY <i>expression-list</i>
+ LIMIT <i>expression</i> OFFSET <i>expression</i>
+</pre></blockquote>
+<ol type="a">
+<li><p>The <i>data-source</i> field specifies one or more collections.
+A join is performed if two or more collections are specified.
+</p></li><li><p>The optional WHERE, GROUP BY, HAVING, ORDER BY, LIMIT and
+OFFSET clauses work as in SQL.
+</p></li><li><p>The <i>optional-expression</i> defines a JSON object that is
+to be returned by the query.  If omitted, the document of the first
+collection in the FROM clause is returned.
+</p></li></ol>
+
+<p></p></li><li><p>Within expressions, supported operators are:
+</p><table border="1" width="80%">
+<tbody><tr><td>Logical Operators: </td><td> &amp;&amp;&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;!
+</td></tr><tr><td> Arithmetic Operators (+ also does string concat.): </td><td>-&nbsp;&nbsp;&nbsp;+&nbsp;&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;%
+</td></tr><tr><td> Comparison Operators: </td><td>==&nbsp;&nbsp;&nbsp;&lt;&nbsp;&nbsp;&nbsp;&lt;=&nbsp;&nbsp;&nbsp;&gt;&nbsp;&nbsp;&nbsp;&gt;=&nbsp;&nbsp;&nbsp;!=&nbsp;&nbsp;&nbsp;&lt;&gt;
+</td></tr><tr><td> Bitwise Operators: </td><td>&amp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;~&nbsp;&nbsp;&nbsp;&lt;&lt;&nbsp;&nbsp;&nbsp;&gt;&gt;
+</td></tr></tbody></table>
+<p>In all cases, we strive for compatibility with Javascript.
+
+</p><p></p></li></ol>
+</div>
+<div class="footer">
+Fossil version 1.24 [186405ce3a] 2012-10-28 17:28:54
+</div>
+
+</body></html>

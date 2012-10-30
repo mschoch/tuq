@@ -1,0 +1,11 @@
+#*
+*.6
+*.a
+*~
+/go-unql-couchbase
+6.out
+_*
+/.project
+/y.output
+/y.go
+/unql.nn.go
