@@ -144,7 +144,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line unql.y:361
+//line unql.y:360
 
 
 //line yacctab:1
@@ -804,11 +804,10 @@ yydefault:
 	                                               for _,v := range rest {
 	                                                 curr = append(curr, v)
 	                                               }
-	                                               
 	                                               parsingStack.Push(curr)
 	                                             }
 	case 81:
-		//line unql.y:330
+		//line unql.y:329
 		{ last := parsingStack.Pop().(map[string]interface{})
 	                                                                  rest := parsingStack.Pop().(map[string]interface{})
 	                                                                  for k,v := range last {
@@ -817,28 +816,28 @@ yydefault:
 	                                                                  parsingStack.Push(rest)
 	                                                                }
 	case 82:
-		//line unql.y:339
+		//line unql.y:338
 		{ curr := make(map[string]interface{})
 	                                                     curr[yyS[yypt-2].s] = parsingStack.Pop()
 	                                                     parsingStack.Push(curr)
 	                                                   }
 	case 84:
-		//line unql.y:348
+		//line unql.y:347
 		{ curr := make(map[string]interface{})
 	                     curr["function"] = "min"
 	                     parsingStack.Push(curr) }
 	case 85:
-		//line unql.y:351
+		//line unql.y:350
 		{ curr := make(map[string]interface{})
 	                  curr["function"] = "max"
 	                  parsingStack.Push(curr) }
 	case 86:
-		//line unql.y:354
+		//line unql.y:353
 		{ curr := make(map[string]interface{})
 	                  curr["function"] = "avg"
 	                  parsingStack.Push(curr) }
 	case 87:
-		//line unql.y:357
+		//line unql.y:356
 		{ curr := make(map[string]interface{})
 	                    curr["function"] = "count"
 	                    parsingStack.Push(curr) }

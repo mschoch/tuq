@@ -324,7 +324,17 @@ func BuildESQueryRecursive(where map[string]interface{}) interface{} {
 			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
 			nextSection[lhs.(string)] = rhs
 			return thisSection
-		} else if where["op"] == "<" {
+		} else if where["op"] == "!=" {
+		    notSection := make(map[string]interface{})
+            thisSection := make(map[string]interface{})
+            nextSection := make(map[string]interface{})
+            notSection["not"] = thisSection
+            thisSection["term"] = nextSection
+            lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
+            rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
+            nextSection[lhs.(string)] = rhs
+            return notSection
+        }  else if where["op"] == "<" {
 			thisSection := make(map[string]interface{})
 			nextSection := make(map[string]interface{})
 			rangeSection := make(map[string]interface{})
