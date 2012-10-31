@@ -175,6 +175,8 @@ func RowsFromSearchFacets(sr core.SearchResult, group_by string) ([]interface{},
 				MergeContext(row, stat_term_max)
 				stat_term_avg := map[string]interface{}{FunctionPrefix + "avg": BuildContextRecursive(stat_field, stat_facet_details_map["mean"])}
 				MergeContext(row, stat_term_avg)
+				stat_term_sum := map[string]interface{}{FunctionPrefix + "sum": BuildContextRecursive(stat_field, stat_facet_details_map["total"])}
+                MergeContext(row, stat_term_sum)
 
 			}
 
@@ -231,6 +233,8 @@ func RowsFromSearchFacets(sr core.SearchResult, group_by string) ([]interface{},
 								MergeContext(row, stat_term_max)
 								stat_term_avg := map[string]interface{}{FunctionPrefix + "avg": BuildContextRecursive(stat_field, stat_term_map["mean"])}
 								MergeContext(row, stat_term_avg)
+								stat_term_sum := map[string]interface{}{FunctionPrefix + "sum": BuildContextRecursive(stat_field, stat_term_map["total"])}
+                                MergeContext(row, stat_term_sum)
 								// once we've found what we're looking for
 								// break out of the inner loop
 								break

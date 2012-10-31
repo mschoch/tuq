@@ -11,7 +11,7 @@ Support for joins, sub-queries, and Couchbase View optimizations is not yet plan
 * SELECT
  * with no expression returns whole wrapped documents (doc + meta)
  * with JavaScript expression, evaluated in the context of the row returned (see examples below)
- * expression can contain aggregate functions min(),max(),avg(),count()
+ * expression can contain aggregate functions min(),max(),avg(),count(),sum()
   * normal rules about what fields you can bring back during aggregate queries apply
 * FROM with ONLY 1 datasource
 * WHERE clause to filter records
@@ -24,7 +24,6 @@ Support for joins, sub-queries, and Couchbase View optimizations is not yet plan
 * No HTTP support yet
 * No support for joins
 * No support for sub-query
-* Aggregate functions only work when providing a GROUP BY clause
 * No support for HAVING clause
 * ORDER, LIMIT and OFFSET during aggregate queries
 * Array index access in expression (like anArray[index])

@@ -22,7 +22,7 @@ f float64}
 %token SELECT DISTINCT ALL AS FROM WHERE GROUP BY
 %token HAVING FLATTEN EACH UNION INTERSECT EXCEPT ORDER
 %token LIMIT OFFSET ASC DESC TRUE FALSE LBRACKET RBRACKET
-%token QUESTION COLON MAX MIN AVG COUNT DOT
+%token QUESTION COLON MAX MIN AVG COUNT SUM DOT
 %token PLUS MINUS MULT DIV MOD AND OR NOT EQ LT LTE
 %token GT GTE NE PRAGMA ASSIGN DEBUG
 %left OR AND
@@ -359,6 +359,10 @@ function_name: MIN { parsingQuery.isAggregateQuery = true
         |   COUNT { parsingQuery.isAggregateQuery = true
                     curr := make(map[string]interface{})
                     curr["function"] = "count"
+                    parsingStack.Push(curr) }
+        |   SUM { parsingQuery.isAggregateQuery = true
+                    curr := make(map[string]interface{})
+                    curr["function"] = "sum"
                     parsingStack.Push(curr) }
 ;
 %%

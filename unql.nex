@@ -37,6 +37,7 @@
 /MIN|min/             { logDebugTokens("MIN"); return MIN }
 /AVG|avg/             { logDebugTokens("AVG"); return AVG }
 /COUNT|count/           { logDebugTokens("COUNT"); return COUNT }
+/SUM|sum/               { logDebugTokens("SUM"); return SUM }
 /PRAGMA|pragma/         { logDebugTokens("PRAGMA"); return PRAGMA }
 /DEBUG|debug/           { logDebugTokens("DEBUG"); return DEBUG }
 /[a-z_][a-z0-9\-_]*/  { 
