@@ -316,10 +316,12 @@ expression_list:  expression { logDebugGrammar("EXPRESSION_LIST - EXPRESSION")
         |   expression COMMA expression_list { logDebugGrammar("EXPRESSION_LIST - EXPRESSION COMMA EXPRESSION_LIST")
                                                rest := parsingStack.Pop().([]interface{})
                                                last := parsingStack.Pop().(interface{})
-                                               //for _,v := range last {
-                                                 rest = append(rest,last)
-                                               //}
-                                               parsingStack.Push(rest)
+                                               curr := make([]interface{},0)
+                                               curr = append(curr, last)
+                                               for _,v := range rest {
+                                                 curr = append(curr, v)
+                                               }
+                                               parsingStack.Push(curr)
                                              }
 ;
 

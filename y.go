@@ -144,7 +144,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line unql.y:358
+//line unql.y:361
 
 
 //line yacctab:1
@@ -799,13 +799,16 @@ yydefault:
 		{ logDebugGrammar("EXPRESSION_LIST - EXPRESSION COMMA EXPRESSION_LIST")
 	                                               rest := parsingStack.Pop().([]interface{})
 	                                               last := parsingStack.Pop().(interface{})
-	                                               //for _,v := range last {
-                                                 rest = append(rest,last)
-	                                               //}
-                                               parsingStack.Push(rest)
+	                                               curr := make([]interface{},0)
+	                                               curr = append(curr, last)
+	                                               for _,v := range rest {
+	                                                 curr = append(curr, v)
+	                                               }
+	                                               
+	                                               parsingStack.Push(curr)
 	                                             }
 	case 81:
-		//line unql.y:327
+		//line unql.y:330
 		{ last := parsingStack.Pop().(map[string]interface{})
 	                                                                  rest := parsingStack.Pop().(map[string]interface{})
 	                                                                  for k,v := range last {
@@ -814,28 +817,28 @@ yydefault:
 	                                                                  parsingStack.Push(rest)
 	                                                                }
 	case 82:
-		//line unql.y:336
+		//line unql.y:339
 		{ curr := make(map[string]interface{})
 	                                                     curr[yyS[yypt-2].s] = parsingStack.Pop()
 	                                                     parsingStack.Push(curr)
 	                                                   }
 	case 84:
-		//line unql.y:345
+		//line unql.y:348
 		{ curr := make(map[string]interface{})
 	                     curr["function"] = "min"
 	                     parsingStack.Push(curr) }
 	case 85:
-		//line unql.y:348
+		//line unql.y:351
 		{ curr := make(map[string]interface{})
 	                  curr["function"] = "max"
 	                  parsingStack.Push(curr) }
 	case 86:
-		//line unql.y:351
+		//line unql.y:354
 		{ curr := make(map[string]interface{})
 	                  curr["function"] = "avg"
 	                  parsingStack.Push(curr) }
 	case 87:
-		//line unql.y:354
+		//line unql.y:357
 		{ curr := make(map[string]interface{})
 	                    curr["function"] = "count"
 	                    parsingStack.Push(curr) }
