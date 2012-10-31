@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/mattbaird/elastigo/api"
+	"github.com/mschoch/elastigo/api"
 	"github.com/sbinet/liner"
 	"log"
 	"net/url"

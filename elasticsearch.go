@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mattbaird/elastigo/core"
+	"github.com/mschoch/elastigo/core"
 	"log"
 	"strings"
 )
