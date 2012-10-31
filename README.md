@@ -45,7 +45,7 @@ Basic query pulling back 1 full document
     [
         {
             "doc": {
-               "abv": 0,
+                "abv": 0,
                 "brewery_id": "110f213f0c",
                 "category": "North American Ale",
                 "description": "",
@@ -56,12 +56,12 @@ Basic query pulling back 1 full document
                 "type": "beer",
                 "upc": 0,
                 "updated": "2010-07-22 20:00:20"
-           },
+            },
             "meta": {
-                "Id": "110f9f1c9f",
-                "Rev": "1-000000057d1b8d340000000000000000",
+                "id": "110f9f1c9f",
+                "rev": "1-000000057d1b8d340000000000000000",
                 "expiration": 0,
-                "Flags": 0
+                "flags": 0
             }
         }
     ]
@@ -100,11 +100,11 @@ Show a similar query that does match rows.
                 "upc": 0,
                 "updated": "2010-07-22 20:00:20"
             },
-           "meta": {
-                "Id": "110fc6508b",
-                "Rev": "1-000000069767a9500000000000000000",
+            "meta": {
+                "id": "110fc6508b",
+                "rev": "1-000000069767a9500000000000000000",
                 "expiration": 0,
-                "Flags": 0
+                "flags": 0
             }
         }
     ]
@@ -128,10 +128,10 @@ Show using ORDER BY to find the beer with the highest alcohol content.
                 "updated": "2010-07-22 20:00:20"
             },
             "meta": {
-                "Id": "110f645057",
-                "Rev": "1-0000000421986fb00000000000000000",
+                "id": "110f645057",
+                "rev": "1-0000000421986fb00000000000000000",
                 "expiration": 0,
-                "Flags": 0
+                "flags": 0
             }
         }
     ]
