@@ -29,6 +29,7 @@ var validQueries = []string{
 	"SELECT {\"name\":doc.name,\"literal_bool\":true} FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
 	"SELECT {\"name\":doc.name,\"literal_string\":\"string\"} FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 GROUP BY doc.type",
+	"SELECT FROM beer-sample WHERE _underscore_identifier > 4",
 }
 
 var invalidQueries = []string{

@@ -39,12 +39,12 @@
 /COUNT|count/           { logDebugTokens("COUNT"); return COUNT }
 /PRAGMA|pragma/         { logDebugTokens("PRAGMA"); return PRAGMA }
 /DEBUG|debug/           { logDebugTokens("DEBUG"); return DEBUG }
-/[a-z][a-z0-9\-]*/  { 
+/[a-z_][a-z0-9\-_]*/  { 
                         lval.s = yylex.Text();
                         logDebugTokens("IDENTIFIER: %s", lval.s);
                         return IDENTIFIER 
                     }
-/[a-z][a-z0-9\-]*(\.[a-z][a-z0-9\-]*)*/  {
+/[a-z_][a-z0-9\-_]*(\.[a-z][a-z0-9\-]*)*/  {
                             lval.s = yylex.Text();
                             logDebugTokens("PROPERTY: %s", lval.s);
                             return PROPERTY

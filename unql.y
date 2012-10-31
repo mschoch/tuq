@@ -344,16 +344,20 @@ named_expression_single:   STRING COLON expression { curr := make(map[string]int
 property:   PROPERTY
 ;
 
-function_name: MIN { curr := make(map[string]interface{})
+function_name: MIN { parsingQuery.isAggregateQuery = true
+                     curr := make(map[string]interface{})
                      curr["function"] = "min"
                      parsingStack.Push(curr) }
-        |   MAX { curr := make(map[string]interface{})
+        |   MAX { parsingQuery.isAggregateQuery = true
+                  curr := make(map[string]interface{})
                   curr["function"] = "max"
                   parsingStack.Push(curr) }
-        |   AVG { curr := make(map[string]interface{})
+        |   AVG { parsingQuery.isAggregateQuery = true
+                  curr := make(map[string]interface{})
                   curr["function"] = "avg"
                   parsingStack.Push(curr) }
-        |   COUNT { curr := make(map[string]interface{})
+        |   COUNT { parsingQuery.isAggregateQuery = true
+                    curr := make(map[string]interface{})
                     curr["function"] = "count"
                     parsingStack.Push(curr) }
 ;

@@ -144,7 +144,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line unql.y:360
+//line unql.y:364
 
 
 //line yacctab:1
@@ -823,22 +823,26 @@ yydefault:
 	                                                   }
 	case 84:
 		//line unql.y:347
-		{ curr := make(map[string]interface{})
+		{ parsingQuery.isAggregateQuery = true
+	                     curr := make(map[string]interface{})
 	                     curr["function"] = "min"
 	                     parsingStack.Push(curr) }
 	case 85:
-		//line unql.y:350
-		{ curr := make(map[string]interface{})
+		//line unql.y:351
+		{ parsingQuery.isAggregateQuery = true
+	                  curr := make(map[string]interface{})
 	                  curr["function"] = "max"
 	                  parsingStack.Push(curr) }
 	case 86:
-		//line unql.y:353
-		{ curr := make(map[string]interface{})
+		//line unql.y:355
+		{ parsingQuery.isAggregateQuery = true
+	                  curr := make(map[string]interface{})
 	                  curr["function"] = "avg"
 	                  parsingStack.Push(curr) }
 	case 87:
-		//line unql.y:356
-		{ curr := make(map[string]interface{})
+		//line unql.y:359
+		{ parsingQuery.isAggregateQuery = true
+	                    curr := make(map[string]interface{})
 	                    curr["function"] = "count"
 	                    parsingStack.Push(curr) }
 	}
