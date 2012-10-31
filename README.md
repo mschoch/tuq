@@ -136,6 +136,17 @@ Show using ORDER BY to find the beer with the highest alcohol content.
         }
     ]
     
+Aggregate query across whole data source.
+
+    unql-couchbase> SELECT {"count": count(doc.abv), "minabv": min(doc.abv), "maxibu": max(doc.ibu)} FROM beer-sample
+    [
+        {
+            "count": 5901,
+            "maxibu": 93,
+            "minabv": 0
+        }
+    ]
+
 Group all the documents based on their type (beer or brewery) and show the count of each category.
     
     unql-couchbase> SELECT { "type": doc.type, "count": count(doc.type) } FROM beer-sample GROUP BY doc.type

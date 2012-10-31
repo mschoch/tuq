@@ -156,65 +156,94 @@ func RowsFromSearchFacets(sr core.SearchResult, group_by string) ([]interface{},
 		return nil, jsonErr
 	}
 
-	facet_name := group_by
-	facet_details := facetResults[facet_name]
+	if group_by == "" {
+		// if there was no group by, then there is only 1 row
 
-	facet_details_map := facet_details.(map[string]interface{})
+		row := make(map[string]interface{})
 
-	//      missing := facet_details_map["missing"]
-	//      total := facet_details_map["total"]
-	other := facet_details_map["other"]
+		for stat_facet_name, stat_facet_details := range facetResults {
 
-	if other.(float64) != 0 {
-		return nil, fmt.Errorf("Facet results reported %#v \"other\" rows, increate your esMaxAggregate value and try again", other)
-	}
+			if strings.HasPrefix(stat_facet_name, StatsPrefix) {
+				stat_field := stat_facet_name[len(StatsPrefix):]
+				stat_facet_details_map := stat_facet_details.(map[string]interface{})
 
-	facet_type := facet_details_map["_type"]
+				stat_term_count := map[string]interface{}{FunctionPrefix + "count": BuildContextRecursive(stat_field, stat_facet_details_map["count"])}
+				MergeContext(row, stat_term_count)
+				stat_term_min := map[string]interface{}{FunctionPrefix + "min": BuildContextRecursive(stat_field, stat_facet_details_map["min"])}
+				MergeContext(row, stat_term_min)
+				stat_term_max := map[string]interface{}{FunctionPrefix + "max": BuildContextRecursive(stat_field, stat_facet_details_map["max"])}
+				MergeContext(row, stat_term_max)
+				stat_term_avg := map[string]interface{}{FunctionPrefix + "avg": BuildContextRecursive(stat_field, stat_facet_details_map["mean"])}
+				MergeContext(row, stat_term_avg)
 
-	if facet_type == "terms" {
-		terms := facet_details_map["terms"]
+			}
 
-		for _, term := range terms.([]interface{}) {
-			term_map := term.(map[string]interface{})
-			//              row := make(map[string]interface{})
-			//              row[facet_name] = term_map["term"]
-			row := BuildContextRecursive(facet_name, term_map["term"])
-			term_count := map[string]interface{}{FunctionPrefix + "count": BuildContextRecursive(facet_name, term_map["count"])}
-			MergeContext(row, term_count)
+		}
 
-			// now look for any other stats facets with the same term
-			// and add those results to this row
+		// add this row to the result set
+		result = append(result, row)
+	} else {
 
-			for stat_facet_name, stat_facet_details := range facetResults {
+		facet_name := group_by
+		facet_details := facetResults[facet_name]
 
-				if strings.HasPrefix(stat_facet_name, StatsPrefix) {
-					stat_field := stat_facet_name[len(StatsPrefix):]
-					stat_facet_details_map := stat_facet_details.(map[string]interface{})
-					stat_terms := stat_facet_details_map["terms"]
-					for _, stat_term := range stat_terms.([]interface{}) {
-						stat_term_map := stat_term.(map[string]interface{})
-						if term_map["term"] == stat_term_map["term"] {
-							//this is the term we're looking for
-							stat_term_count := map[string]interface{}{FunctionPrefix + "count": BuildContextRecursive(stat_field, stat_term_map["count"])}
-							MergeContext(row, stat_term_count)
-							stat_term_min := map[string]interface{}{FunctionPrefix + "min": BuildContextRecursive(stat_field, stat_term_map["min"])}
-							MergeContext(row, stat_term_min)
-							stat_term_max := map[string]interface{}{FunctionPrefix + "max": BuildContextRecursive(stat_field, stat_term_map["max"])}
-							MergeContext(row, stat_term_max)
-							stat_term_avg := map[string]interface{}{FunctionPrefix + "avg": BuildContextRecursive(stat_field, stat_term_map["mean"])}
-							MergeContext(row, stat_term_avg)
-							// once we've found what we're looking for
-							// break out of the inner loop
-							break
+		facet_details_map := facet_details.(map[string]interface{})
+
+		//      missing := facet_details_map["missing"]
+		//      total := facet_details_map["total"]
+		other := facet_details_map["other"]
+
+		if other.(float64) != 0 {
+			return nil, fmt.Errorf("Facet results reported %#v \"other\" rows, increate your esMaxAggregate value and try again", other)
+		}
+
+		facet_type := facet_details_map["_type"]
+
+		if facet_type == "terms" {
+			terms := facet_details_map["terms"]
+
+			for _, term := range terms.([]interface{}) {
+				term_map := term.(map[string]interface{})
+				//              row := make(map[string]interface{})
+				//              row[facet_name] = term_map["term"]
+				row := BuildContextRecursive(facet_name, term_map["term"])
+				term_count := map[string]interface{}{FunctionPrefix + "count": BuildContextRecursive(facet_name, term_map["count"])}
+				MergeContext(row, term_count)
+
+				// now look for any other stats facets with the same term
+				// and add those results to this row
+
+				for stat_facet_name, stat_facet_details := range facetResults {
+
+					if strings.HasPrefix(stat_facet_name, StatsPrefix) {
+						stat_field := stat_facet_name[len(StatsPrefix):]
+						stat_facet_details_map := stat_facet_details.(map[string]interface{})
+						stat_terms := stat_facet_details_map["terms"]
+						for _, stat_term := range stat_terms.([]interface{}) {
+							stat_term_map := stat_term.(map[string]interface{})
+							if term_map["term"] == stat_term_map["term"] {
+								//this is the term we're looking for
+								stat_term_count := map[string]interface{}{FunctionPrefix + "count": BuildContextRecursive(stat_field, stat_term_map["count"])}
+								MergeContext(row, stat_term_count)
+								stat_term_min := map[string]interface{}{FunctionPrefix + "min": BuildContextRecursive(stat_field, stat_term_map["min"])}
+								MergeContext(row, stat_term_min)
+								stat_term_max := map[string]interface{}{FunctionPrefix + "max": BuildContextRecursive(stat_field, stat_term_map["max"])}
+								MergeContext(row, stat_term_max)
+								stat_term_avg := map[string]interface{}{FunctionPrefix + "avg": BuildContextRecursive(stat_field, stat_term_map["mean"])}
+								MergeContext(row, stat_term_avg)
+								// once we've found what we're looking for
+								// break out of the inner loop
+								break
+							}
 						}
+
 					}
 
 				}
 
+				// add this row to the result set
+				result = append(result, row)
 			}
-
-			// add this row to the result set
-			result = append(result, row)
 		}
 	}
 

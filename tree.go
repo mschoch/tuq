@@ -239,7 +239,23 @@ func BuildFacets(groupby []interface{}, filter interface{}, stats_fields []strin
 	facetSection := make(map[string]interface{})
 	group_by := ""
 
-	if len(groupby) == 1 {
+	if len(groupby) == 0 {
+		// if there is no group by, we just add for the stats_fields
+		// and use stats type directly instead of terms_stats
+		for _, stat_field := range stats_fields {
+			gba := make(map[string]interface{})
+
+			facetSection[StatsPrefix+stat_field] = gba
+			stats := make(map[string]interface{})
+			gba["statistical"] = stats
+			stats["field"] = stat_field
+			stats["size"] = *esMaxAggregate
+
+			gba["facet_filter"] = filter
+
+		}
+
+	} else if len(groupby) == 1 {
 		gba := make(map[string]interface{})
 
 		gby := groupby[0].(map[string]interface{})
@@ -325,16 +341,16 @@ func BuildESQueryRecursive(where map[string]interface{}) interface{} {
 			nextSection[lhs.(string)] = rhs
 			return thisSection
 		} else if where["op"] == "!=" {
-		    notSection := make(map[string]interface{})
-            thisSection := make(map[string]interface{})
-            nextSection := make(map[string]interface{})
-            notSection["not"] = thisSection
-            thisSection["term"] = nextSection
-            lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
-            rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
-            nextSection[lhs.(string)] = rhs
-            return notSection
-        }  else if where["op"] == "<" {
+			notSection := make(map[string]interface{})
+			thisSection := make(map[string]interface{})
+			nextSection := make(map[string]interface{})
+			notSection["not"] = thisSection
+			thisSection["term"] = nextSection
+			lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
+			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
+			nextSection[lhs.(string)] = rhs
+			return notSection
+		} else if where["op"] == "<" {
 			thisSection := make(map[string]interface{})
 			nextSection := make(map[string]interface{})
 			rangeSection := make(map[string]interface{})
