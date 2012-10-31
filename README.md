@@ -199,14 +199,17 @@ also returns the average ABV for each beer style.
         }
    ]
 
-## Building
+## Building (to hack on the internals)
 
 1.  Install Go (http://golang.org/)
 2.  Install nex (https://github.com/blynn/nex)
 3.  Install goyacc (distributed with go, but may not be installed by default)
-4.  Install my fork of elastigo (https://github.com/mschoch/elastigo)
-5.  Clone this project
-6.  Run the included build.sh (runs nex, goyacc and go build)
+4.  Clone this project
+5.  Run the included build.sh (runs nex, goyacc and go build)
+
+## Building (to use)
+
+1.  go get github.com/mschoch/go-unql-couchbase
 
 ## Running
 
