@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/dustin/gomemcached"
 	"log"
 
@@ -75,6 +76,11 @@ func DocsFromMeta(bucketName string, docMeta []CouchbaseDocMeta) ([]interface{},
 		// in order to preserve order of final result
 		for _, meta := range batch {
 			responseItem := bulkResponse[meta.Id]
+
+			if responseItem == nil {
+				return nil, fmt.Errorf("Couchbase does not contain the document %v", meta.Id)
+			}
+
 			wrappedDoc, err := WrappedDocFromMcResponse(meta, responseItem)
 			if err != nil {
 				return nil, err
