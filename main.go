@@ -2,17 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/mschoch/elastigo/api"
-	"github.com/sbinet/liner"
 	"log"
 	"net/url"
-	"os"
-	"os/signal"
-	"os/user"
 	"strings"
-	"sync"
-	"syscall"
 	"time"
 )
 
@@ -27,58 +20,26 @@ var esDefaultExcludeType = flag.String("esDefaultExcludeType", "couchbaseCheckpo
 var couchbaseServer = flag.String("couchbase", "http://localhost:8091/", "Couchbase URL")
 var viewTimeout = flag.Duration("viewTimeout", 5*time.Second, "Couchbase view client read timeout")
 var couchbaseBatchSize = flag.Int("couchbaseBatchSize", 10000, "Number of documents to retrieve from Couchbase in a single operation")
-
-/**
- *  Attempt to clean up after ctrl-C otherwise
- *  terminal is left in bad shape
- */
-func signalCatcher(liner *liner.State) {
-	ch := make(chan os.Signal)
-	signal.Notify(ch, syscall.SIGINT)
-	<-ch
-	liner.Close()
-	os.Exit(0)
-}
-
-/**
- *  Wrap processing so that we can recover from panic
- */
-
-// these variables represent global state
-// they should only be modified by the owner of the lock (this function) 
-var parsingMutex sync.Mutex
-var parsingStack *Stack
-var parsingQuery *Select
-
-// the idea here is:
-// 1 acquire the lock
-// 2 allocate new stack and query objects
-// 3 parse - mutating items from #2
-// 4 return pointer to the query object
-// 5 relase the lock (deferred)
-
-func processNextLine(line string) (returnQuery *Select, err error) {
-
-	parsingMutex.Lock()
-	defer parsingMutex.Unlock()
-
-	parsingStack = new(Stack)
-	parsingQuery = NewSelect()
-
-	defer func() {
-		if r := recover(); r != nil {
-            err = fmt.Errorf("Parse Error - %v", r)
-		}
-	}()
-
-	yyParse(NewLexer(strings.NewReader(line)))
-	returnQuery = parsingQuery
-	return
-}
+var stdinMode = flag.Bool("stdin", false, "Read statements from STDIN, execute them, print results to STDOUT, then exit")
+var httpMode = flag.Bool("http", false, "Answer queries received over HTTP")
 
 func main() {
 
 	flag.Parse()
+
+	setupElasticSearch()
+
+	if *stdinMode {
+		handleStdinMode()
+	} else if *httpMode {
+		handleHttpMode()
+	} else {
+		handleInteractiveMode()
+	}
+
+}
+
+func setupElasticSearch() {
 
 	esURL, err := url.Parse(*esURLString)
 	if err != nil {
@@ -95,47 +56,4 @@ func main() {
 		}
 
 	}
-
-	currentUser, err := user.Current()
-	if err != nil {
-		log.Printf("Unable to determine home directory, history file disabled")
-	}
-
-	var liner = liner.NewLiner()
-	defer liner.Close()
-
-	LoadHistory(liner, currentUser)
-
-	go signalCatcher(liner)
-
-	for {
-		line, err := liner.Prompt("unql-couchbase> ")
-		if err != nil {
-			break
-		}
-		
-		if line == "" {
-		  continue
-		}
-		
-		UpdateHistory(liner, currentUser, line)
-
-		query, err := processNextLine(line)
-		if err != nil {
-			log.Printf("%v", err)
-		} else {
-			if *debugGrammar {
-				log.Printf("Query is: %#v", query)
-			}
-			if query.parsedSuccessfully {
-				result, err := query.Execute()
-				if err != nil {
-					log.Printf("Error: %v", err)
-				} else {
-				    FormatOutput(result)
-				}
-			}
-		}
-	}
-
 }

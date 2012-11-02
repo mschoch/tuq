@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"testing"
@@ -10,20 +10,21 @@ var validQueries = []string{
 	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\"",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" && doc.ibu < 30",
 	"SELECT FROM beer-sample ORDER BY doc.abv",
-    "SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY doc.abv",
-    "SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" ORDER BY doc.abv",
-    "SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" && doc.ibu < 30 ORDER BY doc.abv",
-    "SELECT FROM beer-sample ORDER BY doc.abv LIMIT 5",
-    "SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY doc.abv LIMIT 5",
-    "SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" ORDER BY doc.abv LIMIT 5",
-    "SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" && doc.ibu < 30 ORDER BY doc.abv LIMIT 5",
-    "SELECT FROM beer-sample ORDER BY doc.abv LIMIT 5 OFFSET 2",
-    "SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY doc.abv LIMIT 5 OFFSET 2",
-    "SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" ORDER BY doc.abv LIMIT 5 OFFSET 2",
-    "SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" && doc.ibu < 30 ORDER BY doc.abv LIMIT 5 OFFSET 2",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY doc.abv",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" ORDER BY doc.abv",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" && doc.ibu < 30 ORDER BY doc.abv",
+	"SELECT FROM beer-sample ORDER BY doc.abv LIMIT 5",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY doc.abv LIMIT 5",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" ORDER BY doc.abv LIMIT 5",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" && doc.ibu < 30 ORDER BY doc.abv LIMIT 5",
+	"SELECT FROM beer-sample ORDER BY doc.abv LIMIT 5 OFFSET 2",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY doc.abv LIMIT 5 OFFSET 2",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" ORDER BY doc.abv LIMIT 5 OFFSET 2",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" && doc.ibu < 30 ORDER BY doc.abv LIMIT 5 OFFSET 2",
 	"SELECT doc.abv FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
 	"SELECT {\"name\":doc.name,\"abv\":doc.abv} FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
 	"SELECT {\"name\":doc.name,\"abv\":[doc.abv]} FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
+	"SELECT {\"name\":doc.name,\"abv\":[doc.abv, doc.ibu]} FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
 	"SELECT {\"name\":doc.name,\"abv\":{\"abv\":doc.abv}} FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
 	"SELECT {\"name\":doc.name,\"literal_int\":7} FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
 	"SELECT {\"name\":doc.name,\"literal_bool\":true} FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
@@ -46,17 +47,19 @@ var invalidQueries = []string{
 
 func TestParser(t *testing.T) {
 
+	unqlParser := NewUnqlParser(false, false)
+
 	for _, v := range validQueries {
-		_, err := processNextLine(v)
+		_, err := unqlParser.Parse(v)
 		if err != nil {
-			t.Errorf("Valid Query Parse Failed: %v", v)
+			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
 		}
 	}
 
 	for _, v := range invalidQueries {
-		_, err := processNextLine(v)
+		_, err := unqlParser.Parse(v)
 		if err == nil {
-			t.Errorf("Invalid Query Parsed Successfully: %v", v)
+			t.Errorf("Invalid Query Parsed Successfully: %v - %v", v, err)
 		}
 	}
 

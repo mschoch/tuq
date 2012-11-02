@@ -39,7 +39,6 @@
 /COUNT|count/           { logDebugTokens("COUNT"); return COUNT }
 /SUM|sum/               { logDebugTokens("SUM"); return SUM }
 /PRAGMA|pragma/         { logDebugTokens("PRAGMA"); return PRAGMA }
-/DEBUG|debug/           { logDebugTokens("DEBUG"); return DEBUG }
 /[a-z_][a-z0-9\-_]*/  { 
                         lval.s = yylex.Text();
                         logDebugTokens("IDENTIFIER: %s", lval.s);
@@ -79,15 +78,15 @@
 /[ \t\n]+/        { logDebugTokens("WHITESPACE (count=%d)", len(yylex.Text())) /* eat up whitespace */ }
 /./               { log.Printf("see problem"); return int(yylex.Text()[0]) }
 //
-package main
+package parser
 
 import("strconv")
 import("log")
 
 func logDebugTokens(format string, v ...interface{}) {
-    if *debugTokens && len(v) > 0 {
+    if debugTokens && len(v) > 0 {
         log.Printf("DEBUG TOKEN " + format, v)
-    } else if *debugTokens {
+    } else if debugTokens {
         log.Printf("DEBUG TOKEN " + format)
     }
 }
