@@ -146,7 +146,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line unql.y:368
+//line unql.y:369
 
 
 //line yacctab:1
@@ -162,54 +162,56 @@ const yyPrivate = 57344
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 193
+const yyLast = 217
 
 var yyAct = []int{
 
 	81, 80, 88, 77, 56, 23, 62, 13, 51, 21,
 	9, 130, 115, 116, 63, 64, 65, 66, 75, 67,
-	68, 86, 69, 70, 71, 72, 73, 74, 11, 2,
-	123, 124, 63, 64, 65, 66, 75, 49, 126, 83,
-	69, 70, 71, 72, 73, 74, 15, 16, 17, 127,
-	87, 90, 91, 50, 94, 5, 95, 24, 30, 31,
-	32, 29, 39, 99, 38, 55, 19, 35, 84, 100,
+	68, 86, 69, 70, 71, 72, 73, 74, 2, 123,
+	124, 49, 63, 64, 65, 66, 75, 67, 11, 83,
+	69, 70, 71, 72, 73, 74, 15, 16, 17, 126,
+	87, 90, 91, 127, 50, 5, 95, 63, 64, 65,
+	66, 75, 24, 99, 94, 55, 19, 84, 97, 100,
 	101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
-	111, 112, 97, 76, 118, 60, 53, 121, 33, 34,
-	36, 46, 45, 9, 41, 40, 42, 43, 44, 4,
-	113, 128, 30, 31, 32, 29, 39, 25, 38, 122,
-	134, 35, 117, 9, 52, 114, 132, 96, 131, 133,
-	120, 119, 129, 90, 82, 135, 59, 136, 98, 137,
-	61, 138, 33, 34, 36, 79, 78, 37, 41, 40,
-	42, 43, 44, 30, 31, 32, 29, 39, 28, 38,
-	27, 25, 35, 26, 20, 8, 58, 22, 63, 64,
-	65, 66, 75, 57, 125, 93, 92, 54, 18, 7,
-	14, 6, 89, 33, 34, 36, 85, 48, 47, 41,
-	40, 42, 43, 44, 10, 12, 3, 1, 0, 0,
-	0, 0, 25,
+	111, 112, 60, 53, 118, 46, 45, 121, 76, 9,
+	113, 122, 117, 4, 63, 64, 65, 66, 75, 114,
+	96, 128, 69, 70, 71, 72, 73, 74, 52, 134,
+	120, 30, 31, 32, 29, 39, 132, 38, 131, 133,
+	35, 119, 9, 90, 82, 135, 129, 136, 59, 137,
+	98, 138, 61, 79, 78, 37, 28, 27, 26, 20,
+	8, 33, 34, 36, 58, 57, 125, 41, 40, 42,
+	43, 44, 30, 31, 32, 29, 39, 93, 38, 92,
+	25, 35, 54, 18, 7, 14, 22, 30, 31, 32,
+	29, 39, 6, 38, 89, 85, 35, 48, 47, 10,
+	12, 3, 33, 34, 36, 1, 0, 0, 41, 40,
+	42, 43, 44, 0, 0, 0, 0, 33, 34, 36,
+	0, 25, 0, 41, 40, 42, 43, 44, 0, 0,
+	0, 0, 0, 0, 0, 0, 25,
 }
 var yyPact = []int{
 
-	-5, -1000, -1000, -1000, -1, -55, 20, 47, 139, 75,
-	7, 31, -53, -1000, 78, 69, -1000, -1000, 45, 119,
-	-1000, 67, 123, -32, -1000, 54, -1000, -1000, -1000, -1000,
-	-1000, -1000, -1000, -1000, -1000, 129, 54, 114, 98, -1000,
-	-1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -10, 54,
-	54, 54, -1000, -1000, 33, 54, -1000, 105, 64, -1000,
-	121, -1000, 54, 54, 54, 54, 54, 54, 54, 54,
-	54, 54, 54, 54, 54, 54, -1000, 86, 103, -27,
-	-24, 100, 54, 110, 109, -1000, 54, -1000, -1000, 97,
-	-2, -1000, -1000, 15, 27, -1000, 119, 115, -1000, -28,
-	-1000, -1000, -1000, -1000, -14, -14, 112, 112, 112, 112,
-	112, 112, -1000, -1000, 129, 54, -1000, 54, 99, -1000,
-	-1000, -1000, 54, -1000, -1000, -1000, 54, 54, -1000, -1000,
-	54, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000,
+	-5, -1000, -1000, -1000, 9, -55, 20, 47, 148, 69,
+	1, 32, -53, -1000, 74, 66, -1000, -1000, 45, 121,
+	-1000, 64, 125, -32, -1000, 163, -1000, -1000, -1000, -1000,
+	-1000, -1000, -1000, -1000, -1000, 127, 163, 114, 107, -1000,
+	-1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -10, 163,
+	163, 163, -1000, -1000, 43, 163, -1000, 88, 50, -1000,
+	123, -1000, 163, 163, 163, 163, 163, 163, 163, 163,
+	163, 163, 163, 163, 163, 163, -1000, 76, 87, -27,
+	-24, 80, 163, 110, 99, -1000, 163, -1000, -1000, 79,
+	-3, -1000, -1000, 26, 31, -1000, 121, 119, -1000, -28,
+	-1000, -1000, -1000, -1000, 48, -14, 11, 11, 11, 11,
+	11, 11, -1000, -1000, 127, 163, -1000, 163, 98, -1000,
+	-1000, -1000, 163, -1000, -1000, -1000, 163, 163, -1000, -1000,
+	163, -1000, -1000, -1000, -1000, -1000, -1000, -1000, -1000,
 }
 var yyPgo = []int{
 
-	0, 187, 29, 186, 185, 0, 99, 184, 178, 2,
-	177, 176, 172, 171, 170, 169, 168, 167, 166, 165,
-	1, 164, 4, 163, 156, 155, 154, 5, 57, 153,
-	150, 148, 3, 137, 136,
+	0, 185, 28, 181, 180, 0, 93, 179, 178, 2,
+	177, 175, 174, 172, 165, 164, 163, 162, 159, 157,
+	1, 146, 4, 145, 144, 140, 139, 5, 62, 138,
+	137, 136, 3, 135, 134,
 }
 var yyR1 = []int{
 
@@ -512,40 +514,40 @@ yydefault:
 	switch yynt {
 
 	case 1:
-		//line unql.y:34
+		//line unql.y:35
 		{ logDebugGrammar("INPUT") }
 	case 3:
-		//line unql.y:38
+		//line unql.y:39
 		{ logDebugGrammar("PRAGMA: %v", yyS[yypt-3])
 	                                                       right := parsingStack.Pop()
 	                                                       left := parsingStack.Pop()
 	                                                       ProcessPragma(left.(map[string]interface{}), right.(map[string]interface{}))
 	                                                     }
 	case 4:
-		//line unql.y:45
+		//line unql.y:46
 		{ curr := make(map[string]interface{})
 	                        curr["pragma"] = "debug"
 	                        parsingStack.Push(curr) }
 	case 5:
-		//line unql.y:50
+		//line unql.y:51
 		{ logDebugGrammar("SELECT_STMT")
 	                                                                    parsingQuery.parsedSuccessfully = true }
 	case 11:
-		//line unql.y:63
+		//line unql.y:64
 		{ curr := make(map[string]interface{})
 	                                   curr["op"] = "limit"
 	                                   curr["expression"] = parsingStack.Pop()
 	                                   parsingQuery.limit = curr
 	                                 }
 	case 12:
-		//line unql.y:70
+		//line unql.y:71
 		{ curr := make(map[string]interface{})
 	                                   curr["op"] = "offset"
 	                                   curr["expression"] = parsingStack.Pop()
 	                                   parsingQuery.offset = curr
 	                                 }
 	case 15:
-		//line unql.y:81
+		//line unql.y:82
 		{ curr := make(map[string]interface{})
 	                             curr["op"] = "sort"
 	                             curr["expression"] = parsingStack.Pop()
@@ -553,7 +555,7 @@ yydefault:
 	                             parsingQuery.orderby = append(parsingQuery.orderby, curr)
 	                           }
 	case 16:
-		//line unql.y:87
+		//line unql.y:88
 		{ curr := make(map[string]interface{})
 	                             curr["op"] = "sort"
 	                             curr["expression"] = parsingStack.Pop()
@@ -561,7 +563,7 @@ yydefault:
 	                             parsingQuery.orderby = append(parsingQuery.orderby, curr)
 	                           }
 	case 17:
-		//line unql.y:93
+		//line unql.y:94
 		{ curr := make(map[string]interface{})
 	                              curr["op"] = "sort"
 	                              curr["expression"] = parsingStack.Pop()
@@ -569,57 +571,57 @@ yydefault:
 	                              parsingQuery.orderby = append(parsingQuery.orderby, curr)
 	                           }
 	case 18:
-		//line unql.y:101
+		//line unql.y:102
 		{ logDebugGrammar("SELECT_COMPOUND") }
 	case 24:
-		//line unql.y:111
+		//line unql.y:112
 		{ logDebugGrammar("SELECT_CORE") }
 	case 25:
-		//line unql.y:114
+		//line unql.y:115
 		{ logDebugGrammar("SELECT GROUP")
 	                                         parsingQuery.isAggregateQuery = true 
 	                                         parsingQuery.groupby = parsingStack.Pop().([]interface{}) }
 	case 26:
-		//line unql.y:119
+		//line unql.y:120
 		{ logDebugGrammar("SELECT GROUP HAVING - EMPTY") }
 	case 27:
-		//line unql.y:120
+		//line unql.y:121
 		{ logDebugGrammar("SELECT GROUP HAVING - SELECT GROUP") }
 	case 28:
-		//line unql.y:121
+		//line unql.y:122
 		{ logDebugGrammar("SELECT GROUP HAVING - SELECT GROUP SELECT HAVING") }
 	case 30:
-		//line unql.y:129
+		//line unql.y:130
 		{ logDebugGrammar("SELECT WHERE - EMPTY") }
 	case 31:
-		//line unql.y:130
+		//line unql.y:131
 		{ logDebugGrammar("SELECT WHERE - EXPR")
 	                               where_part := parsingStack.Pop()
 	                               parsingQuery.where = where_part.(map[string]interface{}) }
 	case 33:
-		//line unql.y:136
+		//line unql.y:137
 		{ logDebugGrammar("SELECT_FROM") }
 	case 36:
-		//line unql.y:143
+		//line unql.y:144
 		{ ds := NewDataSource(yyS[yypt-0].s)
 	                                   parsingQuery.AddDataSource(ds) 
 	                                 }
 	case 37:
-		//line unql.y:146
+		//line unql.y:147
 		{ ds := NewDataSourceWithAs(yyS[yypt-2].s, yyS[yypt-0].s) 
 	                                          parsingQuery.AddDataSource(ds) 
 	                                        }
 	case 39:
-		//line unql.y:153
+		//line unql.y:154
 		{ logDebugGrammar("SELECT_SELECT") }
 	case 40:
-		//line unql.y:156
+		//line unql.y:157
 		{ logDebugGrammar("SELECT_SELECT_HEAD") }
 	case 43:
-		//line unql.y:161
+		//line unql.y:162
 		{ logDebugGrammar("SELECT SELECT TAIL - EMPTY") }
 	case 44:
-		//line unql.y:162
+		//line unql.y:163
 		{ logDebugGrammar("SELECT SELECT TAIL - EXPR")
 	                            curr := make(map[string]interface{})
 	                            curr["op"] = "select"
@@ -627,7 +629,7 @@ yydefault:
 	                            parsingQuery.sel = curr
 	                          }
 	case 45:
-		//line unql.y:168
+		//line unql.y:169
 		{ logDebugGrammar("SELECT SELECT TAIL - EXPR AS IDENTIFIER")
 	                                          curr := make(map[string]interface{})
 	                                          curr["op"] = "select"
@@ -636,7 +638,7 @@ yydefault:
 	                                          parsingQuery.sel = curr
 	                                        }
 	case 46:
-		//line unql.y:175
+		//line unql.y:176
 		{ logDebugGrammar("SELECT SELECT TAIL - AS IDENTIFIER")
 	                               curr := make(map[string]interface{})
 	                               curr["op"] = "select"
@@ -644,10 +646,10 @@ yydefault:
 	                               parsingQuery.sel = curr
 	                             }
 	case 47:
-		//line unql.y:183
+		//line unql.y:184
 		{ logDebugGrammar("EXPRESSION") }
 	case 53:
-		//line unql.y:191
+		//line unql.y:192
 		{  logDebugGrammar("EXPR - AND")
 	                             
 	                            curr := make(map[string]interface{})
@@ -658,7 +660,7 @@ yydefault:
 	                            parsingStack.Push(curr)
 	                         }
 	case 54:
-		//line unql.y:200
+		//line unql.y:201
 		{  logDebugGrammar("EXPR - OR")
 	                            curr := make(map[string]interface{})
 	                            curr["right"] = parsingStack.Pop()
@@ -668,7 +670,7 @@ yydefault:
 	                            parsingStack.Push(curr)
 	                         }
 	case 55:
-		//line unql.y:208
+		//line unql.y:209
 		{  logDebugGrammar("EXPR - EQ")
 	                            curr := make(map[string]interface{})
 	                            curr["right"] = parsingStack.Pop()
@@ -678,7 +680,7 @@ yydefault:
 	                            parsingStack.Push(curr)
 	                         }
 	case 56:
-		//line unql.y:216
+		//line unql.y:217
 		{  logDebugGrammar("EXPR - LT")
 	                            curr := make(map[string]interface{})
 	                            curr["right"] = parsingStack.Pop()
@@ -688,7 +690,7 @@ yydefault:
 	                            parsingStack.Push(curr)
 	                         }
 	case 57:
-		//line unql.y:224
+		//line unql.y:225
 		{  logDebugGrammar("EXPR - LTE")
 	                            curr := make(map[string]interface{})
 	                            curr["right"] = parsingStack.Pop()
@@ -698,7 +700,7 @@ yydefault:
 	                            parsingStack.Push(curr)
 	                         }
 	case 58:
-		//line unql.y:232
+		//line unql.y:233
 		{  logDebugGrammar("EXPR - GT")
 	                            curr := make(map[string]interface{})
 	                            right := parsingStack.Pop()
@@ -710,7 +712,7 @@ yydefault:
 	                            parsingStack.Push(curr)
 	                         }
 	case 59:
-		//line unql.y:242
+		//line unql.y:243
 		{  logDebugGrammar("EXPR - GTE")
 	                            curr := make(map[string]interface{})
 	                            curr["right"] = parsingStack.Pop()
@@ -720,7 +722,7 @@ yydefault:
 	                            parsingStack.Push(curr)
 	                         }
 	case 60:
-		//line unql.y:250
+		//line unql.y:251
 		{  logDebugGrammar("EXPR - NE")
 	                            curr := make(map[string]interface{})
 	                            curr["right"] = parsingStack.Pop()
@@ -730,59 +732,59 @@ yydefault:
 	                            parsingStack.Push(curr)
 	                         }
 	case 65:
-		//line unql.y:267
+		//line unql.y:268
 		{ logDebugGrammar("SUFFIX_EXPR") }
 	case 66:
-		//line unql.y:270
+		//line unql.y:271
 		{ curr := make(map[string]interface{})
 	                 curr["property"] = yyS[yypt-0].s
 	                 parsingStack.Push(curr) }
 	case 67:
-		//line unql.y:273
+		//line unql.y:274
 		{ curr := make(map[string]interface{})
 	                 curr["identifier"] = yyS[yypt-0].s
 	                 parsingStack.Push(curr) }
 	case 68:
-		//line unql.y:276
+		//line unql.y:277
 		{ curr := make(map[string]interface{})
 	                 curr["int"] = yyS[yypt-0].n
 	                 parsingStack.Push(curr) }
 	case 69:
-		//line unql.y:279
+		//line unql.y:280
 		{ curr := make(map[string]interface{})
 	                 curr["real"] = yyS[yypt-0].f
 	                 parsingStack.Push(curr) }
 	case 70:
-		//line unql.y:282
+		//line unql.y:283
 		{ curr := make(map[string]interface{})
 	                 curr["string"] = yyS[yypt-0].s
 	                 parsingStack.Push(curr) }
 	case 71:
-		//line unql.y:285
+		//line unql.y:286
 		{ curr := make(map[string]interface{})
 	                 curr["bool"] = true
 	                 parsingStack.Push(curr) }
 	case 72:
-		//line unql.y:288
+		//line unql.y:289
 		{ curr := make(map[string]interface{})
 	                 curr["bool"] = false
 	                 parsingStack.Push(curr) }
 	case 73:
-		//line unql.y:291
+		//line unql.y:292
 		{ logDebugGrammar("ATOM - {}")
 	                                              curr := make(map[string]interface{})
 	                                              curr["object"] = parsingStack.Pop()
 	                                              parsingStack.Push(curr)
 	                                            }
 	case 74:
-		//line unql.y:296
+		//line unql.y:297
 		{ logDebugGrammar("ATOM - []")
 	                                            curr := make(map[string]interface{})
 	                                            curr["array"] = parsingStack.Pop()
 	                                            parsingStack.Push(curr)
 	                                          }
 	case 75:
-		//line unql.y:301
+		//line unql.y:302
 		{ logDebugGrammar("FUNCTION - $1.s")
 	                                                      expression_list := parsingStack.Pop().([]interface{})
 	                                                      function_map := parsingStack.Pop().(map[string]interface{})
@@ -790,14 +792,14 @@ yydefault:
 	                                                      parsingStack.Push(function_map)
 	                                                    }
 	case 78:
-		//line unql.y:311
+		//line unql.y:312
 		{ logDebugGrammar("EXPRESSION_LIST - EXPRESSION")
 	                                curr := make([]interface{},0)
 	                               curr = append(curr, parsingStack.Pop())
 	                               parsingStack.Push(curr)
 	                             }
 	case 79:
-		//line unql.y:316
+		//line unql.y:317
 		{ logDebugGrammar("EXPRESSION_LIST - EXPRESSION COMMA EXPRESSION_LIST")
 	                                               rest := parsingStack.Pop().([]interface{})
 	                                               last := parsingStack.Pop().(interface{})
@@ -809,7 +811,7 @@ yydefault:
 	                                               parsingStack.Push(curr)
 	                                             }
 	case 81:
-		//line unql.y:329
+		//line unql.y:330
 		{ last := parsingStack.Pop().(map[string]interface{})
 	                                                                  rest := parsingStack.Pop().(map[string]interface{})
 	                                                                  for k,v := range last {
@@ -818,37 +820,37 @@ yydefault:
 	                                                                  parsingStack.Push(rest)
 	                                                                }
 	case 82:
-		//line unql.y:338
+		//line unql.y:339
 		{ curr := make(map[string]interface{})
 	                                                     curr[yyS[yypt-2].s] = parsingStack.Pop()
 	                                                     parsingStack.Push(curr)
 	                                                   }
 	case 84:
-		//line unql.y:347
+		//line unql.y:348
 		{ parsingQuery.isAggregateQuery = true
 	                     curr := make(map[string]interface{})
 	                     curr["function"] = "min"
 	                     parsingStack.Push(curr) }
 	case 85:
-		//line unql.y:351
+		//line unql.y:352
 		{ parsingQuery.isAggregateQuery = true
 	                  curr := make(map[string]interface{})
 	                  curr["function"] = "max"
 	                  parsingStack.Push(curr) }
 	case 86:
-		//line unql.y:355
+		//line unql.y:356
 		{ parsingQuery.isAggregateQuery = true
 	                  curr := make(map[string]interface{})
 	                  curr["function"] = "avg"
 	                  parsingStack.Push(curr) }
 	case 87:
-		//line unql.y:359
+		//line unql.y:360
 		{ parsingQuery.isAggregateQuery = true
 	                    curr := make(map[string]interface{})
 	                    curr["function"] = "count"
 	                    parsingStack.Push(curr) }
 	case 88:
-		//line unql.y:363
+		//line unql.y:364
 		{ parsingQuery.isAggregateQuery = true
 	                    curr := make(map[string]interface{})
 	                    curr["function"] = "sum"
