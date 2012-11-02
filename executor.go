@@ -226,8 +226,6 @@ func BuildFacets(groupby parser.ExpressionList, filter interface{}, stats_fields
 			for _, stat_field := range stats_fields {
 				gba := make(map[string]interface{})
 
-				//if isProperty || isIdentifier {
-
 				if stat_field != val.Symbol {
 
 					facetSection[StatsPrefix+stat_field] = gba
@@ -237,19 +235,11 @@ func BuildFacets(groupby parser.ExpressionList, filter interface{}, stats_fields
 					terms["value_field"] = stat_field
 					terms["size"] = *esMaxAggregate
 				}
-				//}
 
 				gba["facet_filter"] = filter
 
 			}
 		}
-
-		//		isIdentifier := false
-		//		val, isProperty := gby["property"]
-		//		if !isProperty {
-		//			val, isIdentifier = gby["identifier"]
-		//		}
-
 	}
 
 	return facetSection, group_by
@@ -373,114 +363,6 @@ func BuildESQueryRecursive(where parser.Expression) interface{} {
 		return exp.Val
 	}
 
-	//	_, isOperation := where["op"]
-	//
-	//	if isOperation {
-	//
-	//		if where["op"] == "==" {
-	//			thisSection := make(map[string]interface{})
-	//			nextSection := make(map[string]interface{})
-	//			thisSection["term"] = nextSection
-	//			lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
-	//			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
-	//			nextSection[lhs.(string)] = rhs
-	//			return thisSection
-	//		} else if where["op"] == "!=" {
-	//			notSection := make(map[string]interface{})
-	//			thisSection := make(map[string]interface{})
-	//			nextSection := make(map[string]interface{})
-	//			notSection["not"] = thisSection
-	//			thisSection["term"] = nextSection
-	//			lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
-	//			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
-	//			nextSection[lhs.(string)] = rhs
-	//			return notSection
-	//		} else if where["op"] == "<" {
-	//			thisSection := make(map[string]interface{})
-	//			nextSection := make(map[string]interface{})
-	//			rangeSection := make(map[string]interface{})
-	//			thisSection["range"] = nextSection
-	//			lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
-	//			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
-	//			rangeSection["lt"] = rhs
-	//			nextSection[lhs.(string)] = rangeSection
-	//			return thisSection
-	//		} else if where["op"] == ">" {
-	//			thisSection := make(map[string]interface{})
-	//			nextSection := make(map[string]interface{})
-	//			rangeSection := make(map[string]interface{})
-	//			thisSection["range"] = nextSection
-	//			lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
-	//			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
-	//			rangeSection["gt"] = rhs
-	//			nextSection[lhs.(string)] = rangeSection
-	//			return thisSection
-	//		} else if where["op"] == "<=" {
-	//			thisSection := make(map[string]interface{})
-	//			nextSection := make(map[string]interface{})
-	//			rangeSection := make(map[string]interface{})
-	//			thisSection["range"] = nextSection
-	//			lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
-	//			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
-	//			rangeSection["lte"] = rhs
-	//			nextSection[lhs.(string)] = rangeSection
-	//			return thisSection
-	//		} else if where["op"] == ">=" {
-	//			thisSection := make(map[string]interface{})
-	//			nextSection := make(map[string]interface{})
-	//			rangeSection := make(map[string]interface{})
-	//			thisSection["range"] = nextSection
-	//			lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
-	//			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
-	//			rangeSection["gte"] = rhs
-	//			nextSection[lhs.(string)] = rangeSection
-	//			return thisSection
-	//		} else if where["op"] == "&&" {
-	//			thisSection := make(map[string]interface{})
-	//			nextSection := make([]interface{}, 0)
-	//			lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
-	//			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
-	//			nextSection = append(nextSection, lhs)
-	//			nextSection = append(nextSection, rhs)
-	//			thisSection["and"] = nextSection
-	//			return thisSection
-	//		} else if where["op"] == "||" {
-	//			thisSection := make(map[string]interface{})
-	//			nextSection := make([]interface{}, 0)
-	//			lhs := BuildESQueryRecursive(where["left"].(map[string]interface{}))
-	//			rhs := BuildESQueryRecursive(where["right"].(map[string]interface{}))
-	//			nextSection = append(nextSection, lhs)
-	//			nextSection = append(nextSection, rhs)
-	//			thisSection["or"] = nextSection
-	//			return thisSection
-	//		}
-	//
-	//	} else {
-	//		val, isString := where["string"]
-	//		if isString {
-	//			return val
-	//		}
-	//		val, isProperty := where["property"]
-	//		if isProperty {
-	//			return val
-	//		}
-	//		val, isIdentifier := where["identifier"]
-	//		if isIdentifier {
-	//			return val
-	//		}
-	//		val, isInt := where["int"]
-	//		if isInt {
-	//			return val
-	//		}
-	//		val, isReal := where["real"]
-	//		if isReal {
-	//			return val
-	//		}
-	//		val, isBool := where["bool"]
-	//		if isBool {
-	//			return val
-	//		}
-	//	}
 	return nil
 }
 
@@ -488,7 +370,6 @@ func ResultsFromDocsAndSelectClause(docs []interface{}, sel parser.Expression) (
 
 	result := make([]interface{}, 0)
 	for _, doc := range docs {
-		log.Printf("doc %#v", doc)
 		val, err := EvaluateExpressionInContext(sel, doc.(map[string]interface{}))
 		if err != nil {
 			return nil, err
