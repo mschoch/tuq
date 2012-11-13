@@ -1,7 +1,8 @@
 package parser
 
 import (
-//"log"
+	//"log"
+	"fmt"
 )
 
 type LessThanExpression struct {
@@ -13,4 +14,18 @@ func NewLessThanExpression(l, r Expression) *LessThanExpression {
 	return &LessThanExpression{
 		Left:  l,
 		Right: r}
+}
+
+func (lt *LessThanExpression) String() string {
+	return fmt.Sprintf("%v < %v", lt.Left, lt.Right)
+}
+
+func (lt *LessThanExpression) SybolsReferenced() []string {
+	leftSymbols := lt.Left.SybolsReferenced()
+	return concatStringSlices(leftSymbols, lt.Right.SybolsReferenced())
+}
+
+func (lt *LessThanExpression) PrefixSymbols(s string) {
+	lt.Left.PrefixSymbols(s)
+	lt.Right.PrefixSymbols(s)
 }

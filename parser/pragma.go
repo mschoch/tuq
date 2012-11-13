@@ -7,17 +7,17 @@ import (
 func ProcessPragma(left, right Expression) {
 
 	switch l := left.(type) {
-	case Property:
+	case *Property:
 		if l.Symbol == "debugTokens" {
 			switch r := right.(type) {
-			case BoolLiteral:
+			case *BoolLiteral:
 				debugTokens = r.Val
 			default:
 				fmt.Printf("Pragma debugTokens only supports boolean value")
 			}
 		} else if l.Symbol == "debugGrammar" {
 			switch r := right.(type) {
-			case BoolLiteral:
+			case *BoolLiteral:
 				debugGrammar = r.Val
 			default:
 				fmt.Printf("Pragma debugGrammar only supports boolean value")

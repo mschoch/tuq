@@ -1,7 +1,11 @@
 package main
 
 import (
-	"github.com/mschoch/go-unql-couchbasev2/parser"
+	naiveoptimizer "github.com/mschoch/go-unql-couchbase/optimizer/naive"
+	nulloptimizer "github.com/mschoch/go-unql-couchbase/optimizer/null"
+	"github.com/mschoch/go-unql-couchbase/parser"
+	"github.com/mschoch/go-unql-couchbase/planner"
+	naiveplanner "github.com/mschoch/go-unql-couchbase/planner/naive"
 	"github.com/sbinet/liner"
 	"log"
 	"os"
@@ -13,7 +17,9 @@ import (
 func handleInteractiveMode() {
 
 	unqlParser := parser.NewUnqlParser(*debugTokens, *debugGrammar)
-	queryExecutor := NewQueryExecutor()
+	naivePlanner := naiveplanner.NewNaivePlanner()
+	naiveOptimizer := naiveoptimizer.NewNaiveOptimizer()
+	nullOptimizer := nulloptimizer.NewNullOptimizer()
 
 	currentUser, err := user.Current()
 	if err != nil {
@@ -47,12 +53,37 @@ func handleInteractiveMode() {
 				log.Printf("Query is: %#v", query)
 			}
 			if query.WasParsedSuccessfully() {
-				result, err := queryExecutor.Execute(*query)
+				// check to make sure the query is semantically valid
+				err := query.Validate()
 				if err != nil {
-					log.Printf("Error: %v", err)
+					log.Printf("%v", err)
 				} else {
-					FormatOutput(result)
+					plans := naivePlanner.Plan(*query)
+
+					var plan planner.Plan
+					if *disableOptimizer {
+						plan = nullOptimizer.Optimize(plans)
+					} else {
+						plan = naiveOptimizer.Optimize(plans)
+					}
+
+					if query.IsExplainOnly() {
+						result := plan.Explain()
+						if err != nil {
+							log.Printf("Error: %v", err)
+						} else {
+							FormatChannelOutput(result, os.Stdout)
+						}
+					} else {
+						result := plan.Run()
+						if err != nil {
+							log.Printf("Error: %v", err)
+						} else {
+							FormatChannelOutput(result, os.Stdout)
+						}
+					}
 				}
+
 			}
 		}
 	}

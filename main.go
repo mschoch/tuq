@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/mschoch/elastigo/api"
-	"log"
-	"net/url"
-	"strings"
+	"github.com/mschoch/go-unql-couchbase/datasources"
+	_ "github.com/mschoch/go-unql-couchbase/datasources/csv"
+	_ "github.com/mschoch/go-unql-couchbase/datasources/elasticsearch"
+	_ "github.com/mschoch/go-unql-couchbase/datasources/couchbase"
 	"time"
 )
 
@@ -22,12 +22,16 @@ var viewTimeout = flag.Duration("viewTimeout", 5*time.Second, "Couchbase view cl
 var couchbaseBatchSize = flag.Int("couchbaseBatchSize", 10000, "Number of documents to retrieve from Couchbase in a single operation")
 var stdinMode = flag.Bool("stdin", false, "Read statements from STDIN, execute them, print results to STDOUT, then exit")
 var httpMode = flag.Bool("http", false, "Answer queries received over HTTP")
+var disableOptimizer = flag.Bool("disableOptimizer", false, "Disable query optimization")
+var bindAddr = flag.String("bind", ":6009", "Address to bind web thing to")
+var readTimeout = flag.Duration("serverTimeout", 5*time.Minute,
+	"Web server read timeout")
 
 func main() {
 
 	flag.Parse()
 
-	setupElasticSearch()
+	datasources.LoadDataSources()
 
 	if *stdinMode {
 		handleStdinMode()
@@ -37,23 +41,4 @@ func main() {
 		handleInteractiveMode()
 	}
 
-}
-
-func setupElasticSearch() {
-
-	esURL, err := url.Parse(*esURLString)
-	if err != nil {
-		log.Fatalf("Unable to parse esURL: %s error: %v", esURL, err)
-	} else {
-		api.Protocol = esURL.Scheme
-		colonIndex := strings.Index(esURL.Host, ":")
-		if colonIndex < 0 {
-			api.Domain = esURL.Host
-			api.Port = "9200"
-		} else {
-			api.Domain = esURL.Host[0:colonIndex]
-			api.Port = esURL.Host[colonIndex+1:]
-		}
-
-	}
 }

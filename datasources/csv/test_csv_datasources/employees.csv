@@ -1,0 +1,11 @@
+employee_id,name,age,city,department_id
+1,Marty,34,DC,1
+2,Dan,34,Philly,2
+3,Jack,55,Boston,2
+4,Nolan,64,Houston,1
+5,Morris,2,Detroit,3
+6,Adam,17,San Francisco,1
+7,Jamie,55,San Francisco,1
+8,Neil,34,Los Angeles,5
+9,Grant,39,San Francisco,1
+10,Tory,39,San Francisco,1

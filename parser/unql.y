@@ -24,7 +24,7 @@ f float64}
 %token LIMIT OFFSET ASC DESC TRUE FALSE LBRACKET RBRACKET
 %token QUESTION COLON MAX MIN AVG COUNT SUM DOT
 %token PLUS MINUS MULT DIV MOD AND OR NOT EQ LT LTE
-%token GT GTE NE PRAGMA ASSIGN
+%token GT GTE NE PRAGMA ASSIGN EXPLAIN
 %left OR
 %left AND
 %left EQ LT LTE GT GTE NE
@@ -39,12 +39,16 @@ input: select_stmt { logDebugGrammar("INPUT") }
 pragma_stmt:    PRAGMA expression ASSIGN expression { logDebugGrammar("PRAGMA: %v", $1)
                                                        right := parsingStack.Pop()
                                                        left := parsingStack.Pop()
-                                                       ProcessPragma(left.(map[string]interface{}), right.(map[string]interface{}))
+                                                       ProcessPragma(left.(Expression), right.(Expression))
                                                      }
 ;
 
-select_stmt:     select_compound select_order select_limit_offset { logDebugGrammar("SELECT_STMT")
+select_stmt:     select_explain select_compound select_order select_limit_offset { logDebugGrammar("SELECT_STMT")
                                                                     parsingQuery.parsedSuccessfully = true }
+;
+
+select_explain:  /* empty */
+        |   EXPLAIN {  parsingQuery.isExplainOnly = true  }
 ;
 
 select_order:   /* empty */
@@ -57,12 +61,12 @@ select_limit_offset:    /* empty */
 ;
 
 select_limit:   LIMIT expression { thisExpression := parsingStack.Pop()
-                                   parsingQuery.Limit = thisExpression
+                                   parsingQuery.Limit = thisExpression.(Expression)
                                  }
 ;
 
 select_offset:  OFFSET expression { thisExpression := parsingStack.Pop()
-                                   parsingQuery.Offset = thisExpression
+                                   parsingQuery.Offset = thisExpression.(Expression)
                                  }
 ;
 
@@ -70,13 +74,13 @@ sorting_list:   sorting_single
         | sorting_single COMMA sorting_list
 ;
 
-sorting_single: expression { thisExpression := NewSortItem(parsingStack.Pop(), true)
+sorting_single: expression { thisExpression := NewSortItem(parsingStack.Pop().(Expression), true)
                             parsingQuery.Orderby = append(parsingQuery.Orderby, *thisExpression)
                            }
-        |   expression ASC { thisExpression := NewSortItem(parsingStack.Pop(), true)
+        |   expression ASC { thisExpression := NewSortItem(parsingStack.Pop().(Expression), true)
                             parsingQuery.Orderby = append(parsingQuery.Orderby, *thisExpression)
                            }
-        |   expression DESC { thisExpression := NewSortItem(parsingStack.Pop(), false)
+        |   expression DESC { thisExpression := NewSortItem(parsingStack.Pop().(Expression), false)
                             parsingQuery.Orderby = append(parsingQuery.Orderby, *thisExpression)
                            }
 ;
@@ -112,7 +116,7 @@ select_having:  HAVING expression
 select_where:   /* empty */ { logDebugGrammar("SELECT WHERE - EMPTY") }
         |   WHERE expression { logDebugGrammar("SELECT WHERE - EXPR")
                                where_part := parsingStack.Pop()
-                               parsingQuery.Where = where_part }
+                               parsingQuery.Where = where_part.(Expression) }
 ;
 
 select_from:    /* empty */
@@ -144,11 +148,11 @@ select_select_head:  SELECT { logDebugGrammar("SELECT_SELECT_HEAD") }
 select_select_tail:     /* empty */ { logDebugGrammar("SELECT SELECT TAIL - EMPTY") } 
         |      expression { logDebugGrammar("SELECT SELECT TAIL - EXPR")
                             thisExpression := parsingStack.Pop()
-                            parsingQuery.Sel = thisExpression
+                            parsingQuery.Sel = thisExpression.(Expression)
                           }
         |      expression AS IDENTIFIER { logDebugGrammar("SELECT SELECT TAIL - EXPR AS IDENTIFIER")
                                           thisExpression := parsingStack.Pop()
-                                          parsingQuery.Sel = thisExpression
+                                          parsingQuery.Sel = thisExpression.(Expression)
                                           parsingQuery.SelAs = $3.s
                                         }
         |      AS IDENTIFIER { logDebugGrammar("SELECT SELECT TAIL - AS IDENTIFIER")
@@ -160,57 +164,77 @@ expression: expr { logDebugGrammar("EXPRESSION") }
     |   expr QUESTION expression COLON expression { logDebugGrammar("EXPRESSION - TERNARY") }
 ;
 
-expr: expr PLUS expr
-        |   expr MINUS expr
-        |   expr MULT expr
-        |   expr DIV expr
+expr: expr PLUS expr {  logDebugGrammar("EXPR - PLUS")
+                        right := parsingStack.Pop()
+                        left := parsingStack.Pop()
+                        thisExpression := NewPlusExpression(left.(Expression), right.(Expression)) 
+                        parsingStack.Push(thisExpression)
+                     }
+        |   expr MINUS expr {  logDebugGrammar("EXPR - MINUS")
+                               right := parsingStack.Pop()
+                               left := parsingStack.Pop()
+                               thisExpression := NewMinusExpression(left.(Expression), right.(Expression)) 
+                               parsingStack.Push(thisExpression)
+                            }
+        |   expr MULT expr {  logDebugGrammar("EXPR - MULT")
+                              right := parsingStack.Pop()
+                              left := parsingStack.Pop()
+                              thisExpression := NewMultiplyExpression(left.(Expression), right.(Expression)) 
+                              parsingStack.Push(thisExpression)
+                           }
+        |   expr DIV expr {  logDebugGrammar("EXPR - DIV")
+                             right := parsingStack.Pop()
+                             left := parsingStack.Pop()
+                             thisExpression := NewDivideExpression(left.(Expression), right.(Expression)) 
+                             parsingStack.Push(thisExpression)
+                          }
         |   expr AND expr {  logDebugGrammar("EXPR - AND")
                              right := parsingStack.Pop()
                              left := parsingStack.Pop()
-                             thisExpression := NewAndExpression(left, right) 
-                             parsingStack.Push(*thisExpression)
+                             thisExpression := NewAndExpression(left.(Expression), right.(Expression)) 
+                             parsingStack.Push(thisExpression)
                          }
         |   expr OR expr {  logDebugGrammar("EXPR - OR")
                             right := parsingStack.Pop()
                             left := parsingStack.Pop()
-                            thisExpression := NewOrExpression(left, right) 
-                            parsingStack.Push(*thisExpression)
+                            thisExpression := NewOrExpression(left.(Expression), right.(Expression)) 
+                            parsingStack.Push(thisExpression)
                          }
         |   expr EQ expr {  logDebugGrammar("EXPR - EQ")
                             right := parsingStack.Pop()
                             left := parsingStack.Pop()
-                            thisExpression := NewEqualsExpression(left, right) 
-                            parsingStack.Push(*thisExpression)
+                            thisExpression := NewEqualsExpression(left.(Expression), right.(Expression)) 
+                            parsingStack.Push(thisExpression)
                          }
         |   expr LT expr {  logDebugGrammar("EXPR - LT")
                             right := parsingStack.Pop()
                             left := parsingStack.Pop()
-                            thisExpression := NewLessThanExpression(left, right) 
-                            parsingStack.Push(*thisExpression)
+                            thisExpression := NewLessThanExpression(left.(Expression), right.(Expression)) 
+                            parsingStack.Push(thisExpression)
                          }
         |   expr LTE expr {  logDebugGrammar("EXPR - LTE")
                              right := parsingStack.Pop()
                              left := parsingStack.Pop()
-                             thisExpression := NewLessThanOrEqualExpression(left, right) 
-                             parsingStack.Push(*thisExpression)
+                             thisExpression := NewLessThanOrEqualExpression(left.(Expression), right.(Expression)) 
+                             parsingStack.Push(thisExpression)
                          }
         |   expr GT expr {  logDebugGrammar("EXPR - GT")
                             right := parsingStack.Pop()
                             left := parsingStack.Pop()
-                            thisExpression := NewGreaterThanExpression(left, right) 
-                            parsingStack.Push(*thisExpression)
+                            thisExpression := NewGreaterThanExpression(left.(Expression), right.(Expression)) 
+                            parsingStack.Push(thisExpression)
                          }
         |   expr GTE expr {  logDebugGrammar("EXPR - GTE")
                              right := parsingStack.Pop()
                              left := parsingStack.Pop()
-                             thisExpression := NewGreaterThanOrEqualExpression(left, right) 
-                             parsingStack.Push(*thisExpression)
+                             thisExpression := NewGreaterThanOrEqualExpression(left.(Expression), right.(Expression)) 
+                             parsingStack.Push(thisExpression)
                          }
         |   expr NE expr {  logDebugGrammar("EXPR - NE")
                             right := parsingStack.Pop()
                             left := parsingStack.Pop()
-                            thisExpression := NewNotEqualsExpression(left, right) 
-                            parsingStack.Push(*thisExpression)
+                            thisExpression := NewNotEqualsExpression(left.(Expression), right.(Expression)) 
+                            parsingStack.Push(thisExpression)
                          }
         |   expr MOD expr        
         |   prefix_expr
@@ -225,29 +249,29 @@ suffix_expr: atom { logDebugGrammar("SUFFIX_EXPR") }
 ;
 
 atom: property { thisExpression := NewProperty($1.s) 
-                 parsingStack.Push(*thisExpression) }
+                 parsingStack.Push(thisExpression) }
     |   IDENTIFIER { thisExpression := NewProperty($1.s) 
-                 parsingStack.Push(*thisExpression) }
+                 parsingStack.Push(thisExpression) }
     |   INT { thisExpression := NewIntegerLiteral($1.n) 
-                 parsingStack.Push(*thisExpression) }
+                 parsingStack.Push(thisExpression) }
     |   REAL { thisExpression := NewFloatLiteral($1.f) 
-                 parsingStack.Push(*thisExpression) }
+                 parsingStack.Push(thisExpression) }
     |   STRING { thisExpression := NewStringLiteral($1.s) 
-                 parsingStack.Push(*thisExpression) }
+                 parsingStack.Push(thisExpression) }
     |   TRUE { thisExpression := NewBoolLiteral(true) 
-                 parsingStack.Push(*thisExpression) }
+                 parsingStack.Push(thisExpression) }
     |   FALSE { thisExpression := NewBoolLiteral(false) 
-                 parsingStack.Push(*thisExpression)}
+                 parsingStack.Push(thisExpression)}
     |   LBRACE named_expression_list RBRACE { logDebugGrammar("ATOM - {}")
                                             }
     |   LBRACKET expression_list RBRACKET { logDebugGrammar("ATOM - []")
                                             exp_list := parsingStack.Pop().(ExpressionList)
                                             thisExpression := NewArrayLiteral(exp_list)
-                                            parsingStack.Push(*thisExpression)
+                                            parsingStack.Push(thisExpression)
                                           }
     |   function_name LPAREN expression_list RPAREN { logDebugGrammar("FUNCTION - $1.s")
                                                       exp_list := parsingStack.Pop().(ExpressionList)
-                                                      function := parsingStack.Pop().(Function)
+                                                      function := parsingStack.Pop().(*Function)
                                                       function.AddArguments(exp_list)
                                                       parsingStack.Push(function)
                                                     }
@@ -257,14 +281,14 @@ atom: property { thisExpression := NewProperty($1.s)
 
 expression_list:  expression { logDebugGrammar("EXPRESSION_LIST - EXPRESSION")
                                exp_list := make(ExpressionList, 0)
-                               exp_list = append(exp_list, parsingStack.Pop())
+                               exp_list = append(exp_list, parsingStack.Pop().(Expression))
                                parsingStack.Push(exp_list)
                              }
         |   expression COMMA expression_list { logDebugGrammar("EXPRESSION_LIST - EXPRESSION COMMA EXPRESSION_LIST")
                                                rest := parsingStack.Pop().(ExpressionList)
                                                last := parsingStack.Pop()
                                                new_list := make(ExpressionList, 0)
-                                               new_list = append(new_list, last)
+                                               new_list = append(new_list, last.(Expression))
                                                for _, v := range rest {
                                                 new_list = append(new_list, v)
                                                }
@@ -273,17 +297,17 @@ expression_list:  expression { logDebugGrammar("EXPRESSION_LIST - EXPRESSION")
 ;
 
 named_expression_list:    named_expression_single 
-        |   named_expression_single COMMA named_expression_list { last := parsingStack.Pop().(ObjectLiteral)
-                                                                  rest := parsingStack.Pop().(ObjectLiteral)
+        |   named_expression_single COMMA named_expression_list { last := parsingStack.Pop().(*ObjectLiteral)
+                                                                  rest := parsingStack.Pop().(*ObjectLiteral)
                                                                   rest.AddAll(last)
                                                                   parsingStack.Push(rest)
                                                                 }
 ;
 
 named_expression_single:   STRING COLON expression { thisKey := $1.s
-                                                     thisValue := parsingStack.Pop() 
+                                                     thisValue := parsingStack.Pop().(Expression)
                                                      thisExpression := NewObjectLiteral(Object{thisKey: thisValue})
-                                                     parsingStack.Push(*thisExpression) 
+                                                     parsingStack.Push(thisExpression) 
                                                    }
 ;
 
@@ -293,27 +317,27 @@ property:   PROPERTY
 function_name: MIN { 
                      parsingQuery.isAggregateQuery = true
                      thisExpression := NewFunction("min")
-                     parsingStack.Push(*thisExpression)
+                     parsingStack.Push(thisExpression)
                    }
         |   MAX { 
                   parsingQuery.isAggregateQuery = true
                   thisExpression := NewFunction("max")
-                  parsingStack.Push(*thisExpression)
+                  parsingStack.Push(thisExpression)
                 }
         |   AVG { 
                   parsingQuery.isAggregateQuery = true
                   thisExpression := NewFunction("avg")
-                  parsingStack.Push(*thisExpression)
+                  parsingStack.Push(thisExpression)
                 }
         |   COUNT { 
                    parsingQuery.isAggregateQuery = true
                    thisExpression := NewFunction("count")
-                   parsingStack.Push(*thisExpression)
+                   parsingStack.Push(thisExpression)
                   }
         |   SUM { 
                   parsingQuery.isAggregateQuery = true
                   thisExpression := NewFunction("sum")
-                  parsingStack.Push(*thisExpression)
+                  parsingStack.Push(thisExpression)
                 }
 ;
 %%

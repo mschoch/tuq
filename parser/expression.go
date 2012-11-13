@@ -1,8 +1,13 @@
 package parser
 
-import ()
+import (
+	"fmt"
+)
 
 type Expression interface {
+	String() string
+	SybolsReferenced() []string
+	PrefixSymbols(string)
 }
 
 // NOTE: this should be OK even if
@@ -11,3 +16,11 @@ type Expression interface {
 // by itself (though it can become one inside
 // a literal array)
 type ExpressionList []Expression
+
+func (el ExpressionList) String() string {
+	result := ""
+	for _, v := range el {
+		result += fmt.Sprintf("%v", v)
+	}
+	return result
+}

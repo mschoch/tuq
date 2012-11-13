@@ -17,8 +17,8 @@ type UnqlParser struct {
 }
 
 func NewUnqlParser(dt, db bool) *UnqlParser {
-    debugTokens = dt
-    debugGrammar = db
+	debugTokens = dt
+	debugGrammar = db
 	return &UnqlParser{}
 }
 
@@ -30,8 +30,13 @@ func (u *UnqlParser) Parse(input string) (returnQuery *Select, err error) {
 	parsingQuery = NewSelect()
 
 	defer func() {
-		if r := recover(); r != nil {
+		r := recover()
+		if r != nil && r == "syntax error" {
+			// if we're panicing over a syntax error, chill
 			err = fmt.Errorf("Parse Error - %v", r)
+		} else if r != nil{
+			// otherise continue to panic
+			panic(r)
 		}
 	}()
 

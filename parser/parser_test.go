@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"log"
 	"testing"
 )
 
@@ -50,10 +51,11 @@ func TestParser(t *testing.T) {
 	unqlParser := NewUnqlParser(false, false)
 
 	for _, v := range validQueries {
-		_, err := unqlParser.Parse(v)
+		sel, err := unqlParser.Parse(v)
 		if err != nil {
 			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
 		}
+		log.Printf("reprinted where caluse is: %v", sel.Where)
 	}
 
 	for _, v := range invalidQueries {

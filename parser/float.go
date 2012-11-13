@@ -1,6 +1,8 @@
 package parser
 
-import ()
+import (
+	"fmt"
+)
 
 type FloatLiteral struct {
 	Val float64
@@ -9,4 +11,16 @@ type FloatLiteral struct {
 func NewFloatLiteral(v float64) *FloatLiteral {
 	return &FloatLiteral{
 		Val: v}
+}
+
+func (fl *FloatLiteral) String() string {
+	return fmt.Sprintf("%f", fl.Val)
+}
+
+func (fl *FloatLiteral) SybolsReferenced() []string {
+	return []string{}
+}
+
+func (fl *FloatLiteral) PrefixSymbols(string) {
+
 }

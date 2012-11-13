@@ -1,0 +1,197 @@
+package couchbase
+
+import (
+	"fmt"
+	"github.com/mschoch/go-unql-couchbase/datasources"
+	"github.com/mschoch/go-unql-couchbase/parser"
+	"github.com/mschoch/go-unql-couchbase/planner"
+	"log"
+	// Alias this because we call our connection couchbase
+	"encoding/json"
+	cb "github.com/couchbaselabs/go-couchbase"
+	"github.com/dustin/gomemcached"
+)
+
+const couchbaseBatchSize = 10000
+const debugCouchbase = false
+
+// FIXME this global needs to be reconsidered
+// if we have 2 buckets with same name on different servers
+// it will break 
+var bucketCache = make(map[string]*cb.Bucket, 0)
+
+type CouchbaseDataSource struct {
+	Name            string
+	As              string
+	OutputChannel   planner.DocumentChannel
+	cancelled       bool
+	bucketName      string
+	couchbaseServer string
+}
+
+func init() {
+	datasources.RegisterDataSourceImpl("couchbase", NewCouchbaseDataSource)
+}
+
+func NewCouchbaseDataSource(config map[string]interface{}) planner.DataSource {
+	result := &CouchbaseDataSource{
+		OutputChannel:   make(planner.DocumentChannel),
+		cancelled:       false,
+		bucketName:      config["bucket"].(string),
+		couchbaseServer: config["couchbase"].(string)}
+
+	return result
+}
+
+// PlanPipelineComponent interface
+
+func (ds *CouchbaseDataSource) SetSource(source planner.PlanPipelineComponent) {
+	log.Fatalf("SetSource called on DataSource")
+}
+
+func (ds *CouchbaseDataSource) GetSource() planner.PlanPipelineComponent {
+	return nil
+}
+
+func (ds *CouchbaseDataSource) GetDocumentChannel() planner.DocumentChannel {
+	return ds.OutputChannel
+}
+
+func (ds *CouchbaseDataSource) Run() {
+	defer close(ds.OutputChannel)
+
+}
+
+func (ds *CouchbaseDataSource) Explain() {
+	defer close(ds.OutputChannel)
+
+	thisStep := map[string]interface{}{
+		"_type":    "FROM",
+		"impl":     "Couchbase",
+		"filename": ds.Name,
+		"as":       ds.As}
+
+	ds.OutputChannel <- thisStep
+}
+
+func (ds *CouchbaseDataSource) SetName(name string) {
+	ds.Name = name
+}
+
+func (ds *CouchbaseDataSource) SetAs(as string) {
+	ds.As = as
+}
+
+func (ds *CouchbaseDataSource) SetFilter(filter parser.Expression) error {
+	return fmt.Errorf("Couchbase DataSource does not support filter")
+}
+
+func (ds *CouchbaseDataSource) SetOrderBy(sortlist parser.SortList) error {
+	return fmt.Errorf("Couchbase DataSource does not support order by")
+}
+
+func (ds *CouchbaseDataSource) SetLimit(e parser.Expression) error {
+	return fmt.Errorf("Couchbase DataSource does not support limit")
+}
+
+func (ds *CouchbaseDataSource) SetOffset(e parser.Expression) error {
+	return fmt.Errorf("Couchbase DataSource does not support offset")
+}
+
+func (ds *CouchbaseDataSource) SetGroupByWithStatsFields(groupby parser.ExpressionList, stats_fields []string) error {
+	return fmt.Errorf("Couchbase DataSource does not support group by")
+}
+
+func (ds *CouchbaseDataSource) SetHaving(having parser.Expression) error {
+	return fmt.Errorf("Couchbase DataSource does not support having")
+}
+
+func (ds *CouchbaseDataSource) Cancel() {
+	ds.cancelled = true
+}
+
+func (ds *CouchbaseDataSource) DocsFromIds(docIds []string) ([]planner.Document, error) {
+
+	//get a connection to the bucket
+	bucket, err := ds.getCachedBucket(ds.bucketName)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]planner.Document, 0)
+	for i := 0; i < len(docIds); i += couchbaseBatchSize {
+		batchEnd := (i + (couchbaseBatchSize))
+		if batchEnd > len(docIds) {
+			batchEnd = len(docIds)
+		}
+
+		batchIds := docIds[i:batchEnd]
+		//batchIds := make([]string, 0, len(batch))
+
+		bulkResponse := bucket.GetBulk(batchIds)
+
+		if debugCouchbase {
+			log.Printf("Couchbase bulk response is: %#v", bulkResponse)
+		}
+
+		// response is a map, we need to walk through the original list
+		// in order to preserve order of final result
+		for _, id := range batchIds {
+			responseItem := bulkResponse[id]
+
+			if responseItem == nil {
+				return nil, fmt.Errorf("Couchbase does not contain the document %v", id)
+			}
+
+			doc, err := DocFromMcResponse(responseItem)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, doc)
+		}
+
+	}
+
+	return result, nil
+}
+
+func (ds *CouchbaseDataSource) getCachedBucket(couchbaseBucket string) (*cb.Bucket, error) {
+	bucket, ok := bucketCache[couchbaseBucket]
+	if ok {
+		return bucket, nil
+	} else {
+		buck, err := ds.dbConnect(couchbaseBucket)
+		if err != nil {
+			return nil, err
+		} else {
+			bucketCache[couchbaseBucket] = buck
+			bucket = buck
+		}
+	}
+	return bucket, nil
+}
+
+func (ds *CouchbaseDataSource) dbConnect(couchbaseBucket string) (*cb.Bucket, error) {
+
+	if debugCouchbase {
+		log.Printf("Connecting to couchbase bucket %v at %v",
+			couchbaseBucket, ds.couchbaseServer)
+	}
+	rv, err := cb.GetBucket(ds.couchbaseServer, "default", couchbaseBucket)
+	if err != nil {
+		return nil, err
+	}
+	return rv, nil
+}
+
+func DocFromMcResponse(mcResponse *gomemcached.MCResponse) (planner.Document, error) {
+	var doc planner.Document
+
+	// marshall into json
+	jsonErr := json.Unmarshal(mcResponse.Body, &doc)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	return doc, nil
+}
