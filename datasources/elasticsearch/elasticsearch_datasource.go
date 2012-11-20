@@ -14,7 +14,7 @@ import (
 )
 
 const StatsPrefix = "__stats__"
-const EsBatchSize = 10
+const EsBatchSize = 10000
 
 type ElasticSearchDataSource struct {
 	Name              string

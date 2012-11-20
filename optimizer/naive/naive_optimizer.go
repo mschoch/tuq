@@ -1,8 +1,10 @@
 package naive
 
 import (
+	"github.com/mschoch/go-unql-couchbase/parser"
 	"github.com/mschoch/go-unql-couchbase/planner"
-	//"log"
+	"log"
+	"strings"
 )
 
 type NaiveOptimizer struct {
@@ -29,6 +31,14 @@ func (no *NaiveOptimizer) Optimize(plans []planner.Plan) planner.Plan {
 		no.MoveOffsetToDataSource(plan)
 
 		no.MoveLimitToDataSource(plan)
+
+	} else {
+		// attempting to optimize through a join
+		no.MoveWhereToJoin(plan)
+
+		// see if we can separate any where conditions
+		// and apply them directly to the source of the join
+		no.MoveJoinConditionsUpTree(plan)
 
 	}
 
@@ -204,4 +214,158 @@ func PlanContainsJoin(plan planner.Plan) bool {
 		component = component.GetSource()
 	}
 	return false
+}
+
+func (no *NaiveOptimizer) MoveWhereToJoin(plan planner.Plan) {
+	last, curr, next := planner.FindNextPipelineComponentOfTypeFollowedbyType(plan.Root.GetSource(), planner.FilterType, planner.JoinerType)
+	if curr != nil && next != nil {
+		currFilter := curr.(planner.Filter)
+		nextJoiner := next.(planner.Joiner)
+		log.Printf("Found where clause immidiately followed by datasource %v", last)
+		err := nextJoiner.SetCondition(currFilter.GetFilter())
+		if err != nil {
+			log.Printf("this datasource cannot support this filter")
+		} else {
+			log.Printf("datasource accepted the filter, removing old filter")
+			if last == nil {
+				plan.Root.SetSource(next)
+			} else {
+				last.SetSource(next)
+			}
+		}
+
+	}
+}
+
+func (no *NaiveOptimizer) MoveJoinConditionsUpTree(plan planner.Plan) {
+
+	_, curr := planner.FindNextPipelineComponentOfType(plan.Root.GetSource(), planner.JoinerType)
+
+	if curr != nil {
+		currJoiner := curr.(planner.Joiner)
+		log.Printf("Expression considerered for separation is %#v", currJoiner.GetCondition())
+		
+		
+		// we need to keep running this until it sep is nil
+		sep, rest := LookForSeparableExpression(currJoiner.GetCondition())
+		for sep != nil {
+
+			log.Printf("Sep Expression is %v", sep)
+			log.Printf("Rest Expression is %v", rest)
+
+			// now try to place the separable expression
+			sepSymbols := sep.SybolsReferenced()
+			if len(sepSymbols) > 0 {
+				sepDataSource := sepSymbols[0]
+				sepDotIndex := strings.Index(sepDataSource, ".")
+				sepDs := sepDataSource[0:sepDotIndex]
+
+				// find the datasource on the LHS
+				_, leftDs := planner.FindNextPipelineComponentOfType(currJoiner.GetLeftSource(), planner.DataSourceType)
+				if leftDs != nil {
+					leftDataSource := leftDs.(planner.DataSource)
+					if leftDataSource.GetAs() == sepDs {
+						log.Printf("this expression goes left")
+						MoveSeparableExpressionToDataSource(leftDataSource, currJoiner, sep, rest)
+					}
+				}
+
+				// find the datasource on the RHS
+				_, rightDs := planner.FindNextPipelineComponentOfType(currJoiner.GetRightSource(), planner.DataSourceType)
+				if rightDs != nil {
+					rightDataSource := rightDs.(planner.DataSource)
+					if rightDataSource.GetAs() == sepDs {
+						log.Printf("this expression goes right")
+						MoveSeparableExpressionToDataSource(rightDataSource, currJoiner, sep, rest)
+					}
+				}
+
+			}
+
+			sep, rest = LookForSeparableExpression(currJoiner.GetCondition())
+		}
+	}
+
+}
+
+func MoveSeparableExpressionToDataSource(dataSource planner.DataSource, joiner planner.Joiner, sep parser.Expression, rest parser.Expression) {
+	newFilterExpression := sep
+	// get the existing filter (if any)
+	filterExpression := dataSource.GetFilter()
+	if filterExpression != nil {
+		// build an AND expression with sep and the existing
+		newFilterExpression = parser.NewAndExpression(sep, filterExpression)
+
+	}
+
+	err := dataSource.SetFilter(newFilterExpression)
+	if err != nil {
+		// this data source doesn't support this filter
+		// continue once this becomes a loop
+		log.Printf("Datasource rejected the new filter expression, %v", err)
+	} else {
+		// it accepted the filter, now we just updated the join condition
+		err := joiner.SetCondition(rest)
+		if err != nil {
+			// hmmn, now joiner rejected its new condition
+			// we must back out the other change
+			log.Printf("Datasource accepted, but now joiner rejected new filter expression, trying to reset")
+			err := dataSource.SetFilter(filterExpression)
+			if err != nil {
+				log.Fatalf("Datasource rejected setting its filter back to the original value, I don't know what to do")
+			}
+		}
+	}
+}
+
+func LookForSeparableExpression(expr parser.Expression) (parser.Expression, parser.Expression) {
+	count := NumberOfDataSourcesReferencedInExpression(expr)
+	if count < 2 {
+		// all symbols in this expression refer to the same datasource
+		// it could be moved out
+		return expr, nil
+	} else {
+		// this expression refers to symbols in 2 or more datasources
+		// it cannot be moved itself, but we may have to consier sub-expressions
+		and_expr, ok := expr.(*parser.AndExpression)
+		if ok {
+			// this expression is an AND expression so we can consider moving out
+			// its pieces
+			sep, remaining := LookForSeparableExpression(and_expr.Left)
+			if sep != nil {
+				// we found someting to remove
+				if remaining == nil {
+					// nothing remaining, return RHS
+					return sep, and_expr.Right
+				} else {
+					// build a new AND expression with the remaining piece and the RHS
+					return sep, parser.NewAndExpression(remaining, and_expr.Right)
+				}
+			} else {
+				// didn't find anything to remove, try the RHS
+				sep, remaining := LookForSeparableExpression(and_expr.Right)
+				if sep != nil {
+					// we found someting to remove
+					if remaining == nil {
+						// nothing left, return LHS
+						return sep, and_expr.Left
+					} else {
+						// build a new AND expression with the remaining piece and the RHS
+						return sep, parser.NewAndExpression(and_expr.Left, remaining)
+					}
+				}
+			}
+		}
+	}
+	// not an AND expression, nothing more we can do
+	return nil, nil
+}
+
+func NumberOfDataSourcesReferencedInExpression(expr parser.Expression) int {
+	datasourceRef := make(map[string]interface{})
+	symbolsReferenced := expr.SybolsReferenced()
+	for _, symbol := range symbolsReferenced {
+		datasourceRef[symbol] = nil
+	}
+	return len(datasourceRef)
 }
