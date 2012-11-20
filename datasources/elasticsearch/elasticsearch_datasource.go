@@ -29,6 +29,7 @@ type ElasticSearchDataSource struct {
 	sort              []map[string]interface{}
 	docBodyDataSource planner.DataSource
 	indexName         string
+	filterExpression  parser.Expression
 }
 
 func init() {
@@ -198,14 +199,23 @@ func (ds *ElasticSearchDataSource) SetAs(as string) {
 	ds.As = as
 }
 
+func (ds *ElasticSearchDataSource) GetAs() string {
+    return ds.As
+}
+
 func (ds *ElasticSearchDataSource) SetFilter(filter parser.Expression) error {
 	f, err := ds.BuildElasticSearchFilterRecursive(filter)
 	if err != nil {
 		return err
 	} else {
+		ds.filterExpression = filter
 		ds.filter = f
 	}
 	return nil
+}
+
+func (ds *ElasticSearchDataSource) GetFilter() parser.Expression {
+    return ds.filterExpression
 }
 
 func (ds *ElasticSearchDataSource) SetOrderBy(sortlist parser.SortList) error {
@@ -640,7 +650,7 @@ func (ds *ElasticSearchDataSource) BuildElasticSearchFilterRecursive(filter pars
 		return nil, fmt.Errorf("ElasticSearch does not support filter of bare literal")
 	}
 
-	return nil, fmt.Errorf("ElasticSearch does not support filter of Unknown type")
+	return nil, fmt.Errorf("ElasticSearch does not support filter of Unknown type: %T", filter)
 }
 
 func (ds *ElasticSearchDataSource) BuildElasticSearchOrderBy(sortlist parser.SortList) ([]map[string]interface{}, error) {

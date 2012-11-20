@@ -82,8 +82,16 @@ func (ds *CouchbaseDataSource) SetAs(as string) {
 	ds.As = as
 }
 
+func (ds *CouchbaseDataSource) GetAs() string {
+    return ds.As
+}
+
 func (ds *CouchbaseDataSource) SetFilter(filter parser.Expression) error {
 	return fmt.Errorf("Couchbase DataSource does not support filter")
+}
+
+func (ds *CouchbaseDataSource) GetFilter() parser.Expression {
+    return nil
 }
 
 func (ds *CouchbaseDataSource) SetOrderBy(sortlist parser.SortList) error {

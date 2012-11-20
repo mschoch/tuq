@@ -136,8 +136,16 @@ func (ds *CSVDataSource) SetAs(as string) {
 	ds.As = as
 }
 
+func (ds *CSVDataSource) GetAs() string {
+    return ds.As
+}
+
 func (ds *CSVDataSource) SetFilter(filter parser.Expression) error {
 	return fmt.Errorf("CSV DataSource does not support filter")
+}
+
+func (ds *CSVDataSource) GetFilter() parser.Expression {
+    return nil
 }
 
 func (ds *CSVDataSource) SetOrderBy(sortlist parser.SortList) error {

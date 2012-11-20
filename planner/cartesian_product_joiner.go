@@ -28,7 +28,7 @@ func (cpj *CartesianProductJoiner) SetSource(s PlanPipelineComponent) {
 }
 
 func (cpj *CartesianProductJoiner) GetSource() PlanPipelineComponent {
-    return nil
+	return nil
 }
 
 func (cpj *CartesianProductJoiner) GetDocumentChannel() DocumentChannel {

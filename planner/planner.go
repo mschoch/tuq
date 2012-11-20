@@ -2,6 +2,7 @@ package planner
 
 import (
 	"github.com/mschoch/go-unql-couchbase/parser"
+	"reflect"
 )
 
 type Document map[string]interface{}
@@ -63,7 +64,7 @@ type Filter interface {
 
 type Grouper interface {
 	SetGroupByWithStatsFields(parser.ExpressionList, []string)
-    GetGroupByWithStatsFields() (parser.ExpressionList, []string)
+	GetGroupByWithStatsFields() (parser.ExpressionList, []string)
 }
 
 type Orderer interface {
@@ -79,16 +80,21 @@ type Joiner interface {
 	Explain()
 	Cancel()
 	SetLeftSource(PlanPipelineComponent)
+	GetLeftSource() PlanPipelineComponent
 	SetRightSource(PlanPipelineComponent)
+	GetRightSource() PlanPipelineComponent
 	SetCondition(parser.Expression) error
+	GetCondition() parser.Expression
 }
 
 type DataSource interface {
 	SetName(string)
 	SetAs(string)
+	GetAs() string
 	SetFilter(parser.Expression) error
 	SetOrderBy(parser.SortList) error
 	SetLimit(parser.Expression) error
+	GetFilter() parser.Expression
 	SetOffset(parser.Expression) error
 	SetGroupByWithStatsFields(parser.ExpressionList, []string) error
 	SetHaving(parser.Expression) error
@@ -111,4 +117,41 @@ type Selecter interface {
 	Explain()
 	Cancel() // there are times that the downstream component knows it doesn't need any more from the upstream
 	SetSelect(parser.Expression)
+}
+
+// wanted these to be const, but compiler won't let me
+var SelecterType = reflect.TypeOf((*Selecter)(nil)).Elem()
+var DataSourceType = reflect.TypeOf((*DataSource)(nil)).Elem()
+var JoinerType = reflect.TypeOf((*Joiner)(nil)).Elem()
+var OrdererType = reflect.TypeOf((*Orderer)(nil)).Elem()
+var GrouperType = reflect.TypeOf((*Grouper)(nil)).Elem()
+var FilterType = reflect.TypeOf((*Filter)(nil)).Elem()
+var LimitterType = reflect.TypeOf((*Limitter)(nil)).Elem()
+var OffsetterType = reflect.TypeOf((*Offsetter)(nil)).Elem()
+
+func FindNextPipelineComponentOfType(root PlanPipelineComponent, t reflect.Type) (PlanPipelineComponent, PlanPipelineComponent) {
+	var prev PlanPipelineComponent
+	for root != nil {
+		if reflect.TypeOf(root) != t {
+			return prev, root
+		}
+		prev = root
+		root = root.GetSource()
+	}
+	return nil, nil
+}
+
+func FindNextPipelineComponentOfTypeFollowedbyType(root PlanPipelineComponent, t reflect.Type, nextT reflect.Type) (PlanPipelineComponent, PlanPipelineComponent, PlanPipelineComponent) {
+	var prev PlanPipelineComponent
+	for root != nil {
+		if reflect.TypeOf(root).Implements(t) {
+			next := root.GetSource()
+			if next != nil && reflect.TypeOf(next).Implements(nextT) {
+				return prev, root, next
+			}
+		}
+		prev = root
+		root = root.GetSource()
+	}
+	return nil, nil, nil
 }
