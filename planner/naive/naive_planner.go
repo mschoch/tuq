@@ -43,7 +43,7 @@ func (np *NaivePlanner) Plan(query parser.Select) []planner.Plan {
 		ds.SetAs(datasource.As)
 
 		if last_in_pipeline != nil {
-			joiner := planner.NewCartesianProductJoiner()
+			joiner := planner.NewOttoCartesianProductJoiner()
 			joiner.SetLeftSource(last_in_pipeline)
 			joiner.SetRightSource(ds)
 			last_in_pipeline = joiner
