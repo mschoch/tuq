@@ -48,6 +48,10 @@ func evaluateExpressionInEnvironment(o *otto.Otto, expr parser.Expression) otto.
 
 func evaluateExpressionInEnvironmentAsBoolean(o *otto.Otto, expr parser.Expression) bool {
 	expression := fmt.Sprintf("%v", expr)
+	return evaluateExpressionStringInEnvironmentAsBoolean(o, expression)
+}
+
+func evaluateExpressionStringInEnvironmentAsBoolean(o *otto.Otto, expression string) bool {
 	result, err := o.Run(expression)
 	if err != nil {
 		log.Printf("Error running otto %v", err)
