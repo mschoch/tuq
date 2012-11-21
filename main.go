@@ -3,10 +3,13 @@ package main
 import (
 	"flag"
 	"github.com/mschoch/tuq/datasources"
-	_ "github.com/mschoch/tuq/datasources/csv"
-	_ "github.com/mschoch/tuq/datasources/elasticsearch"
-	_ "github.com/mschoch/tuq/datasources/couchbase"
 	"time"
+
+	// register the datasources you want to support
+	_ "github.com/mschoch/tuq/datasources/couchbase"
+	_ "github.com/mschoch/tuq/datasources/csv"
+	_ "github.com/mschoch/tuq/datasources/datasources"
+	_ "github.com/mschoch/tuq/datasources/elasticsearch"
 )
 
 var debugTokens = flag.Bool("debugTokens", false, "Enable debug of all tokens seen by the lexer")

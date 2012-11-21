@@ -11,7 +11,7 @@ import (
 )
 
 // global variable containing definition of all data sources
-var dataSources = map[string]interface{}{}
+var DataSources = map[string]interface{}{}
 var dataSourceImpls = map[string]func(map[string]interface{}) planner.DataSource{}
 
 func LoadDataSources() {
@@ -44,7 +44,7 @@ func LoadDataSources() {
 		}
 
 	}
-	err = json.Unmarshal(dataSourceBytes, &dataSources)
+	err = json.Unmarshal(dataSourceBytes, &DataSources)
 	if err != nil {
 		log.Printf("Error loading data sources2 %v", err)
 		return
@@ -52,7 +52,7 @@ func LoadDataSources() {
 }
 
 func NewDataSourceWithName(name string) planner.DataSource {
-	dsDef, ok := dataSources[name].(map[string]interface{})
+	dsDef, ok := DataSources[name].(map[string]interface{})
 	if !ok {
 		return nil
 	}
@@ -78,4 +78,6 @@ var defaultDataSources = map[string]interface{}{
 		"path": "http://raw.github.com/mschoch/tuq/master/datasources/csv/test_csv_datasources/employees.csv"},
 	"departments": map[string]interface{}{
 		"type": "csv",
-		"path": "http://raw.github.com/mschoch/tuq/master/datasources/csv/test_csv_datasources/departments.csv"}}
+		"path": "http://raw.github.com/mschoch/tuq/master/datasources/csv/test_csv_datasources/departments.csv"},
+	"_datasources": map[string]interface{}{
+		"type": "datasources"}}
