@@ -8,8 +8,10 @@ import (
 	"github.com/mschoch/tuq/planner"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func init() {
@@ -48,15 +50,27 @@ func (ds *CSVDataSource) GetDocumentChannel() planner.DocumentChannel {
 func (ds *CSVDataSource) Run() {
 	defer close(ds.OutputChannel)
 
-	file, err := os.Open(ds.filename)
-	if err != nil {
-		close(ds.OutputChannel)
-		log.Printf("Error:", err)
-		return
+	var sr io.Reader
+	if strings.HasPrefix(ds.filename, "http") {
+		resp, err := http.Get(ds.filename)
+		if err != nil {
+			log.Printf("Error:", err)
+			return
+		}
+		sr = resp.Body
+		defer resp.Body.Close()
+	} else {
+		log.Printf("opening file %v", ds.filename)
+		file, err := os.Open(ds.filename)
+		if err != nil {
+			log.Printf("Error:", err)
+			return
+		}
+		sr = file
+		defer file.Close()
 	}
-	defer file.Close()
 
-	reader := csv.NewReader(file)
+	reader := csv.NewReader(sr)
 	var columnHeaders []string
 	row := 0
 	for {
