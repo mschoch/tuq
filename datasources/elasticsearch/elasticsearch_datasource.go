@@ -27,6 +27,7 @@ type ElasticSearchDataSource struct {
 	limit             int
 	offset            int
 	sort              []map[string]interface{}
+	sortlist          parser.SortList
 	docBodyDataSource planner.DataSource
 	indexName         string
 	filterExpression  parser.Expression
@@ -200,7 +201,7 @@ func (ds *ElasticSearchDataSource) SetAs(as string) {
 }
 
 func (ds *ElasticSearchDataSource) GetAs() string {
-    return ds.As
+	return ds.As
 }
 
 func (ds *ElasticSearchDataSource) SetFilter(filter parser.Expression) error {
@@ -215,7 +216,7 @@ func (ds *ElasticSearchDataSource) SetFilter(filter parser.Expression) error {
 }
 
 func (ds *ElasticSearchDataSource) GetFilter() parser.Expression {
-    return ds.filterExpression
+	return ds.filterExpression
 }
 
 func (ds *ElasticSearchDataSource) SetOrderBy(sortlist parser.SortList) error {
@@ -226,9 +227,14 @@ func (ds *ElasticSearchDataSource) SetOrderBy(sortlist parser.SortList) error {
 	if err != nil {
 		return err
 	} else {
+		ds.sortlist = sortlist
 		ds.sort = d
 	}
 	return nil
+}
+
+func (ds *ElasticSearchDataSource) GetOrderBy() parser.SortList {
+	return ds.sortlist
 }
 
 func (ds *ElasticSearchDataSource) SetLimit(expr parser.Expression) error {
