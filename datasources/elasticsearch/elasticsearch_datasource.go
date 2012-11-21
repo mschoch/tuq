@@ -14,7 +14,8 @@ import (
 )
 
 const StatsPrefix = "__stats__"
-const EsBatchSize = 10000
+const DefaultEsBatchSize = 10000
+const DefaultEsMaxAggregate = 1000000
 
 type ElasticSearchDataSource struct {
 	Name              string
@@ -31,6 +32,8 @@ type ElasticSearchDataSource struct {
 	docBodyDataSource planner.DataSource
 	indexName         string
 	filterExpression  parser.Expression
+	batchSize         int
+	maxAggregate      int
 }
 
 func init() {
@@ -50,6 +53,18 @@ func NewElasticSearchDataSource(config map[string]interface{}) planner.DataSourc
 
 	if config["doc_body"] != nil {
 		result.docBodyDataSource = datasources.NewDataSourceWithName(config["doc_body"].(string))
+	}
+
+	if config["batch_size"] != nil {
+		result.batchSize = config["doc_body"].(int)
+	} else {
+		result.batchSize = DefaultEsBatchSize
+	}
+
+	if config["max_aggregate"] != nil {
+		result.batchSize = config["max_aggregate"].(int)
+	} else {
+		result.batchSize = DefaultEsMaxAggregate
 	}
 
 	return result
@@ -287,7 +302,7 @@ func (ds *ElasticSearchDataSource) SetGroupByWithStatsFields(groupby parser.Expr
 				val = val.Tail()
 			}
 
-			facet := NewTermsFacet(val.Symbol, 100000) //FIXME convert back to flag
+			facet := NewTermsFacet(val.Symbol, ds.maxAggregate)
 			(*ds.facets)[val.Symbol] = facet
 
 			for _, stat_field := range stats_fields {
@@ -298,7 +313,7 @@ func (ds *ElasticSearchDataSource) SetGroupByWithStatsFields(groupby parser.Expr
 				}
 				if stat_field != val.Symbol {
 					log.Printf("stat field is %v and val symbol is %v", stat_field, val.Symbol)
-					facet := NewTermsStatsFacet(val.Symbol, stat_field, 100000)
+					facet := NewTermsStatsFacet(val.Symbol, stat_field, ds.maxAggregate)
 					(*ds.facets)[StatsPrefix+stat_field] = facet
 				}
 			}
@@ -311,7 +326,7 @@ func (ds *ElasticSearchDataSource) SetGroupByWithStatsFields(groupby parser.Expr
 					} else {
 						stat_field = stat_field[len(ds.As)+1:]
 					}
-					facet := NewStatisticalFacet(stat_field, 100000) //FIXME convert back to flag
+					facet := NewStatisticalFacet(stat_field, ds.maxAggregate)
 					(*ds.facets)[StatsPrefix+stat_field] = facet
 				}
 			} else {
@@ -353,7 +368,7 @@ func (ds *ElasticSearchDataSource) SetURL(urlString string) error {
 // Support
 
 func (ds *ElasticSearchDataSource) buildQuery() {
-	ds.query = NewDefaultQuery()
+	ds.query = NewDefaultQuery(ds.batchSize)
 
 	// add filter to non-aggregate query
 	if ds.facets == nil {
@@ -363,7 +378,7 @@ func (ds *ElasticSearchDataSource) buildQuery() {
 		if ds.sort != nil {
 			(*ds.query)["sort"] = ds.sort
 		}
-		if ds.limit != -1 && ds.limit < EsBatchSize {
+		if ds.limit != -1 && ds.limit < ds.batchSize {
 			(*ds.query)["size"] = ds.limit
 		}
 		if ds.offset != 0 {

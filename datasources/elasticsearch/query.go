@@ -6,7 +6,6 @@ type Filter map[string]interface{}
 type Facets map[string]interface{}
 type Facet map[string]interface{}
 
-
 func MatchAllQuery() *Query {
 	query := make(Query)
 	query["match_all"] = map[string]interface{}{}
@@ -98,8 +97,8 @@ func NewQueryDocument(query *Query, filter *Filter, facets *Facets, size int) *Q
 	return &doc
 }
 
-func NewDefaultQuery() *QueryDocument {
-	return NewQueryDocument(MatchAllQuery(), EmptyFilter(), EmptyFacets(), EsBatchSize)
+func NewDefaultQuery(batchSize int) *QueryDocument {
+	return NewQueryDocument(MatchAllQuery(), EmptyFilter(), EmptyFacets(), batchSize)
 }
 
 func (f *Facet) SetFacetSize(size int) {
@@ -114,4 +113,3 @@ func (f *Facet) SetFacetSize(size int) {
 func (f *Facet) SetFacetFilter(filter *Filter) {
 	(*f)["facet_filter"] = *filter
 }
-
