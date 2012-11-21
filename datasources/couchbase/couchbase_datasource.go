@@ -12,8 +12,8 @@ import (
 	"github.com/dustin/gomemcached"
 )
 
-const couchbaseBatchSize = 10000
-const debugCouchbase = false
+const defaultCouchbaseBatchSize = 10000
+const defaultDebugCouchbase = false
 
 // FIXME this global needs to be reconsidered
 // if we have 2 buckets with same name on different servers
@@ -27,6 +27,8 @@ type CouchbaseDataSource struct {
 	cancelled       bool
 	bucketName      string
 	couchbaseServer string
+	batchSize       int
+	debug           bool
 }
 
 func init() {
@@ -39,6 +41,18 @@ func NewCouchbaseDataSource(config map[string]interface{}) planner.DataSource {
 		cancelled:       false,
 		bucketName:      config["bucket"].(string),
 		couchbaseServer: config["couchbase"].(string)}
+
+	if config["batch_size"] != nil {
+		result.batchSize = config["batch_size"].(int)
+	} else {
+		result.batchSize = defaultCouchbaseBatchSize
+	}
+
+	if config["debug"] != nil {
+		result.debug = config["debug"].(bool)
+	} else {
+		result.debug = defaultDebugCouchbase
+	}
 
 	return result
 }
@@ -131,8 +145,8 @@ func (ds *CouchbaseDataSource) DocsFromIds(docIds []string) ([]planner.Document,
 	}
 
 	result := make([]planner.Document, 0)
-	for i := 0; i < len(docIds); i += couchbaseBatchSize {
-		batchEnd := (i + (couchbaseBatchSize))
+	for i := 0; i < len(docIds); i += ds.batchSize {
+		batchEnd := (i + (ds.batchSize))
 		if batchEnd > len(docIds) {
 			batchEnd = len(docIds)
 		}
@@ -142,7 +156,7 @@ func (ds *CouchbaseDataSource) DocsFromIds(docIds []string) ([]planner.Document,
 
 		bulkResponse := bucket.GetBulk(batchIds)
 
-		if debugCouchbase {
+		if ds.debug {
 			log.Printf("Couchbase bulk response is: %#v", bulkResponse)
 		}
 
@@ -185,7 +199,7 @@ func (ds *CouchbaseDataSource) getCachedBucket(couchbaseBucket string) (*cb.Buck
 
 func (ds *CouchbaseDataSource) dbConnect(couchbaseBucket string) (*cb.Bucket, error) {
 
-	if debugCouchbase {
+	if ds.debug {
 		log.Printf("Connecting to couchbase bucket %v at %v",
 			couchbaseBucket, ds.couchbaseServer)
 	}

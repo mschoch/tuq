@@ -14,8 +14,9 @@ import (
 )
 
 const StatsPrefix = "__stats__"
-const DefaultEsBatchSize = 10000
-const DefaultEsMaxAggregate = 1000000
+const defaultBatchSize = 10000
+const defaultMaxAggregate = 1000000
+const defaultDebug = false
 
 type ElasticSearchDataSource struct {
 	Name              string
@@ -34,6 +35,7 @@ type ElasticSearchDataSource struct {
 	filterExpression  parser.Expression
 	batchSize         int
 	maxAggregate      int
+	debug             bool
 }
 
 func init() {
@@ -58,13 +60,19 @@ func NewElasticSearchDataSource(config map[string]interface{}) planner.DataSourc
 	if config["batch_size"] != nil {
 		result.batchSize = config["batch_size"].(int)
 	} else {
-		result.batchSize = DefaultEsBatchSize
+		result.batchSize = defaultBatchSize
 	}
 
 	if config["max_aggregate"] != nil {
 		result.batchSize = config["max_aggregate"].(int)
 	} else {
-		result.batchSize = DefaultEsMaxAggregate
+		result.batchSize = defaultMaxAggregate
+	}
+
+	if config["debug"] != nil {
+		result.debug = config["debug"].(bool)
+	} else {
+		result.debug = defaultDebug
 	}
 
 	return result
