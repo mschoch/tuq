@@ -7,14 +7,14 @@ A tool for querying unstructured datasources.
 * Interactive query shell with readline-like support and command history
 * HTTP mode
 * DataSources
-** CSV file
-** Couchbase+ElasticSearch
+  * CSV file
+  * Couchbase+ElasticSearch
 * Baseline support for all operations in memory (allows working with databases that have limitted query capability)
 * Pluggable architecture (for easier experimentation)
-** Parser
-** Planner
-** Optimizer
-** Datasources
+  * Parser
+  * Planner
+  * Optimizer
+  * Datasources
 
 ### Query Language
 
@@ -36,8 +36,8 @@ Currently there are 2 optimizer implementations
 
 * null - The null optimizer does nothing.
 * naive - The naive optimizer currently knows how to optimize 2 scenarios
-** Queries on a single datasource.  In this case the optimizer tries to get the datasource to do as much of the work as possible.
-** Queries joining 2 datasources.  In this case the optimizer tries to get each datasource to filter as much as possible prior to joining, then in some cases switch to a sort-merge JOIN.
+  * Queries on a single datasource.  In this case the optimizer tries to get the datasource to do as much of the work as possible.
+  * Queries joining 2 datasources.  In this case the optimizer tries to get each datasource to filter as much as possible prior to joining, then in some cases switch to a sort-merge JOIN.
 
 
 ### Datasources
