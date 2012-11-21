@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-    datasources.RegisterDataSourceImpl("csv", NewCSVDataSource)
+	datasources.RegisterDataSourceImpl("csv", NewCSVDataSource)
 }
 
 type CSVDataSource struct {
@@ -137,7 +137,7 @@ func (ds *CSVDataSource) SetAs(as string) {
 }
 
 func (ds *CSVDataSource) GetAs() string {
-    return ds.As
+	return ds.As
 }
 
 func (ds *CSVDataSource) SetFilter(filter parser.Expression) error {
@@ -145,11 +145,15 @@ func (ds *CSVDataSource) SetFilter(filter parser.Expression) error {
 }
 
 func (ds *CSVDataSource) GetFilter() parser.Expression {
-    return nil
+	return nil
 }
 
 func (ds *CSVDataSource) SetOrderBy(sortlist parser.SortList) error {
 	return fmt.Errorf("CSV DataSource does not support order by")
+}
+
+func (ds *CSVDataSource) GetOrderBy() parser.SortList {
+	return nil
 }
 
 func (ds *CSVDataSource) SetLimit(e parser.Expression) error {

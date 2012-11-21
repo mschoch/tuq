@@ -83,7 +83,7 @@ func (ds *CouchbaseDataSource) SetAs(as string) {
 }
 
 func (ds *CouchbaseDataSource) GetAs() string {
-    return ds.As
+	return ds.As
 }
 
 func (ds *CouchbaseDataSource) SetFilter(filter parser.Expression) error {
@@ -91,11 +91,15 @@ func (ds *CouchbaseDataSource) SetFilter(filter parser.Expression) error {
 }
 
 func (ds *CouchbaseDataSource) GetFilter() parser.Expression {
-    return nil
+	return nil
 }
 
 func (ds *CouchbaseDataSource) SetOrderBy(sortlist parser.SortList) error {
 	return fmt.Errorf("Couchbase DataSource does not support order by")
+}
+
+func (ds *CouchbaseDataSource) GetOrderBy() parser.SortList {
+	return nil
 }
 
 func (ds *CouchbaseDataSource) SetLimit(e parser.Expression) error {
