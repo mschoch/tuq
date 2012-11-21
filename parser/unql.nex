@@ -40,12 +40,12 @@
 /SUM|sum/               { logDebugTokens("SUM"); return SUM }
 /PRAGMA|pragma/         { logDebugTokens("PRAGMA"); return PRAGMA }
 /EXPLAIN|explain/       { logDebugTokens("EXPLAIN"); return EXPLAIN }
-/[a-z_][a-z0-9\-_]*/  { 
+/[a-zA-Z_][a-zA-Z0-9\-_]*/  { 
                         lval.s = yylex.Text();
                         logDebugTokens("IDENTIFIER: %s", lval.s);
                         return IDENTIFIER 
                     }
-/[a-z_][a-z0-9\-_]*(\.[a-z][a-z0-9\-_]*)*/  {
+/[a-zA-Z_][a-zA-Z0-9\-_]*(\.[a-z][a-zA-Z0-9\-_]*)*/  {
                             lval.s = yylex.Text();
                             logDebugTokens("PROPERTY: %s", lval.s);
                             return PROPERTY
@@ -77,7 +77,7 @@
 /\?/              { logDebugTokens("QUESTION"); return QUESTION }
 /\:/              { logDebugTokens("COLON"); return COLON }
 /[ \t\n]+/        { logDebugTokens("WHITESPACE (count=%d)", len(yylex.Text())) /* eat up whitespace */ }
-/./               { log.Printf("see problem"); return int(yylex.Text()[0]) }
+/./               { log.Printf("see problem: %v", yylex.Text()); return int(yylex.Text()[0]) }
 //
 package parser
 
