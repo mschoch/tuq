@@ -18,7 +18,7 @@ func LoadDataSources() {
 		log.Printf("Unable to determine home directory, no datasources will be loaded")
 		return
 	}
-	dataSourceBytes, err := ioutil.ReadFile(currentUser.HomeDir + "/.unql_datasources")
+	dataSourceBytes, err := ioutil.ReadFile(currentUser.HomeDir + "/.tuq_datasources")
 	if err != nil {
 		log.Printf("Error loading data sources %v", err)
 		return

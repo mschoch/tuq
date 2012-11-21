@@ -10,14 +10,14 @@ import (
 
 func LoadHistory(liner *liner.State, currentUser *user.User) {
 	if currentUser != nil && currentUser.HomeDir != "" {
-		ReadHistoryFromFile(liner, currentUser.HomeDir+"/.unql_history")
+		ReadHistoryFromFile(liner, currentUser.HomeDir+"/.tuq_history")
 	}
 }
 
 func UpdateHistory(liner *liner.State, currentUser *user.User, line string) {
 	liner.AppendHistory(line)
 	if currentUser != nil && currentUser.HomeDir != "" {
-		WriteHistoryToFile(liner, currentUser.HomeDir+"/.unql_history")
+		WriteHistoryToFile(liner, currentUser.HomeDir+"/.tuq_history")
 	}
 }
 
@@ -33,7 +33,7 @@ func WriteHistoryToFile(liner *liner.State, path string) {
 	writer := bufio.NewWriter(f)
 	_, err = liner.WriteHistory(writer)
 	if err != nil {
-		log.Printf("Error updating .unql_history file: %v", err)
+		log.Printf("Error updating .tuq_history file: %v", err)
 	} else {
 		writer.Flush()
 	}
