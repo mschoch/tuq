@@ -93,6 +93,7 @@ type DataSource interface {
 	GetAs() string
 	SetFilter(parser.Expression) error
 	SetOrderBy(parser.SortList) error
+	GetOrderBy() parser.SortList
 	SetLimit(parser.Expression) error
 	GetFilter() parser.Expression
 	SetOffset(parser.Expression) error
@@ -132,7 +133,7 @@ var OffsetterType = reflect.TypeOf((*Offsetter)(nil)).Elem()
 func FindNextPipelineComponentOfType(root PlanPipelineComponent, t reflect.Type) (PlanPipelineComponent, PlanPipelineComponent) {
 	var prev PlanPipelineComponent
 	for root != nil {
-		if reflect.TypeOf(root) != t {
+		if reflect.TypeOf(root).Implements(t) {
 			return prev, root
 		}
 		prev = root
