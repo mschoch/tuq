@@ -1,11 +1,11 @@
 package main
 
 import (
-	naiveoptimizer "github.com/mschoch/go-unql-couchbase/optimizer/naive"
-	nulloptimizer "github.com/mschoch/go-unql-couchbase/optimizer/null"
-	"github.com/mschoch/go-unql-couchbase/parser"
-	"github.com/mschoch/go-unql-couchbase/planner"
-	naiveplanner "github.com/mschoch/go-unql-couchbase/planner/naive"
+	naiveoptimizer "github.com/mschoch/tuq/optimizer/naive"
+	nulloptimizer "github.com/mschoch/tuq/optimizer/null"
+	"github.com/mschoch/tuq/parser"
+	"github.com/mschoch/tuq/planner"
+	naiveplanner "github.com/mschoch/tuq/planner/naive"
 	"github.com/sbinet/liner"
 	"log"
 	"os"
@@ -34,7 +34,7 @@ func handleInteractiveMode() {
 	go signalCatcher(liner)
 
 	for {
-		line, err := liner.Prompt("unql-couchbase> ")
+		line, err := liner.Prompt("tuq> ")
 		if err != nil {
 			break
 		}

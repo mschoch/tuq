@@ -2,7 +2,7 @@
 *.6
 *.a
 *~
-/go-unql-couchbase
+/tuq
 6.out
 _*
 /.project

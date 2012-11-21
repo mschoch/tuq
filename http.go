@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	naiveoptimizer "github.com/mschoch/go-unql-couchbase/optimizer/naive"
-	"github.com/mschoch/go-unql-couchbase/parser"
-	naiveplanner "github.com/mschoch/go-unql-couchbase/planner/naive"
+	naiveoptimizer "github.com/mschoch/tuq/optimizer/naive"
+	"github.com/mschoch/tuq/parser"
+	naiveplanner "github.com/mschoch/tuq/planner/naive"
 	"log"
 	"net/http"
 )

@@ -1,7 +1,7 @@
 package optimzer
 
 import (
-	"github.com/mschoch/go-unql-couchbase/planner"
+	"github.com/mschoch/tuq/planner"
 )
 
 // the optimizer takes a slice of plans

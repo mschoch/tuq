@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/mschoch/go-unql-couchbase/datasources"
-	_ "github.com/mschoch/go-unql-couchbase/datasources/csv"
-	_ "github.com/mschoch/go-unql-couchbase/datasources/elasticsearch"
-	_ "github.com/mschoch/go-unql-couchbase/datasources/couchbase"
+	"github.com/mschoch/tuq/datasources"
+	_ "github.com/mschoch/tuq/datasources/csv"
+	_ "github.com/mschoch/tuq/datasources/elasticsearch"
+	_ "github.com/mschoch/tuq/datasources/couchbase"
 	"time"
 )
 

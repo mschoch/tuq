@@ -1,46 +1,64 @@
-# go-unql-couchbase
+# tuq (Tool for Unstructured Querying)
 
-A rough implementation of the UNQL query language, backed by Couchbase Server integrated with ElasticSearch.
+A tool for querying unstructured datasources.
 
-Currently the goal is to support as much as possible which can be translated to a single ElasticSearch query.
+## Features
+* UNQL-like query language
+* Interactive query shell with readline-like support and command history
+* HTTP mode
+* DataSources
+** CSV file
+** Couchbase+ElasticSearch
+* Baseline support for all operations in memory (allows working with databases that have limitted query capability)
+* Pluggable architecture (for easier experimentation)
+** Parser
+** Planner
+** Optimizer
+** Datasources
 
-Support for joins, sub-queries, and Couchbase View optimizations is not yet planned.
+### Query Language
 
-## Things that work
-* Interactive query editor, with readline like support and command history
-* SELECT
- * with no expression returns whole wrapped documents (doc + meta)
- * with JavaScript expression, evaluated in the context of the row returned (see examples below)
- * expression can contain aggregate functions min(),max(),avg(),count(),sum()
-  * normal rules about what fields you can bring back during aggregate queries apply
-* FROM with ONLY 1 datasource
-* WHERE clause to filter records
-* GROUP BY with ONLY 1 expression
-* ORDER BY with ONLY 1 expression (ASC or DESC)
-* LIMIT with integer literal
-* OFFSET with integer literal
+
+
+### Parser
+
+The parser is responsible for converting a query string into a query tree.
+
+The query language is based on UNQL.
+
+### Planner
+
+The planner converts the query tree into a plan.  The plan is a tree of steps which must be performed to answer the query.  Currently the planner builds the simplest plan possible to provide the correct answer.
+
+### Optimizer
+
+Currently there are 2 optimizer implementations
+
+* null - The null optimizer does nothing.
+* naive - The naive optimizer currently knows how to optimize 2 scenarios
+** Queries on a single datasource.  In this case the optimizer tries to get the datasource to do as much of the work as possible.
+** Queries joining 2 datasources.  In this case the optimizer tries to get each datasource to filter as much as possible prior to joining, then in some cases switch to a sort-merge JOIN.
+
+
+### Datasources
+
+Currently 3 datasources are supported, CSV and ElasticSearch, and Couchbase + ElasticSearch.
+
+Adding support for new datasources is easy if you have a way to iterate all the items in the datasource.  Making the datasource work efficiently requires converting various query expressions into operations on the server-side.
+
+CSV is an example of a bare-minimum datasource.  The only operation it supports is returning all values.
+ElasticSearch is an example of a more complex datasource.  It has support for evaluating various expressions on the server-side.
+
 
 ## Things that do NOT work
-* No HTTP support yet
-* No support for joins
-* No support for sub-query
-* No support for HAVING clause
-* ORDER, LIMIT and OFFSET during aggregate queries
+* Sub-query is allowed in the syntax, but not supported.
 * Array index access in expression (like anArray[index])
-
-## How does it work?
-
-* Query is tokenized (using nex)
-* Query is parsed (using goyacc)
-* Parsed Query is converted to an ElasticSearch Query
-* ElasticSearch result documents are retrieved from Couchbase
-* Result rows are evalated
 
 ## Examples
 
 Basic query pulling back 1 full document
 
-    unql-couchbase> SELECT FROM beer-sample LIMIT 1
+    tuq> SELECT FROM beer-sample LIMIT 1
     [
         {
             "doc": {
@@ -67,7 +85,7 @@ Basic query pulling back 1 full document
     
 Reformat the result row into new document, including an array.
     
-    unql-couchbase> SELECT { "beer-name": doc.name, "abv_ibu_array": [doc.abv, doc.ibu] } FROM beer-sample LIMIT 1 OFFSET 5
+    tuq> SELECT { "beer-name": doc.name, "abv_ibu_array": [doc.abv, doc.ibu] } FROM beer-sample LIMIT 1 OFFSET 5
     [
         {
             "abv_ibu_array": [
@@ -80,12 +98,12 @@ Reformat the result row into new document, including an array.
 
 Show a query with a WHERE clause.  This one not matching any rows, returning empty result set.
 
-    unql-couchbase> SELECT FROM beer-sample WHERE doc.abv > 12 && doc.abv < 12.1
+    tuq> SELECT FROM beer-sample WHERE doc.abv > 12 && doc.abv < 12.1
     []
     
 Show a similar query that does match rows.
     
-    unql-couchbase> SELECT FROM beer-sample WHERE doc.abv > 12 && doc.abv < 12.2
+    tuq> SELECT FROM beer-sample WHERE doc.abv > 12 && doc.abv < 12.2
     [
         {
             "doc": {
@@ -110,7 +128,7 @@ Show a similar query that does match rows.
     
 Show using ORDER BY to find the beer with the highest alcohol content.
     
-    unql-couchbase> SELECT FROM beer-sample ORDER BY doc.abv DESC LIMIT 1
+    tuq> SELECT FROM beer-sample ORDER BY doc.abv DESC LIMIT 1
     [
         {
             "doc": {
@@ -137,7 +155,7 @@ Show using ORDER BY to find the beer with the highest alcohol content.
     
 Aggregate query across whole data source.
 
-    unql-couchbase> SELECT {"count": count(doc.abv), "minabv": min(doc.abv), "maxibu": max(doc.ibu)} FROM beer-sample
+    tuq> SELECT {"count": count(doc.abv), "minabv": min(doc.abv), "maxibu": max(doc.ibu)} FROM beer-sample
     [
         {
             "count": 5901,
@@ -148,7 +166,7 @@ Aggregate query across whole data source.
 
 Group all the documents based on their type (beer or brewery) and show the count of each category.
     
-    unql-couchbase> SELECT { "type": doc.type, "count": count(doc.type) } FROM beer-sample GROUP BY doc.type
+    tuq> SELECT { "type": doc.type, "count": count(doc.type) } FROM beer-sample GROUP BY doc.type
     [
         {
             "count": 5901,
@@ -165,7 +183,7 @@ this matches beers with a style containing the term "lager".  Also beers with 0 
 This uses the not-analyzed field, so we group on the exact styles.  Finally, we added an aggregate function on another field.  This output
 also returns the average ABV for each beer style.
     
-    unql-couchbase> SELECT {"style":doc.style, "count":count(doc.style), "avg_abv": avg(doc.abv)} FROM beer-sample WHERE doc.style.analyzed == "lager" && doc.abv > 0 GROUP BY doc.style
+    tuq> SELECT {"style":doc.style, "count":count(doc.style), "avg_abv": avg(doc.abv)} FROM beer-sample WHERE doc.style.analyzed == "lager" && doc.abv > 0 GROUP BY doc.style
     [
         {
             "avg_abv": 5.166702702702702,
@@ -209,9 +227,9 @@ also returns the average ABV for each beer style.
 
 ## Building (to use)
 
-1.  go get github.com/mschoch/go-unql-couchbase
+1.  go get github.com/mschoch/tuq
 
-## Running
+## Running (out of date)
 
 1.  You must already have a Couchbase Server
 2.  You must already have an ElasticSearch Server

@@ -2,7 +2,7 @@ package datasources
 
 import (
 	"encoding/json"
-	"github.com/mschoch/go-unql-couchbase/planner"
+	"github.com/mschoch/tuq/planner"
 	"io/ioutil"
 	"log"
 	"os/user"

@@ -2,9 +2,9 @@ package couchbase
 
 import (
 	"fmt"
-	"github.com/mschoch/go-unql-couchbase/datasources"
-	"github.com/mschoch/go-unql-couchbase/parser"
-	"github.com/mschoch/go-unql-couchbase/planner"
+	"github.com/mschoch/tuq/datasources"
+	"github.com/mschoch/tuq/parser"
+	"github.com/mschoch/tuq/planner"
 	"log"
 	// Alias this because we call our connection couchbase
 	"encoding/json"

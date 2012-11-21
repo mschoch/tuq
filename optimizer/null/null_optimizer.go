@@ -1,7 +1,7 @@
 package naive
 
 import (
-    "github.com/mschoch/go-unql-couchbase/planner"
+    "github.com/mschoch/tuq/planner"
 )
 
 type NullOptimizer struct {

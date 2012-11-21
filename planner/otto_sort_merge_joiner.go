@@ -2,7 +2,7 @@ package planner
 
 import (
 	"fmt"
-	"github.com/mschoch/go-unql-couchbase/parser"
+	"github.com/mschoch/tuq/parser"
 	"github.com/robertkrimen/otto"
 	"log"
 )
