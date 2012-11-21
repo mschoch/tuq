@@ -30,7 +30,9 @@ func LoadDataSources() {
 				log.Printf("unable to set up default datasources")
 				return
 			}
-			log.Printf("NOTICE: No datasources were found, default datasources have been loaded (these require internet access).")
+			log.Printf("NOTICE: No datasources were found, default datasources have been defined (these require internet access).")
+			log.Printf("NOTICE: Datasources will be saved to %v", currentUser.HomeDir+"/.tuq_datasources")
+			log.Printf("NOTICE: To list your datasources, run: SELECT FROM _datasources")
 
 			err = ioutil.WriteFile(currentUser.HomeDir+"/.tuq_datasources", dataSourceBytes, 0600)
 			if err != nil {
