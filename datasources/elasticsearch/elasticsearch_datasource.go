@@ -56,7 +56,7 @@ func NewElasticSearchDataSource(config map[string]interface{}) planner.DataSourc
 	}
 
 	if config["batch_size"] != nil {
-		result.batchSize = config["doc_body"].(int)
+		result.batchSize = config["batch_size"].(int)
 	} else {
 		result.batchSize = DefaultEsBatchSize
 	}
