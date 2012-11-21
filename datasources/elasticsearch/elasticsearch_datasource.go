@@ -64,9 +64,9 @@ func NewElasticSearchDataSource(config map[string]interface{}) planner.DataSourc
 	}
 
 	if config["max_aggregate"] != nil {
-		result.batchSize = config["max_aggregate"].(int)
+		result.maxAggregate = config["max_aggregate"].(int)
 	} else {
-		result.batchSize = defaultMaxAggregate
+		result.maxAggregate = defaultMaxAggregate
 	}
 
 	if config["debug"] != nil {
