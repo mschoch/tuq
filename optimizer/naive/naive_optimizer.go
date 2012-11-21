@@ -3,7 +3,7 @@ package naive
 import (
 	"github.com/mschoch/go-unql-couchbase/parser"
 	"github.com/mschoch/go-unql-couchbase/planner"
-	"log"
+	//"log"
 	"strings"
 )
 
@@ -39,6 +39,9 @@ func (no *NaiveOptimizer) Optimize(plans []planner.Plan) planner.Plan {
 		// see if we can separate any where conditions
 		// and apply them directly to the source of the join
 		no.MoveJoinConditionsUpTree(plan)
+
+		// now see if the join could be done using sort merge join
+		no.TrySortMerge(plan)
 
 	}
 
@@ -221,12 +224,12 @@ func (no *NaiveOptimizer) MoveWhereToJoin(plan planner.Plan) {
 	if curr != nil && next != nil {
 		currFilter := curr.(planner.Filter)
 		nextJoiner := next.(planner.Joiner)
-		log.Printf("Found where clause immidiately followed by datasource %v", last)
+		//log.Printf("Found where clause immidiately followed by datasource %v", last)
 		err := nextJoiner.SetCondition(currFilter.GetFilter())
 		if err != nil {
-			log.Printf("this datasource cannot support this filter")
+			//log.Printf("this datasource cannot support this filter")
 		} else {
-			log.Printf("datasource accepted the filter, removing old filter")
+			//log.Printf("datasource accepted the filter, removing old filter")
 			if last == nil {
 				plan.Root.SetSource(next)
 			} else {
@@ -243,15 +246,14 @@ func (no *NaiveOptimizer) MoveJoinConditionsUpTree(plan planner.Plan) {
 
 	if curr != nil {
 		currJoiner := curr.(planner.Joiner)
-		log.Printf("Expression considerered for separation is %#v", currJoiner.GetCondition())
-		
-		
+		//log.Printf("Expression considerered for separation is %#v", currJoiner.GetCondition())
+
 		// we need to keep running this until it sep is nil
 		sep, rest := LookForSeparableExpression(currJoiner.GetCondition())
 		for sep != nil {
 
-			log.Printf("Sep Expression is %v", sep)
-			log.Printf("Rest Expression is %v", rest)
+			//log.Printf("Sep Expression is %v", sep)
+			//log.Printf("Rest Expression is %v", rest)
 
 			// now try to place the separable expression
 			sepSymbols := sep.SybolsReferenced()
@@ -265,7 +267,7 @@ func (no *NaiveOptimizer) MoveJoinConditionsUpTree(plan planner.Plan) {
 				if leftDs != nil {
 					leftDataSource := leftDs.(planner.DataSource)
 					if leftDataSource.GetAs() == sepDs {
-						log.Printf("this expression goes left")
+						//log.Printf("this expression goes left")
 						MoveSeparableExpressionToDataSource(leftDataSource, currJoiner, sep, rest)
 					}
 				}
@@ -275,7 +277,7 @@ func (no *NaiveOptimizer) MoveJoinConditionsUpTree(plan planner.Plan) {
 				if rightDs != nil {
 					rightDataSource := rightDs.(planner.DataSource)
 					if rightDataSource.GetAs() == sepDs {
-						log.Printf("this expression goes right")
+						//log.Printf("this expression goes right")
 						MoveSeparableExpressionToDataSource(rightDataSource, currJoiner, sep, rest)
 					}
 				}
@@ -302,17 +304,17 @@ func MoveSeparableExpressionToDataSource(dataSource planner.DataSource, joiner p
 	if err != nil {
 		// this data source doesn't support this filter
 		// continue once this becomes a loop
-		log.Printf("Datasource rejected the new filter expression, %v", err)
+		//log.Printf("Datasource rejected the new filter expression, %v", err)
 	} else {
 		// it accepted the filter, now we just updated the join condition
 		err := joiner.SetCondition(rest)
 		if err != nil {
 			// hmmn, now joiner rejected its new condition
 			// we must back out the other change
-			log.Printf("Datasource accepted, but now joiner rejected new filter expression, trying to reset")
+			//log.Printf("Datasource accepted, but now joiner rejected new filter expression, trying to reset")
 			err := dataSource.SetFilter(filterExpression)
 			if err != nil {
-				log.Fatalf("Datasource rejected setting its filter back to the original value, I don't know what to do")
+				//log.Fatalf("Datasource rejected setting its filter back to the original value, I don't know what to do")
 			}
 		}
 	}
@@ -368,4 +370,59 @@ func NumberOfDataSourcesReferencedInExpression(expr parser.Expression) int {
 		datasourceRef[symbol] = nil
 	}
 	return len(datasourceRef)
+}
+
+func (no *NaiveOptimizer) TrySortMerge(plan planner.Plan) {
+	last, curr := planner.FindNextPipelineComponentOfType(plan.Root.GetSource(), planner.JoinerType)
+	if curr != nil {
+		currJoiner := curr.(planner.Joiner)
+		sortMergeJoiner := planner.NewOttoSortMergeJoiner()
+		err := sortMergeJoiner.SetCondition(currJoiner.GetCondition())
+		if err == nil {
+			// now we need to make sure that the upstream sources can be sorted propertly
+			leftSource := currJoiner.GetLeftSource()
+			rightSource := currJoiner.GetRightSource()
+
+			// FIXME for now this only works if the immidiate sources are datasources
+			// needs to be made to work through joins and other pipeline components
+
+			leftDataSource, isLeftDataSource := leftSource.(planner.DataSource)
+			rightDataSource, isRightDataSource := rightSource.(planner.DataSource)
+			if isLeftDataSource && isRightDataSource {
+				if leftDataSource.GetOrderBy() == nil && rightDataSource.GetOrderBy() == nil {
+					leftSort := parser.NewSortItem(sortMergeJoiner.LeftExpr, true)
+					err = leftDataSource.SetOrderBy(parser.SortList{*leftSort})
+					if err != nil {
+						//log.Printf("merge join not possible datasource rejected order by")
+						return
+					}
+
+					rightSort := parser.NewSortItem(sortMergeJoiner.RightExpr, true)
+					err = rightDataSource.SetOrderBy(parser.SortList{*rightSort})
+					if err != nil {
+						//log.Printf("merge join not possible datasource rejected order by")
+						return
+					}
+
+					//if we made it this far, it shoudl work
+					//lets attach the left and right datasources to the new joiner
+					sortMergeJoiner.SetLeftSource(leftDataSource)
+					sortMergeJoiner.SetRightSource(rightDataSource)
+
+					//now we just need to replace the existing joiner with the new one 
+					if last == nil {
+						plan.Root.SetSource(sortMergeJoiner)
+					} else {
+						last.SetSource(sortMergeJoiner)
+					}
+				} else {
+					//log.Printf("merge join optimization only supports direct datasources that are not already ordered")
+				}
+			} else {
+				//log.Printf("merge join optimization only supports direct datasources before join")
+			}
+		} else {
+			//log.Printf("merge join not going to work here %v", err)
+		}
+	}
 }
