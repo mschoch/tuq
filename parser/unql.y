@@ -110,7 +110,7 @@ select_group_having:    /*empty*/ { logDebugGrammar("SELECT GROUP HAVING - EMPTY
 
 
 
-select_having:  HAVING expression
+select_having:  HAVING expression { parsingQuery.Having = parsingStack.Pop().(Expression) }
 ;
 
 select_where:   /* empty */ { logDebugGrammar("SELECT WHERE - EMPTY") }

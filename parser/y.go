@@ -576,6 +576,9 @@ yydefault:
 	case 29:
 		//line unql.y:108
 		{ logDebugGrammar("SELECT GROUP HAVING - SELECT GROUP SELECT HAVING") }
+	case 30:
+		//line unql.y:113
+		{ parsingQuery.Having = parsingStack.Pop().(Expression) }
 	case 31:
 		//line unql.y:116
 		{ logDebugGrammar("SELECT WHERE - EMPTY") }
