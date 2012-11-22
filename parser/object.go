@@ -44,7 +44,7 @@ func (ol *ObjectLiteral) SybolsReferenced() []string {
 }
 
 func (ol *ObjectLiteral) PrefixSymbols(s string) {
-    for _, expr := range ol.Val {
-        expr.PrefixSymbols(s)
-    }
+	for _, expr := range ol.Val {
+		expr.PrefixSymbols(s)
+	}
 }

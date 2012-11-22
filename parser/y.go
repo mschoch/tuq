@@ -146,7 +146,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line unql.y:349
+//line unql.y:355
 
 
 //line yacctab:1
@@ -156,64 +156,65 @@ var yyExca = []int{
 	-2, 0,
 }
 
-const yyNprod = 90
+const yyNprod = 91
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 230
+const yyLast = 233
 
 var yyAct = []int{
 
-	67, 66, 113, 63, 80, 18, 12, 19, 20, 21,
+	68, 67, 115, 64, 81, 18, 12, 19, 20, 21,
 	28, 43, 5, 27, 6, 47, 24, 49, 50, 51,
-	52, 61, 71, 123, 103, 104, 111, 7, 69, 130,
-	131, 13, 74, 37, 38, 39, 133, 22, 23, 25,
-	35, 2, 134, 30, 29, 31, 32, 33, 86, 87,
-	49, 50, 51, 52, 61, 53, 15, 75, 55, 56,
-	57, 58, 59, 60, 76, 6, 118, 79, 41, 70,
-	106, 121, 84, 46, 45, 112, 115, 109, 77, 14,
-	119, 88, 89, 90, 91, 92, 93, 94, 95, 96,
-	97, 98, 99, 100, 11, 62, 101, 129, 120, 105,
-	102, 127, 136, 108, 125, 107, 124, 126, 68, 83,
-	122, 28, 128, 85, 65, 64, 26, 17, 16, 42,
-	10, 82, 81, 132, 137, 135, 117, 116, 78, 48,
-	115, 40, 138, 9, 139, 36, 140, 49, 50, 51,
-	52, 61, 53, 54, 8, 55, 56, 57, 58, 59,
-	60, 49, 50, 51, 52, 61, 114, 110, 73, 55,
-	56, 57, 58, 59, 60, 19, 20, 21, 28, 72,
-	34, 27, 4, 3, 24, 1, 0, 0, 0, 44,
-	19, 20, 21, 28, 0, 0, 27, 0, 0, 24,
-	0, 0, 0, 0, 0, 22, 23, 25, 0, 0,
-	0, 30, 29, 31, 32, 33, 0, 0, 0, 0,
-	22, 23, 25, 0, 15, 0, 30, 29, 31, 32,
-	33, 0, 0, 0, 0, 0, 0, 0, 0, 15,
+	52, 61, 72, 125, 105, 126, 106, 63, 70, 7,
+	133, 134, 13, 113, 136, 75, 35, 22, 23, 25,
+	37, 38, 39, 30, 29, 31, 32, 33, 87, 88,
+	49, 50, 51, 52, 61, 53, 15, 137, 55, 56,
+	57, 58, 59, 60, 102, 6, 77, 2, 76, 120,
+	80, 108, 41, 123, 85, 78, 114, 117, 111, 46,
+	45, 121, 89, 90, 91, 92, 93, 94, 95, 96,
+	97, 98, 99, 100, 101, 71, 14, 11, 103, 132,
+	122, 107, 104, 130, 110, 69, 128, 109, 127, 129,
+	139, 84, 62, 124, 131, 65, 28, 86, 66, 26,
+	17, 16, 42, 10, 83, 82, 140, 138, 135, 119,
+	118, 79, 48, 117, 40, 141, 9, 142, 36, 143,
+	49, 50, 51, 52, 61, 53, 54, 8, 55, 56,
+	57, 58, 59, 60, 49, 50, 51, 52, 61, 116,
+	112, 74, 55, 56, 57, 58, 59, 60, 19, 20,
+	21, 28, 73, 34, 27, 4, 3, 24, 1, 0,
+	0, 0, 44, 19, 20, 21, 28, 0, 0, 27,
+	0, 0, 24, 0, 0, 0, 0, 0, 22, 23,
+	25, 0, 0, 0, 30, 29, 31, 32, 33, 0,
+	0, 0, 0, 22, 23, 25, 0, 15, 0, 30,
+	29, 31, 32, 33, 0, 0, 0, 0, 0, 0,
+	0, 0, 15,
 }
 var yyPact = []int{
 
-	-48, -1000, -1000, -1000, 79, 176, -1000, 11, 7, 49,
-	161, 57, -46, 91, -1000, 176, -1000, -1000, -1000, -1000,
-	-1000, -1000, -1000, -1000, 108, 176, 98, 3, -23, -1000,
-	-1000, -1000, -1000, -1000, 2, 35, 79, 61, -1000, -1000,
-	47, 102, -1000, 54, 106, -1000, -1000, 176, 176, 176,
-	176, 176, 176, 176, 176, 176, 176, 176, 176, 176,
-	176, 176, -1000, 82, 88, -15, -12, 87, 176, 94,
-	92, 104, -1000, -5, 176, 176, -1000, -1000, 45, 176,
-	-1000, 86, 53, -1000, 103, -1000, -1000, -16, -1000, -1000,
-	-1000, -1000, 105, 4, -29, -29, -29, -29, -29, -29,
-	-1000, -1000, 108, 176, -1000, 176, 90, -1000, -1000, -1000,
-	-1000, 176, -1000, -1000, 85, -3, -1000, 13, 20, -1000,
-	102, 95, -1000, 176, -1000, -1000, -1000, -1000, -1000, 176,
-	-1000, -1000, -1000, 176, 176, -1000, -1000, -1000, -1000, -1000,
-	-1000,
+	-48, -1000, -1000, -1000, 82, 179, -1000, 7, 14, 53,
+	164, 63, -46, 94, -1000, 179, -1000, -1000, -9, -1000,
+	-1000, -1000, -1000, -1000, 112, 179, 95, 3, -23, -1000,
+	-1000, -1000, -1000, -1000, 5, 46, 82, 58, -1000, -1000,
+	50, 104, -1000, 56, 110, -1000, -1000, 179, 179, 179,
+	179, 179, 179, 179, 179, 179, 179, 179, 179, 179,
+	179, 179, -1000, 179, 84, 90, -15, -11, 89, 179,
+	96, 93, 109, -1000, 2, 179, 179, -1000, -1000, 48,
+	179, -1000, 88, 55, -1000, 106, -1000, -1000, -16, -1000,
+	-1000, -1000, -1000, 108, 4, -29, -29, -29, -29, -29,
+	-29, -1000, -12, -1000, 112, 179, -1000, 179, 92, -1000,
+	-1000, -1000, -1000, 179, -1000, -1000, 87, -2, -1000, 11,
+	35, -1000, 104, 103, -1000, 179, -1000, -1000, -1000, -1000,
+	-1000, -1000, 179, -1000, -1000, -1000, 179, 179, -1000, -1000,
+	-1000, -1000, -1000, -1000,
 }
 var yyPgo = []int{
 
-	0, 175, 41, 173, 0, 172, 27, 170, 169, 2,
-	158, 157, 156, 144, 135, 133, 131, 128, 127, 126,
-	1, 123, 4, 122, 121, 120, 119, 31, 79, 118,
-	117, 5, 3, 116, 115,
+	0, 178, 67, 176, 0, 175, 29, 173, 172, 2,
+	161, 160, 159, 147, 138, 136, 134, 131, 130, 129,
+	1, 128, 4, 125, 124, 123, 122, 32, 96, 121,
+	120, 5, 3, 119, 115,
 }
 var yyR1 = []int{
 
@@ -224,8 +225,9 @@ var yyR1 = []int{
 	15, 25, 25, 25, 26, 26, 26, 26, 4, 4,
 	27, 27, 27, 27, 27, 27, 27, 27, 27, 27,
 	27, 27, 27, 27, 28, 28, 29, 30, 30, 30,
-	30, 30, 30, 30, 30, 30, 30, 30, 20, 20,
-	32, 32, 34, 31, 31, 33, 33, 33, 33, 33,
+	30, 30, 30, 30, 30, 30, 30, 30, 30, 20,
+	20, 32, 32, 34, 31, 31, 33, 33, 33, 33,
+	33,
 }
 var yyR2 = []int{
 
@@ -235,9 +237,10 @@ var yyR2 = []int{
 	2, 0, 2, 0, 2, 1, 3, 1, 3, 1,
 	2, 1, 2, 2, 0, 1, 3, 2, 1, 5,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 1, 2, 1, 1, 1, 1, 1,
-	1, 1, 1, 3, 3, 4, 3, 3, 1, 3,
-	1, 3, 3, 1, 3, 1, 1, 1, 1, 1,
+	3, 3, 3, 1, 2, 1, 1, 1, 4, 1,
+	1, 1, 1, 1, 3, 3, 4, 3, 3, 1,
+	3, 1, 3, 3, 1, 3, 1, 1, 1, 1,
+	1,
 }
 var yyChk = []int{
 
@@ -247,33 +250,33 @@ var yyChk = []int{
 	40, 42, 43, 44, -7, 29, -14, 26, 27, 28,
 	-16, 19, -26, -4, 18, 17, 16, 61, 38, 46,
 	47, 48, 49, 51, 52, 54, 55, 56, 57, 58,
-	59, 50, -28, -32, -34, 6, -20, -4, 10, -4,
-	-2, 45, -8, -10, 30, 22, -6, 17, -17, 20,
-	-22, -23, -24, 7, 18, 7, -4, -4, -27, -27,
+	59, 50, -28, 36, -32, -34, 6, -20, -4, 10,
+	-4, -2, 45, -8, -10, 30, 22, -6, 17, -17,
+	20, -22, -23, -24, 7, 18, 7, -4, -4, -27,
 	-27, -27, -27, -27, -27, -27, -27, -27, -27, -27,
-	-27, 14, 12, 39, 37, 12, -20, 11, 11, -31,
-	-11, 31, -4, -9, -12, -4, -18, -19, 21, -4,
-	12, 18, 7, 39, -32, -4, -20, 11, -4, 12,
-	32, 33, -21, 23, 22, -22, 7, -4, -9, -4,
-	-20,
+	-27, -27, -4, 14, 12, 39, 37, 12, -20, 11,
+	11, -31, -11, 31, -4, -9, -12, -4, -18, -19,
+	21, -4, 12, 18, 7, 39, 37, -32, -4, -20,
+	11, -4, 12, 32, 33, -21, 23, 22, -22, 7,
+	-4, -9, -4, -20,
 }
 var yyDef = []int{
 
 	5, -2, 1, 2, 0, 0, 6, 7, 19, 33,
-	44, 41, 0, 48, 63, 0, 65, 66, 67, 68,
-	69, 70, 71, 72, 0, 0, 0, 5, 83, 85,
-	86, 87, 88, 89, 9, 0, 0, 21, 23, 24,
+	44, 41, 0, 48, 63, 0, 65, 66, 67, 69,
+	70, 71, 72, 73, 0, 0, 0, 5, 84, 86,
+	87, 88, 89, 90, 9, 0, 0, 21, 23, 24,
 	31, 0, 40, 45, 0, 42, 43, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 64, 0, 80, 0, 0, 78, 0, 0,
-	0, 0, 4, 10, 0, 0, 20, 22, 27, 0,
-	34, 35, 37, 39, 0, 47, 3, 0, 50, 51,
-	52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
-	62, 73, 0, 0, 74, 0, 0, 76, 77, 84,
-	11, 0, 12, 8, 14, 16, 25, 28, 0, 32,
-	0, 0, 46, 0, 81, 82, 79, 75, 13, 0,
-	17, 18, 29, 0, 0, 36, 38, 49, 15, 30,
-	26,
+	0, 0, 64, 0, 0, 81, 0, 0, 79, 0,
+	0, 0, 0, 4, 10, 0, 0, 20, 22, 27,
+	0, 34, 35, 37, 39, 0, 47, 3, 0, 50,
+	51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+	61, 62, 0, 74, 0, 0, 75, 0, 0, 77,
+	78, 85, 11, 0, 12, 8, 14, 16, 25, 28,
+	0, 32, 0, 0, 46, 0, 68, 82, 83, 80,
+	76, 13, 0, 17, 18, 29, 0, 0, 36, 38,
+	49, 15, 30, 26,
 }
 var yyTok1 = []int{
 
@@ -740,52 +743,60 @@ yydefault:
 		{  }
 	case 68:
 		//line unql.y:252
+		{     logDebugGrammar("ATOM - prop[]")
+	                                                  rightExpr := parsingStack.Pop().(Expression)
+	                                                  leftProp := parsingStack.Pop().(*Property)
+	                                                  thisExpression := NewBracketMemberExpression(leftProp, rightExpr)
+	                                                  parsingStack.Push(thisExpression)
+	                                            }
+	case 69:
+		//line unql.y:258
 		{ thisExpression := NewIntegerLiteral(yyS[yypt-0].n) 
 	                 parsingStack.Push(thisExpression) }
-	case 69:
-		//line unql.y:254
+	case 70:
+		//line unql.y:260
 		{ thisExpression := NewFloatLiteral(yyS[yypt-0].f) 
 	                 parsingStack.Push(thisExpression) }
-	case 70:
-		//line unql.y:256
+	case 71:
+		//line unql.y:262
 		{ thisExpression := NewStringLiteral(yyS[yypt-0].s) 
 	                 parsingStack.Push(thisExpression) }
-	case 71:
-		//line unql.y:258
+	case 72:
+		//line unql.y:264
 		{ thisExpression := NewBoolLiteral(true) 
 	                 parsingStack.Push(thisExpression) }
-	case 72:
-		//line unql.y:260
+	case 73:
+		//line unql.y:266
 		{ thisExpression := NewBoolLiteral(false) 
 	                 parsingStack.Push(thisExpression)}
-	case 73:
-		//line unql.y:262
+	case 74:
+		//line unql.y:268
 		{ logDebugGrammar("ATOM - {}")
 	                                            }
-	case 74:
-		//line unql.y:264
+	case 75:
+		//line unql.y:270
 		{ logDebugGrammar("ATOM - []")
 	                                            exp_list := parsingStack.Pop().(ExpressionList)
 	                                            thisExpression := NewArrayLiteral(exp_list)
 	                                            parsingStack.Push(thisExpression)
 	                                          }
-	case 75:
-		//line unql.y:269
+	case 76:
+		//line unql.y:275
 		{ logDebugGrammar("FUNCTION - $1.s")
 	                                                      exp_list := parsingStack.Pop().(ExpressionList)
 	                                                      function := parsingStack.Pop().(*Function)
 	                                                      function.AddArguments(exp_list)
 	                                                      parsingStack.Push(function)
 	                                                    }
-	case 78:
-		//line unql.y:279
+	case 79:
+		//line unql.y:285
 		{ logDebugGrammar("EXPRESSION_LIST - EXPRESSION")
 	                               exp_list := make(ExpressionList, 0)
 	                               exp_list = append(exp_list, parsingStack.Pop().(Expression))
 	                               parsingStack.Push(exp_list)
 	                             }
-	case 79:
-		//line unql.y:284
+	case 80:
+		//line unql.y:290
 		{ logDebugGrammar("EXPRESSION_LIST - EXPRESSION COMMA EXPRESSION_LIST")
 	                                               rest := parsingStack.Pop().(ExpressionList)
 	                                               last := parsingStack.Pop()
@@ -796,64 +807,64 @@ yydefault:
 	                                               }
 	                                               parsingStack.Push(new_list)
 	                                             }
-	case 81:
-		//line unql.y:297
+	case 82:
+		//line unql.y:303
 		{ last := parsingStack.Pop().(*ObjectLiteral)
 	                                                                  rest := parsingStack.Pop().(*ObjectLiteral)
 	                                                                  rest.AddAll(last)
 	                                                                  parsingStack.Push(rest)
 	                                                                }
-	case 82:
-		//line unql.y:304
+	case 83:
+		//line unql.y:310
 		{ thisKey := yyS[yypt-2].s
 	                                                     thisValue := parsingStack.Pop().(Expression)
 	                                                     thisExpression := NewObjectLiteral(Object{thisKey: thisValue})
 	                                                     parsingStack.Push(thisExpression) 
 	                                                   }
-	case 83:
-		//line unql.y:311
-		{ log.Printf("see identiferX %v", yyS[yypt-0].s)
+	case 84:
+		//line unql.y:317
+		{
 	                         thisExpression := NewProperty(yyS[yypt-0].s) 
 	                         parsingStack.Push(thisExpression) 
 	                       }
-	case 84:
-		//line unql.y:315
-		{ log.Printf("see identiferY %v", yyS[yypt-2].s) 
+	case 85:
+		//line unql.y:321
+		{
 	                                    thisValue := parsingStack.Pop().(*Property)
 	                                    log.Printf("property on stack was  %v", thisValue.Symbol)
 	                                    thisExpression := NewProperty(yyS[yypt-2].s + "." + thisValue.Symbol)
 	                                    parsingStack.Push(thisExpression)
 	                                  }
-	case 85:
-		//line unql.y:323
+	case 86:
+		//line unql.y:329
 		{ 
 	                     parsingQuery.isAggregateQuery = true
 	                     thisExpression := NewFunction("min")
 	                     parsingStack.Push(thisExpression)
 	                   }
-	case 86:
-		//line unql.y:328
+	case 87:
+		//line unql.y:334
 		{ 
 	                  parsingQuery.isAggregateQuery = true
 	                  thisExpression := NewFunction("max")
 	                  parsingStack.Push(thisExpression)
 	                }
-	case 87:
-		//line unql.y:333
+	case 88:
+		//line unql.y:339
 		{ 
 	                  parsingQuery.isAggregateQuery = true
 	                  thisExpression := NewFunction("avg")
 	                  parsingStack.Push(thisExpression)
 	                }
-	case 88:
-		//line unql.y:338
+	case 89:
+		//line unql.y:344
 		{ 
 	                   parsingQuery.isAggregateQuery = true
 	                   thisExpression := NewFunction("count")
 	                   parsingStack.Push(thisExpression)
 	                  }
-	case 89:
-		//line unql.y:343
+	case 90:
+		//line unql.y:349
 		{ 
 	                  parsingQuery.isAggregateQuery = true
 	                  thisExpression := NewFunction("sum")

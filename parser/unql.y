@@ -249,6 +249,12 @@ suffix_expr: atom { logDebugGrammar("SUFFIX_EXPR") }
 ;
 
 atom: property {  }
+    | property LBRACKET expression RBRACKET {     logDebugGrammar("ATOM - prop[]")
+                                                  rightExpr := parsingStack.Pop().(Expression)
+                                                  leftProp := parsingStack.Pop().(*Property)
+                                                  thisExpression := NewBracketMemberExpression(leftProp, rightExpr)
+                                                  parsingStack.Push(thisExpression)
+                                            }
     |   INT { thisExpression := NewIntegerLiteral($1.n) 
                  parsingStack.Push(thisExpression) }
     |   REAL { thisExpression := NewFloatLiteral($1.f) 
@@ -308,11 +314,11 @@ named_expression_single:   STRING COLON expression { thisKey := $1.s
                                                    }
 ;
 
-property:   IDENTIFIER { log.Printf("see identiferX %v", $1.s)
+property:   IDENTIFIER {
                          thisExpression := NewProperty($1.s) 
                          parsingStack.Push(thisExpression) 
                        }
-        | IDENTIFIER DOT property { log.Printf("see identiferY %v", $1.s) 
+        | IDENTIFIER DOT property {
                                     thisValue := parsingStack.Pop().(*Property)
                                     log.Printf("property on stack was  %v", thisValue.Symbol)
                                     thisExpression := NewProperty($1.s + "." + thisValue.Symbol)
