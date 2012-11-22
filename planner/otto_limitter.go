@@ -34,6 +34,7 @@ func (ol *OttoLimitter) GetDocumentChannel() DocumentChannel {
 }
 
 func (ol *OttoLimitter) Run() {
+	defer close(ol.OutputChannel)
 
 	limit := evaluateExpressionInEnvironmentAsInteger(ol.Otto, ol.Limit)
 
@@ -52,9 +53,9 @@ func (ol *OttoLimitter) Run() {
 			rowsWritten += 1
 		} else if rowsWritten == limit {
 			ol.OutputChannel <- doc
-			close(ol.OutputChannel)
 			rowsWritten += 1
 			ol.Source.Cancel()
+			return
 		}
 	}
 
