@@ -8,7 +8,7 @@
                     logDebugTokens("REAL: %f", lval.f);  
                     return REAL 
                   }
-/\"[^\"]*\"/          { 
+/"[^"\\]*(\\.[^"\\]*)*"/          { 
                     lval.s = yylex.Text()[1:len(yylex.Text())-1];
                     logDebugTokens("STRING: %s", lval.s);
                     return STRING }
