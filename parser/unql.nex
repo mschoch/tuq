@@ -12,6 +12,10 @@
                     lval.s = yylex.Text()[1:len(yylex.Text())-1];
                     logDebugTokens("STRING: %s", lval.s);
                     return STRING }
+/'[^'\\]*(\\.[^'\\]*)*'/          { 
+                    lval.s = yylex.Text()[1:len(yylex.Text())-1];
+                    logDebugTokens("STRING: %s", lval.s);
+                    return STRING }
 /SELECT|select/          { logDebugTokens("SELECT"); return SELECT }
 /DISTINCT|distinct/        { logDebugTokens("DISTINCT"); return DISTINCT }
 /ALL|all/             { logDebugTokens("ALL"); return ALL }
