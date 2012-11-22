@@ -248,10 +248,7 @@ prefix_expr: NOT prefix_expr
 suffix_expr: atom { logDebugGrammar("SUFFIX_EXPR") }
 ;
 
-atom: property { thisExpression := NewProperty($1.s) 
-                 parsingStack.Push(thisExpression) }
-    |   IDENTIFIER { thisExpression := NewProperty($1.s) 
-                 parsingStack.Push(thisExpression) }
+atom: property {  }
     |   INT { thisExpression := NewIntegerLiteral($1.n) 
                  parsingStack.Push(thisExpression) }
     |   REAL { thisExpression := NewFloatLiteral($1.f) 
@@ -311,7 +308,16 @@ named_expression_single:   STRING COLON expression { thisKey := $1.s
                                                    }
 ;
 
-property:   PROPERTY
+property:   IDENTIFIER { log.Printf("see identiferX %v", $1.s)
+                         thisExpression := NewProperty($1.s) 
+                         parsingStack.Push(thisExpression) 
+                       }
+        | IDENTIFIER DOT property { log.Printf("see identiferY %v", $1.s) 
+                                    thisValue := parsingStack.Pop().(*Property)
+                                    log.Printf("property on stack was  %v", thisValue.Symbol)
+                                    thisExpression := NewProperty($1.s + "." + thisValue.Symbol)
+                                    parsingStack.Push(thisExpression)
+                                  }
 ;
 
 function_name: MIN { 
