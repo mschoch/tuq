@@ -45,27 +45,31 @@ func handleStdinMode() {
 				} else {
 					plans := naivePlanner.Plan(*query)
 
-					var plan planner.Plan
-					if *disableOptimizer {
-						plan = nullOptimizer.Optimize(plans)
-					} else {
-						plan = naiveOptimizer.Optimize(plans)
-					}
+					if plans != nil {
 
-					if query.IsExplainOnly() {
-						result := plan.Explain()
-						if err != nil {
-							log.Printf("Error: %v", err)
+						var plan planner.Plan
+						if *disableOptimizer {
+							plan = nullOptimizer.Optimize(plans)
 						} else {
-							FormatChannelOutput(result, os.Stdout)
+							plan = naiveOptimizer.Optimize(plans)
 						}
-					} else {
-						result := plan.Run()
-						if err != nil {
-							log.Printf("Error: %v", err)
+
+						if query.IsExplainOnly() {
+							result := plan.Explain()
+							if err != nil {
+								log.Printf("Error: %v", err)
+							} else {
+								FormatChannelOutput(result, os.Stdout)
+							}
 						} else {
-							FormatChannelOutput(result, os.Stdout)
+							result := plan.Run()
+							if err != nil {
+								log.Printf("Error: %v", err)
+							} else {
+								FormatChannelOutput(result, os.Stdout)
+							}
 						}
+
 					}
 				}
 

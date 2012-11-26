@@ -36,7 +36,8 @@ func (np *NaivePlanner) Plan(query parser.Select) []planner.Plan {
 		// look up the data source		
 		ds := datasources.NewDataSourceWithName(datasource.Def)
 		if ds == nil {
-		  log.Fatalf("No such datasource exists")
+			log.Printf("No such datasource exists")
+			return nil
 		}
 
 		ds.SetName(datasource.Def)

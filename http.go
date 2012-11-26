@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	naiveoptimizer "github.com/mschoch/tuq/optimizer/naive"
+	nulloptimizer "github.com/mschoch/tuq/optimizer/null"
 	"github.com/mschoch/tuq/parser"
+	"github.com/mschoch/tuq/planner"
 	naiveplanner "github.com/mschoch/tuq/planner/naive"
 	"log"
 	"net/http"
@@ -63,6 +65,8 @@ func doPost(w http.ResponseWriter, req *http.Request) {
 	}
 
 	unqlParser := parser.NewUnqlParser(false, false)
+	naiveOptimizer := naiveoptimizer.NewNaiveOptimizer()
+	nullOptimizer := nulloptimizer.NewNullOptimizer()
 	query, err := unqlParser.Parse(line)
 	if err != nil {
 		w.WriteHeader(500)
@@ -82,27 +86,34 @@ func doPost(w http.ResponseWriter, req *http.Request) {
 				naivePlanner := naiveplanner.NewNaivePlanner()
 				plans := naivePlanner.Plan(*query)
 
-				naiveOptimizer := naiveoptimizer.NewNaiveOptimizer()
-				plan := naiveOptimizer.Optimize(plans)
+				if plans != nil {
+					var plan planner.Plan
+					if *disableOptimizer {
+						plan = nullOptimizer.Optimize(plans)
+					} else {
+						plan = naiveOptimizer.Optimize(plans)
+					}
 
-				if query.IsExplainOnly() {
-					result := plan.Explain()
-					if err != nil {
-						w.WriteHeader(500)
-						fmt.Fprintf(w, "Error explaining query string: %v", err)
-						return
+					if query.IsExplainOnly() {
+						result := plan.Explain()
+						if err != nil {
+							w.WriteHeader(500)
+							fmt.Fprintf(w, "Error explaining query string: %v", err)
+							return
+						} else {
+							FormatChannelOutput(result, w)
+						}
 					} else {
-						FormatChannelOutput(result, w)
+						result := plan.Run()
+						if err != nil {
+							w.WriteHeader(500)
+							fmt.Fprintf(w, "Error running query string: %v", err)
+							return
+						} else {
+							FormatChannelOutput(result, w)
+						}
 					}
-				} else {
-					result := plan.Run()
-					if err != nil {
-						w.WriteHeader(500)
-						fmt.Fprintf(w, "Error running query string: %v", err)
-						return
-					} else {
-						FormatChannelOutput(result, w)
-					}
+
 				}
 			}
 		} else {
