@@ -36,6 +36,7 @@ type ElasticSearchDataSource struct {
 	batchSize         int
 	maxAggregate      int
 	debug             bool
+	defaultFilter     *Filter
 }
 
 func init() {
@@ -73,6 +74,10 @@ func NewElasticSearchDataSource(config map[string]interface{}) planner.DataSourc
 		result.debug = config["debug"].(bool)
 	} else {
 		result.debug = defaultDebug
+	}
+
+	if config["default_filter"] != nil {
+		result.defaultFilter = ConvertToFilterRecursive(config["default_filter"].(map[string]interface{}))
 	}
 
 	return result
@@ -232,8 +237,8 @@ func (ds *ElasticSearchDataSource) SetFilter(filter parser.Expression) error {
 	if err != nil {
 		return err
 	} else {
-		ds.filterExpression = filter
 		ds.filter = f
+		ds.filterExpression = filter
 	}
 	return nil
 }
@@ -377,6 +382,15 @@ func (ds *ElasticSearchDataSource) SetURL(urlString string) error {
 
 func (ds *ElasticSearchDataSource) buildQuery() {
 	ds.query = NewDefaultQuery(ds.batchSize)
+
+	//combine filter with default filter if there was one
+	if ds.defaultFilter != nil {
+		if ds.filter != nil {
+			ds.filter = NewAndFilter(ds.defaultFilter, ds.filter)
+		} else {
+			ds.filter = ds.defaultFilter
+		}
+	}
 
 	// add filter to non-aggregate query
 	if ds.facets == nil {

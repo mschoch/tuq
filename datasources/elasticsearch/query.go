@@ -17,6 +17,19 @@ func EmptyFilter() *Filter {
 	return &filter
 }
 
+func ConvertToFilterRecursive(input map[string]interface{}) *Filter {
+	filter := make(Filter)
+	for k, v := range input {
+		switch v := v.(type) {
+		case map[string]interface{}:
+			filter[k] = ConvertToFilterRecursive(v)
+		default:
+			filter[k] = v
+		}
+	}
+	return &filter
+}
+
 func NewTermFilter(field string, value interface{}) *Filter {
 	filter := make(Filter)
 	termFilter := make(Filter)
