@@ -65,12 +65,17 @@ func (cpj *OttoCartesianProductJoiner) Run() {
 		for _, r := range cpj.rightDocs {
 			combined := combineDocs(l, r)
 
-			putDocumentIntoEnvironment(cpj.Otto, combined)
-			expr_result := evaluateExpressionInEnvironmentAsBoolean(cpj.Otto, cpj.joinExpr)
-			if expr_result {
+			if cpj.joinExpr != nil {
+				putDocumentIntoEnvironment(cpj.Otto, combined)
+				expr_result := evaluateExpressionInEnvironmentAsBoolean(cpj.Otto, cpj.joinExpr)
+				if expr_result {
+					cpj.OutputChannel <- combined
+				}
+				cleanupDocumentFromEnvironment(cpj.Otto, combined)
+			} else {
+				//if it was nil, everybody joins
 				cpj.OutputChannel <- combined
 			}
-			cleanupDocumentFromEnvironment(cpj.Otto, combined)
 		}
 	}
 

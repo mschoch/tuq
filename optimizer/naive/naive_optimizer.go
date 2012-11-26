@@ -249,42 +249,46 @@ func (no *NaiveOptimizer) MoveJoinConditionsUpTree(plan planner.Plan) {
 		//log.Printf("Expression considerered for separation is %#v", currJoiner.GetCondition())
 
 		// we need to keep running this until it sep is nil
-		sep, rest := LookForSeparableExpression(currJoiner.GetCondition())
-		for sep != nil {
+		joinCondition := currJoiner.GetCondition()
+		if joinCondition != nil {
+			sep, rest := LookForSeparableExpression(joinCondition)
+			for sep != nil {
 
-			//log.Printf("Sep Expression is %v", sep)
-			//log.Printf("Rest Expression is %v", rest)
+				//log.Printf("Sep Expression is %v", sep)
+				//log.Printf("Rest Expression is %v", rest)
 
-			// now try to place the separable expression
-			sepSymbols := sep.SybolsReferenced()
-			if len(sepSymbols) > 0 {
-				sepDataSource := sepSymbols[0]
-				sepDotIndex := strings.Index(sepDataSource, ".")
-				sepDs := sepDataSource[0:sepDotIndex]
+				// now try to place the separable expression
+				sepSymbols := sep.SybolsReferenced()
+				if len(sepSymbols) > 0 {
+					sepDataSource := sepSymbols[0]
+					sepDotIndex := strings.Index(sepDataSource, ".")
+					sepDs := sepDataSource[0:sepDotIndex]
 
-				// find the datasource on the LHS
-				_, leftDs := planner.FindNextPipelineComponentOfType(currJoiner.GetLeftSource(), planner.DataSourceType)
-				if leftDs != nil {
-					leftDataSource := leftDs.(planner.DataSource)
-					if leftDataSource.GetAs() == sepDs {
-						//log.Printf("this expression goes left")
-						MoveSeparableExpressionToDataSource(leftDataSource, currJoiner, sep, rest)
+					// find the datasource on the LHS
+					_, leftDs := planner.FindNextPipelineComponentOfType(currJoiner.GetLeftSource(), planner.DataSourceType)
+					if leftDs != nil {
+						leftDataSource := leftDs.(planner.DataSource)
+						if leftDataSource.GetAs() == sepDs {
+							//log.Printf("this expression goes left")
+							MoveSeparableExpressionToDataSource(leftDataSource, currJoiner, sep, rest)
+						}
 					}
+
+					// find the datasource on the RHS
+					_, rightDs := planner.FindNextPipelineComponentOfType(currJoiner.GetRightSource(), planner.DataSourceType)
+					if rightDs != nil {
+						rightDataSource := rightDs.(planner.DataSource)
+						if rightDataSource.GetAs() == sepDs {
+							//log.Printf("this expression goes right")
+							MoveSeparableExpressionToDataSource(rightDataSource, currJoiner, sep, rest)
+						}
+					}
+
 				}
 
-				// find the datasource on the RHS
-				_, rightDs := planner.FindNextPipelineComponentOfType(currJoiner.GetRightSource(), planner.DataSourceType)
-				if rightDs != nil {
-					rightDataSource := rightDs.(planner.DataSource)
-					if rightDataSource.GetAs() == sepDs {
-						//log.Printf("this expression goes right")
-						MoveSeparableExpressionToDataSource(rightDataSource, currJoiner, sep, rest)
-					}
-				}
-
+				joinCondition = currJoiner.GetCondition()
+				sep, rest = LookForSeparableExpression(joinCondition)
 			}
-
-			sep, rest = LookForSeparableExpression(currJoiner.GetCondition())
 		}
 	}
 
