@@ -50,7 +50,9 @@ func (os *OttoSelecter) Run() {
 		expr_result := evaluateExpressionInEnvironment(os.Otto, os.expr)
 		expr_exported, err := expr_result.Export()
 		if err != nil {
-			log.Printf("Error exporting evaluated expression %v", err)
+			if err.Error() != "undefined" {
+				log.Printf("Error exporting evaluated expression %v", err)
+			}
 		}
 		if expr_exported != nil {
 			os.OutputChannel <- expr_exported

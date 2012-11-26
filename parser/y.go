@@ -146,7 +146,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line unql.y:355
+//line unql.y:354
 
 
 //line yacctab:1
@@ -831,40 +831,39 @@ yydefault:
 		//line unql.y:321
 		{
 	                                    thisValue := parsingStack.Pop().(*Property)
-	                                    log.Printf("property on stack was  %v", thisValue.Symbol)
 	                                    thisExpression := NewProperty(yyS[yypt-2].s + "." + thisValue.Symbol)
 	                                    parsingStack.Push(thisExpression)
 	                                  }
 	case 86:
-		//line unql.y:329
+		//line unql.y:328
 		{ 
 	                     parsingQuery.isAggregateQuery = true
 	                     thisExpression := NewFunction("min")
 	                     parsingStack.Push(thisExpression)
 	                   }
 	case 87:
-		//line unql.y:334
+		//line unql.y:333
 		{ 
 	                  parsingQuery.isAggregateQuery = true
 	                  thisExpression := NewFunction("max")
 	                  parsingStack.Push(thisExpression)
 	                }
 	case 88:
-		//line unql.y:339
+		//line unql.y:338
 		{ 
 	                  parsingQuery.isAggregateQuery = true
 	                  thisExpression := NewFunction("avg")
 	                  parsingStack.Push(thisExpression)
 	                }
 	case 89:
-		//line unql.y:344
+		//line unql.y:343
 		{ 
 	                   parsingQuery.isAggregateQuery = true
 	                   thisExpression := NewFunction("count")
 	                   parsingStack.Push(thisExpression)
 	                  }
 	case 90:
-		//line unql.y:349
+		//line unql.y:348
 		{ 
 	                  parsingQuery.isAggregateQuery = true
 	                  thisExpression := NewFunction("sum")

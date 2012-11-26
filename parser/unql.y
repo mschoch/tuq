@@ -320,7 +320,6 @@ property:   IDENTIFIER {
                        }
         | IDENTIFIER DOT property {
                                     thisValue := parsingStack.Pop().(*Property)
-                                    log.Printf("property on stack was  %v", thisValue.Symbol)
                                     thisExpression := NewProperty($1.s + "." + thisValue.Symbol)
                                     parsingStack.Push(thisExpression)
                                   }
