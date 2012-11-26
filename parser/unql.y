@@ -24,7 +24,7 @@ f float64}
 %token LIMIT OFFSET ASC DESC TRUE FALSE LBRACKET RBRACKET
 %token QUESTION COLON MAX MIN AVG COUNT SUM DOT
 %token PLUS MINUS MULT DIV MOD AND OR NOT EQ LT LTE
-%token GT GTE NE PRAGMA ASSIGN EXPLAIN
+%token GT GTE NE PRAGMA ASSIGN EXPLAIN NULL
 %left OR
 %left AND
 %left EQ LT LTE GT GTE NE
@@ -248,7 +248,11 @@ prefix_expr: NOT prefix_expr
 suffix_expr: atom { logDebugGrammar("SUFFIX_EXPR") }
 ;
 
-atom: property {  }
+atom: NULL { logDebugGrammar("NULL")
+             thisExpression := NewNull()
+             parsingStack.Push(thisExpression)
+           }
+    | property {  }
     | property LBRACKET expression RBRACKET {     logDebugGrammar("ATOM - prop[]")
                                                   rightExpr := parsingStack.Pop().(Expression)
                                                   leftProp := parsingStack.Pop().(*Property)
