@@ -13,7 +13,7 @@ import (
 
 func handleStdinMode() {
 
-	unqlParser := parser.NewUnqlParser(*debugTokens, *debugGrammar)
+	unqlParser := parser.NewUnqlParser(*debugTokens, *debugGrammar, *crashHard)
 	naivePlanner := naiveplanner.NewNaivePlanner()
 	naiveOptimizer := naiveoptimizer.NewNaiveOptimizer()
 	nullOptimizer := nulloptimizer.NewNullOptimizer()

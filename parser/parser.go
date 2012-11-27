@@ -11,14 +11,16 @@ var parsingQuery *Select
 
 var debugTokens = false
 var debugGrammar = false
+var crashHard = false
 
 type UnqlParser struct {
 	mutex sync.Mutex
 }
 
-func NewUnqlParser(dt, db bool) *UnqlParser {
+func NewUnqlParser(dt, db, ch bool) *UnqlParser {
 	debugTokens = dt
 	debugGrammar = db
+	crashHard = ch
 	return &UnqlParser{}
 }
 
@@ -34,9 +36,13 @@ func (u *UnqlParser) Parse(input string) (returnQuery *Select, err error) {
 		if r != nil && r == "syntax error" {
 			// if we're panicing over a syntax error, chill
 			err = fmt.Errorf("Parse Error - %v", r)
-		} else if r != nil{
+		} else if r != nil {
 			// otherise continue to panic
-			panic(r)
+			if crashHard {
+				panic(r)
+			} else {
+				err = fmt.Errorf("Other Error - %v", r)
+			}
 		}
 	}()
 

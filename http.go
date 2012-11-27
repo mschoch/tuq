@@ -64,7 +64,7 @@ func doPost(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	unqlParser := parser.NewUnqlParser(false, false)
+	unqlParser := parser.NewUnqlParser(false, false, *crashHard)
 	naiveOptimizer := naiveoptimizer.NewNaiveOptimizer()
 	nullOptimizer := nulloptimizer.NewNullOptimizer()
 	query, err := unqlParser.Parse(line)
