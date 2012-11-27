@@ -325,7 +325,6 @@ func (ds *ElasticSearchDataSource) SetGroupByWithStatsFields(groupby parser.Expr
 					stat_field = stat_field[len(ds.As)+1:]
 				}
 				if stat_field != val.Symbol {
-					log.Printf("stat field is %v and val symbol is %v", stat_field, val.Symbol)
 					facet := NewTermsStatsFacet(val.Symbol, stat_field, ds.maxAggregate)
 					(*ds.facets)[StatsPrefix+stat_field] = facet
 				}
