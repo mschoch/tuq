@@ -10,6 +10,7 @@ import (
 	_ "github.com/mschoch/tuq/datasources/csv"
 	_ "github.com/mschoch/tuq/datasources/datasources"
 	_ "github.com/mschoch/tuq/datasources/elasticsearch"
+	_ "github.com/mschoch/tuq/datasources/mongodb"
 )
 
 var debugTokens = flag.Bool("debugTokens", false, "Enable debug of all tokens seen by the lexer")
