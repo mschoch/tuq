@@ -25,6 +25,4 @@ FROM beersample WHERE doc.style.analyzed == "lager" && doc.abv > 0 GROUP BY doc.
 
 ## Getting Started
 
-See the wiki for full details:
-
-https://github.com/mschoch/tuq/wiki
+See [the wiki](http://github.com/mschoch/tuq/wiki) for full details
