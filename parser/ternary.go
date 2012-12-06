@@ -22,10 +22,10 @@ func (te *TernaryExpression) String() string {
 	return fmt.Sprintf("%v ? %v : %v", te.Iff, te.Thenn, te.Elsee)
 }
 
-func (te *TernaryExpression) SybolsReferenced() []string {
-	iffSymbols := te.Iff.SybolsReferenced()
-	thennSymbols := concatStringSlices(iffSymbols, te.Thenn.SybolsReferenced())
-	return concatStringSlices(thennSymbols, te.Elsee.SybolsReferenced())
+func (te *TernaryExpression) SymbolsReferenced() []string {
+	iffSymbols := te.Iff.SymbolsReferenced()
+	thennSymbols := concatStringSlices(iffSymbols, te.Thenn.SymbolsReferenced())
+	return concatStringSlices(thennSymbols, te.Elsee.SymbolsReferenced())
 }
 
 func (te *TernaryExpression) PrefixSymbols(s string) {

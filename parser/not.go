@@ -18,8 +18,8 @@ func (n *NotExpression) String() string {
 	return fmt.Sprintf("!%v", n.Oper)
 }
 
-func (n *NotExpression) SybolsReferenced() []string {
-	return n.Oper.SybolsReferenced()
+func (n *NotExpression) SymbolsReferenced() []string {
+	return n.Oper.SymbolsReferenced()
 }
 
 func (n *NotExpression) PrefixSymbols(s string) {

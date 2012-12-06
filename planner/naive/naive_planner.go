@@ -69,7 +69,7 @@ func (np *NaivePlanner) Plan(query parser.Select) []planner.Plan {
 		// (columns not in the group by clause and not inside an aggregate function)
 		stat_fields := make([]string, 0)
 		if query.Sel != nil {
-			stat_fields = query.Sel.SybolsReferenced()
+			stat_fields = query.Sel.SymbolsReferenced()
 		}
 
 		// group by

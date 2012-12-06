@@ -20,9 +20,9 @@ func (de *DivideExpression) String() string {
 	return fmt.Sprintf("%v / %v", de.Left, de.Right)
 }
 
-func (de *DivideExpression) SybolsReferenced() []string {
-	leftSymbols := de.Left.SybolsReferenced()
-	return concatStringSlices(leftSymbols, de.Right.SybolsReferenced())
+func (de *DivideExpression) SymbolsReferenced() []string {
+	leftSymbols := de.Left.SymbolsReferenced()
+	return concatStringSlices(leftSymbols, de.Right.SymbolsReferenced())
 }
 
 func (de *DivideExpression) PrefixSymbols(s string) {

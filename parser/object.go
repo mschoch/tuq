@@ -35,10 +35,10 @@ func (ol *ObjectLiteral) String() string {
 	return fmt.Sprintf("{%s}", items)
 }
 
-func (ol *ObjectLiteral) SybolsReferenced() []string {
+func (ol *ObjectLiteral) SymbolsReferenced() []string {
 	result := make([]string, 0)
 	for _, expr := range ol.Val {
-		result = concatStringSlices(result, expr.SybolsReferenced())
+		result = concatStringSlices(result, expr.SymbolsReferenced())
 	}
 	return result
 }

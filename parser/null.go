@@ -13,7 +13,7 @@ func (n *Null) String() string {
 	return "null"
 }
 
-func (n *Null) SybolsReferenced() []string {
+func (n *Null) SymbolsReferenced() []string {
 	return []string{}
 }
 

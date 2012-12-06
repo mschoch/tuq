@@ -17,7 +17,7 @@ func (fl *FloatLiteral) String() string {
 	return fmt.Sprintf("%f", fl.Val)
 }
 
-func (fl *FloatLiteral) SybolsReferenced() []string {
+func (fl *FloatLiteral) SymbolsReferenced() []string {
 	return []string{}
 }
 

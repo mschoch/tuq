@@ -20,9 +20,9 @@ func (pe *PlusExpression) String() string {
     return fmt.Sprintf("%v + %v", pe.Left, pe.Right)
 }
 
-func (pe *PlusExpression) SybolsReferenced() []string {
-    leftSymbols := pe.Left.SybolsReferenced()
-    return concatStringSlices(leftSymbols, pe.Right.SybolsReferenced())
+func (pe *PlusExpression) SymbolsReferenced() []string {
+    leftSymbols := pe.Left.SymbolsReferenced()
+    return concatStringSlices(leftSymbols, pe.Right.SymbolsReferenced())
 }
 
 func (pe *PlusExpression) PrefixSymbols(s string) {

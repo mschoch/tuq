@@ -258,7 +258,7 @@ func (no *NaiveOptimizer) MoveJoinConditionsUpTree(plan planner.Plan) {
 				//log.Printf("Rest Expression is %v", rest)
 
 				// now try to place the separable expression
-				sepSymbols := sep.SybolsReferenced()
+				sepSymbols := sep.SymbolsReferenced()
 				if len(sepSymbols) > 0 {
 					sepDataSource := sepSymbols[0]
 					sepDotIndex := strings.Index(sepDataSource, ".")
@@ -369,7 +369,7 @@ func LookForSeparableExpression(expr parser.Expression) (parser.Expression, pars
 
 func NumberOfDataSourcesReferencedInExpression(expr parser.Expression) int {
 	datasourceRef := make(map[string]interface{})
-	symbolsReferenced := expr.SybolsReferenced()
+	symbolsReferenced := expr.SymbolsReferenced()
 	for _, symbol := range symbolsReferenced {
 		datasourceRef[symbol] = nil
 	}
@@ -394,17 +394,17 @@ func (no *NaiveOptimizer) TrySortMerge(plan planner.Plan) {
 			rightDataSource, isRightDataSource := rightSource.(planner.DataSource)
 			if isLeftDataSource && isRightDataSource {
 				if leftDataSource.GetOrderBy() == nil && rightDataSource.GetOrderBy() == nil {
-					leftSort := parser.NewSortItem(sortMergeJoiner.LeftExpr, true)
+					leftSort := parser.NewSortItem(parser.NewProperty(sortMergeJoiner.LeftExpr.SymbolsReferenced()[0]), true)
 					err = leftDataSource.SetOrderBy(parser.SortList{*leftSort})
 					if err != nil {
-						//log.Printf("merge join not possible datasource rejected order by")
+						//log.Printf("merge join not possible left datasource rejected order by")
 						return
 					}
 
-					rightSort := parser.NewSortItem(sortMergeJoiner.RightExpr, true)
+					rightSort := parser.NewSortItem(parser.NewProperty(sortMergeJoiner.RightExpr.SymbolsReferenced()[0]), true)
 					err = rightDataSource.SetOrderBy(parser.SortList{*rightSort})
 					if err != nil {
-						//log.Printf("merge join not possible datasource rejected order by")
+						//log.Printf("merge join not possible right datasource rejected order by")
 						return
 					}
 

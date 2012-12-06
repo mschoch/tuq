@@ -18,7 +18,7 @@ func (p *Property) String() string {
 	return fmt.Sprintf("%s", p.Symbol)
 }
 
-func (p *Property) SybolsReferenced() []string {
+func (p *Property) SymbolsReferenced() []string {
 	return []string{p.Symbol}
 }
 

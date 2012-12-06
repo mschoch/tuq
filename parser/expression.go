@@ -6,7 +6,7 @@ import (
 
 type Expression interface {
 	String() string
-	SybolsReferenced() []string
+	SymbolsReferenced() []string
 	PrefixSymbols(string)
 }
 

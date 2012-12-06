@@ -20,9 +20,9 @@ func (gte *GreaterThanOrEqualExpression) String() string {
 	return fmt.Sprintf("%v >= %v", gte.Left, gte.Right)
 }
 
-func (gte *GreaterThanOrEqualExpression) SybolsReferenced() []string {
-	leftSymbols := gte.Left.SybolsReferenced()
-	return concatStringSlices(leftSymbols, gte.Right.SybolsReferenced())
+func (gte *GreaterThanOrEqualExpression) SymbolsReferenced() []string {
+	leftSymbols := gte.Left.SymbolsReferenced()
+	return concatStringSlices(leftSymbols, gte.Right.SymbolsReferenced())
 }
 
 func (gte *GreaterThanOrEqualExpression) PrefixSymbols(s string) {

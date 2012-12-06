@@ -30,10 +30,10 @@ func (f *Function) String() string {
 	return fmt.Sprintf("__func__.%s.%s", f.Name, items)
 }
 
-func (f *Function) SybolsReferenced() []string {
+func (f *Function) SymbolsReferenced() []string {
 	result := make([]string, 0)
 	for _, expr := range f.Args {
-		result = concatStringSlices(result, expr.SybolsReferenced())
+		result = concatStringSlices(result, expr.SymbolsReferenced())
 	}
 	return result
 }

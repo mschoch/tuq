@@ -19,9 +19,9 @@ func (ae *BracketMemberExpression) String() string {
 	return fmt.Sprintf("%v[%v]", ae.Left, ae.Right)
 }
 
-func (ae *BracketMemberExpression) SybolsReferenced() []string {
-	leftSymbols := ae.Left.SybolsReferenced()
-	return concatStringSlices(leftSymbols, ae.Right.SybolsReferenced())
+func (ae *BracketMemberExpression) SymbolsReferenced() []string {
+	leftSymbols := ae.Left.SymbolsReferenced()
+	return concatStringSlices(leftSymbols, ae.Right.SymbolsReferenced())
 }
 
 func (ae *BracketMemberExpression) PrefixSymbols(s string) {

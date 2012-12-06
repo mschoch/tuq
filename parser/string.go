@@ -17,7 +17,7 @@ func (sl *StringLiteral) String() string {
 	return fmt.Sprintf("\"%s\"", sl.Val)
 }
 
-func (sl *StringLiteral) SybolsReferenced() []string {
+func (sl *StringLiteral) SymbolsReferenced() []string {
 	return []string{}
 }
 

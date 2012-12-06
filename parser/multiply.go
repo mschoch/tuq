@@ -20,9 +20,9 @@ func (me *MultiplyExpression) String() string {
 	return fmt.Sprintf("%v * %v", me.Left, me.Right)
 }
 
-func (me *MultiplyExpression) SybolsReferenced() []string {
-	leftSymbols := me.Left.SybolsReferenced()
-	return concatStringSlices(leftSymbols, me.Right.SybolsReferenced())
+func (me *MultiplyExpression) SymbolsReferenced() []string {
+	leftSymbols := me.Left.SymbolsReferenced()
+	return concatStringSlices(leftSymbols, me.Right.SymbolsReferenced())
 }
 
 func (me *MultiplyExpression) PrefixSymbols(s string) {

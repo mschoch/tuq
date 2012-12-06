@@ -230,13 +230,14 @@ func (cpj *OttoSortMergeJoiner) SetCondition(e parser.Expression) error {
 	// make sure this is a condition we can support
 	equalsExpr, isEqualsExpression := e.(*parser.EqualsExpression)
 	if isEqualsExpression {
-		// now check that left and right are simple properties
-		leftExpr, isLeftProperty := equalsExpr.Left.(*parser.Property)
-		rightExpr, isRightProperty := equalsExpr.Right.(*parser.Property)
-		if isLeftProperty && isRightProperty {
-			//ok we are good to go
-			cpj.LeftExpr = leftExpr
-			cpj.RightExpr = rightExpr
+
+        // only allow if left and right expressions each sort on one property
+        // previously we only allowed simple properties
+        // but i believe this is still safe, key is that we sort each side on that one property
+		if len(equalsExpr.Left.SymbolsReferenced()) == 1 && len(equalsExpr.Right.SymbolsReferenced()) == 1 {
+			// this should be ok
+			cpj.LeftExpr = equalsExpr.Left
+			cpj.RightExpr = equalsExpr.Right
 			cpj.joinExpr = e
 			return nil
 		}

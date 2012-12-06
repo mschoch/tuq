@@ -20,9 +20,9 @@ func (me *MinusExpression) String() string {
     return fmt.Sprintf("%v - %v", me.Left, me.Right)
 }
 
-func (me *MinusExpression) SybolsReferenced() []string {
-    leftSymbols := me.Left.SybolsReferenced()
-    return concatStringSlices(leftSymbols, me.Right.SybolsReferenced())
+func (me *MinusExpression) SymbolsReferenced() []string {
+    leftSymbols := me.Left.SymbolsReferenced()
+    return concatStringSlices(leftSymbols, me.Right.SymbolsReferenced())
 }
 
 func (me *MinusExpression) PrefixSymbols(s string) {

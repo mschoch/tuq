@@ -17,7 +17,7 @@ func (il *IntegerLiteral) String() string {
 	return fmt.Sprintf("%d", il.Val)
 }
 
-func (il *IntegerLiteral) SybolsReferenced() []string {
+func (il *IntegerLiteral) SymbolsReferenced() []string {
 	return []string{}
 }
 

@@ -147,7 +147,7 @@ func (s *Select) Validate() error {
 
 func verifySymbolsValid(e Expression, d []DataSource) error {
 	if e != nil {
-		exprSymbols := e.SybolsReferenced()
+		exprSymbols := e.SymbolsReferenced()
 	OUTER:
 		for _, v := range exprSymbols {
 			for _, prefixFrom := range d {

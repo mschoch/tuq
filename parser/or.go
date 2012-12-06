@@ -19,9 +19,9 @@ func (oe *OrExpression) String() string {
 	return fmt.Sprintf("%v || %v", oe.Left, oe.Right)
 }
 
-func (oe *OrExpression) SybolsReferenced() []string {
-	leftSymbols := oe.Left.SybolsReferenced()
-	return concatStringSlices(leftSymbols, oe.Right.SybolsReferenced())
+func (oe *OrExpression) SymbolsReferenced() []string {
+	leftSymbols := oe.Left.SymbolsReferenced()
+	return concatStringSlices(leftSymbols, oe.Right.SymbolsReferenced())
 }
 
 func (oe *OrExpression) PrefixSymbols(s string) {

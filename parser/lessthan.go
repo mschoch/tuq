@@ -20,9 +20,9 @@ func (lt *LessThanExpression) String() string {
 	return fmt.Sprintf("%v < %v", lt.Left, lt.Right)
 }
 
-func (lt *LessThanExpression) SybolsReferenced() []string {
-	leftSymbols := lt.Left.SybolsReferenced()
-	return concatStringSlices(leftSymbols, lt.Right.SybolsReferenced())
+func (lt *LessThanExpression) SymbolsReferenced() []string {
+	leftSymbols := lt.Left.SymbolsReferenced()
+	return concatStringSlices(leftSymbols, lt.Right.SymbolsReferenced())
 }
 
 func (lt *LessThanExpression) PrefixSymbols(s string) {

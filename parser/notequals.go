@@ -20,9 +20,9 @@ func (ne *NotEqualsExpression) String() string {
 	return fmt.Sprintf("%v != %v", ne.Left, ne.Right)
 }
 
-func (ne *NotEqualsExpression) SybolsReferenced() []string {
-	leftSymbols := ne.Left.SybolsReferenced()
-	return concatStringSlices(leftSymbols, ne.Right.SybolsReferenced())
+func (ne *NotEqualsExpression) SymbolsReferenced() []string {
+	leftSymbols := ne.Left.SymbolsReferenced()
+	return concatStringSlices(leftSymbols, ne.Right.SymbolsReferenced())
 }
 
 func (ne *NotEqualsExpression) PrefixSymbols(s string) {

@@ -20,9 +20,9 @@ func (ee *EqualsExpression) String() string {
 	return fmt.Sprintf("%v == %v", ee.Left, ee.Right)
 }
 
-func (ee *EqualsExpression) SybolsReferenced() []string {
-	leftSymbols := ee.Left.SybolsReferenced()
-	return concatStringSlices(leftSymbols, ee.Right.SybolsReferenced())
+func (ee *EqualsExpression) SymbolsReferenced() []string {
+	leftSymbols := ee.Left.SymbolsReferenced()
+	return concatStringSlices(leftSymbols, ee.Right.SymbolsReferenced())
 }
 
 func (ee *EqualsExpression) PrefixSymbols(s string) {

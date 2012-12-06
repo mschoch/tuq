@@ -25,10 +25,10 @@ func (al *ArrayLiteral) String() string {
 	return fmt.Sprintf("[%s]", items)
 }
 
-func (al *ArrayLiteral) SybolsReferenced() []string {
+func (al *ArrayLiteral) SymbolsReferenced() []string {
 	result := make([]string, 0)
 	for _, expr := range al.Val {
-		result = concatStringSlices(result, expr.SybolsReferenced())
+		result = concatStringSlices(result, expr.SymbolsReferenced())
 	}
 	return result
 }
