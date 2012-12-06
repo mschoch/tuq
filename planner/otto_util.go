@@ -39,7 +39,7 @@ func cleanupDocumentFromEnvironment(o *otto.Otto, doc Document) {
 func evaluateExpressionInEnvironment(o *otto.Otto, expr parser.Expression) otto.Value {
 	result, err := o.Run(fmt.Sprintf("ignore = %v", expr))
 	if err != nil {
-		log.Printf("Error running otto eval %v", err)
+		log.Printf("Error running otto eval %v, %v", expr, err)
 	} else {
 		return result
 	}
@@ -54,7 +54,7 @@ func evaluateExpressionInEnvironmentAsBoolean(o *otto.Otto, expr parser.Expressi
 func evaluateExpressionStringInEnvironmentAsBoolean(o *otto.Otto, expression string) bool {
 	result, err := o.Run(expression)
 	if err != nil {
-		log.Printf("Error running otto %v", err)
+		log.Printf("Error running otto %v, %v", expression, err)
 	} else {
 		//log.Printf("result was %v", result)
 		result, err := result.ToBoolean()
