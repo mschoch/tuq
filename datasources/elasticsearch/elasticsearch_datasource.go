@@ -606,7 +606,12 @@ func (ds *ElasticSearchDataSource) BuildElasticSearchFilterRecursive(filter pars
 		}
 		rhsval, err := ESSupportedLiteralValue(expr.Right)
 		if err != nil {
-			return nil, err
+			// not a literal value, maybe its a property in this ds?
+			rhsprop, err := ds.ESSupportedProperty(expr.Right)
+			if err != nil {
+				return nil, err
+			}
+			return NewScriptFilter(lhsprop, rhsprop, "=="), nil
 		}
 		return NewTermFilter(lhsprop, rhsval), nil
 	case *parser.NotEqualsExpression:
@@ -616,7 +621,12 @@ func (ds *ElasticSearchDataSource) BuildElasticSearchFilterRecursive(filter pars
 		}
 		rhsval, err := ESSupportedLiteralValue(expr.Right)
 		if err != nil {
-			return nil, err
+			// not a literal value, maybe its a property in this ds?
+			rhsprop, err := ds.ESSupportedProperty(expr.Right)
+			if err != nil {
+				return nil, err
+			}
+			return NewScriptFilter(lhsprop, rhsprop, "!="), nil
 		}
 		termFilter := NewTermFilter(lhsprop, rhsval)
 		return NewNotFilter(termFilter), nil
@@ -627,7 +637,12 @@ func (ds *ElasticSearchDataSource) BuildElasticSearchFilterRecursive(filter pars
 		}
 		rhsval, err := ESSupportedLiteralValue(expr.Right)
 		if err != nil {
-			return nil, err
+			// not a literal value, maybe its a property in this ds?
+			rhsprop, err := ds.ESSupportedProperty(expr.Right)
+			if err != nil {
+				return nil, err
+			}
+			return NewScriptFilter(lhsprop, rhsprop, "<"), nil
 		}
 		return NewRangeFilter(lhsprop, rhsval, "lt"), nil
 	case *parser.GreaterThanExpression:
@@ -637,7 +652,12 @@ func (ds *ElasticSearchDataSource) BuildElasticSearchFilterRecursive(filter pars
 		}
 		rhsval, err := ESSupportedLiteralValue(expr.Right)
 		if err != nil {
-			return nil, err
+			// not a literal value, maybe its a property in this ds?
+			rhsprop, err := ds.ESSupportedProperty(expr.Right)
+			if err != nil {
+				return nil, err
+			}
+			return NewScriptFilter(lhsprop, rhsprop, ">"), nil
 		}
 		return NewRangeFilter(lhsprop, rhsval, "gt"), nil
 	case *parser.LessThanOrEqualExpression:
@@ -647,7 +667,12 @@ func (ds *ElasticSearchDataSource) BuildElasticSearchFilterRecursive(filter pars
 		}
 		rhsval, err := ESSupportedLiteralValue(expr.Right)
 		if err != nil {
-			return nil, err
+			// not a literal value, maybe its a property in this ds?
+			rhsprop, err := ds.ESSupportedProperty(expr.Right)
+			if err != nil {
+				return nil, err
+			}
+			return NewScriptFilter(lhsprop, rhsprop, "<="), nil
 		}
 		return NewRangeFilter(lhsprop, rhsval, "lte"), nil
 	case *parser.GreaterThanOrEqualExpression:
@@ -657,7 +682,12 @@ func (ds *ElasticSearchDataSource) BuildElasticSearchFilterRecursive(filter pars
 		}
 		rhsval, err := ESSupportedLiteralValue(expr.Right)
 		if err != nil {
-			return nil, err
+			// not a literal value, maybe its a property in this ds?
+			rhsprop, err := ds.ESSupportedProperty(expr.Right)
+			if err != nil {
+				return nil, err
+			}
+			return NewScriptFilter(lhsprop, rhsprop, ">="), nil
 		}
 		return NewRangeFilter(lhsprop, rhsval, "gte"), nil
 	case *parser.AndExpression:

@@ -38,6 +38,14 @@ func NewTermFilter(field string, value interface{}) *Filter {
 	return &filter
 }
 
+func NewScriptFilter(left string, right string, operator string) *Filter {
+	filter := make(Filter)
+	scriptFilter := make(Filter)
+	scriptFilter["script"] = "doc['" + left + "'].value " + operator + " doc['" + right + "'].value"
+	filter["script"] = scriptFilter
+	return &filter
+}
+
 func NewNotFilter(operand *Filter) *Filter {
 	filter := make(Filter)
 	filter["not"] = operand
