@@ -105,6 +105,12 @@ func (ds *MongoDBDataSource) Run() {
 	iter := q.Iter()
 	result := make(map[string]interface{})
 	for iter.Next(&result) {
+		// add as if necessary
+		if ds.As != "" {
+			doccopy := result
+			result = make(map[string]interface{})
+			result[ds.As] = doccopy
+		}
 		ds.OutputChannel <- result
 		result = make(map[string]interface{})
 	}
