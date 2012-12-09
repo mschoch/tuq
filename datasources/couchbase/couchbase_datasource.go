@@ -29,6 +29,10 @@ type CouchbaseDataSource struct {
 	couchbaseServer string
 	batchSize       int
 	debug           bool
+	ddoc            string
+	view            string
+	startkey        interface{}
+	endkey          interface{}
 }
 
 func init() {
@@ -40,7 +44,11 @@ func NewCouchbaseDataSource(config map[string]interface{}) planner.DataSource {
 		OutputChannel:   make(planner.DocumentChannel),
 		cancelled:       false,
 		bucketName:      config["bucket"].(string),
-		couchbaseServer: config["couchbase"].(string)}
+		couchbaseServer: config["couchbase"].(string),
+		ddoc:            "",
+		view:            "_all_docs",
+		startkey:        []interface{}{},
+		endkey:          []interface{}{map[string]interface{}{}, map[string]interface{}{}, map[string]interface{}{}, map[string]interface{}{}, map[string]interface{}{}}}
 
 	if config["batch_size"] != nil {
 		result.batchSize = config["batch_size"].(int)
@@ -73,6 +81,84 @@ func (ds *CouchbaseDataSource) GetDocumentChannel() planner.DocumentChannel {
 
 func (ds *CouchbaseDataSource) Run() {
 	defer close(ds.OutputChannel)
+
+	//get a connection to the bucket
+	bucket, err := ds.getCachedBucket(ds.bucketName)
+	if err != nil {
+		log.Printf("Error getting bucket: %v", err)
+		return
+	}
+
+	skey := ds.startkey
+
+	// FIXME is include_docs=false and mget faster than include docs=true?
+	vres, err := bucket.View(ds.ddoc, ds.view, map[string]interface{}{
+		"limit":        ds.batchSize + 1,
+		"include_docs": true,
+		"startkey":     skey,
+		"endkey":       ds.endkey})
+
+	if err != nil {
+		log.Printf("Error accessing view: %v", err)
+		return
+	}
+
+	for i, row := range vres.Rows {
+		if i < ds.batchSize {
+			// dont process the last row, its just used to see if we
+			// need to continue processing
+			rowdoc := (*row.Doc).(map[string]interface{})
+			rowdoc["doc"] = rowdoc["json"]
+			delete(rowdoc, "json")
+
+			// add as if necessary
+			if ds.As != "" {
+				doccopy := rowdoc
+				rowdoc = make(map[string]interface{})
+				rowdoc[ds.As] = doccopy
+			}
+
+			ds.OutputChannel <- rowdoc
+		}
+	}
+
+	// as long as we continue to get batchSize + 1 results back we have to keep going
+	for len(vres.Rows) > ds.batchSize {
+		skey = vres.Rows[ds.batchSize].Key
+		skeydocid := vres.Rows[ds.batchSize].ID
+
+		vres, err = bucket.View(ds.ddoc, ds.view, map[string]interface{}{
+			"limit":          ds.batchSize + 1,
+			"include_docs":   true,
+			"startkey":       skey,
+			"startkey_docid": skeydocid,
+			"endkey":         ds.endkey})
+
+		if err != nil {
+			log.Printf("Error accessing view: %v", err)
+			return
+		}
+
+		for i, row := range vres.Rows {
+			if i < ds.batchSize {
+				// dont process the last row, its just used to see if we
+				// need to continue processing
+				rowdoc := (*row.Doc).(map[string]interface{})
+				rowdoc["doc"] = rowdoc["json"]
+				delete(rowdoc, "json")
+
+				// add as if necessary
+				if ds.As != "" {
+					doccopy := rowdoc
+					rowdoc = make(map[string]interface{})
+					rowdoc[ds.As] = doccopy
+				}
+
+				ds.OutputChannel <- rowdoc
+			}
+		}
+
+	}
 
 }
 
