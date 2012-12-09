@@ -156,10 +156,11 @@ func (ds *CouchbaseDataSource) Explain() {
 	defer close(ds.OutputChannel)
 
 	thisStep := map[string]interface{}{
-		"_type":    "FROM",
-		"impl":     "Couchbase",
-		"filename": ds.Name,
-		"as":       ds.As}
+		"_type": "FROM",
+		"impl":  "Couchbase",
+		"name":  ds.Name,
+		"view":  ds.view,
+		"as":    ds.As}
 
 	ds.OutputChannel <- thisStep
 }
