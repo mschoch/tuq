@@ -111,12 +111,7 @@ func (ds *CouchbaseDataSource) Run() {
 			rowdoc["doc"] = rowdoc["json"]
 			delete(rowdoc, "json")
 
-			// add as if necessary
-			if ds.As != "" {
-				doccopy := rowdoc
-				rowdoc = make(map[string]interface{})
-				rowdoc[ds.As] = doccopy
-			}
+			rowdoc = datasources.WrapDocWithDatasourceAs(ds.As, rowdoc)
 
 			ds.OutputChannel <- rowdoc
 		}
@@ -147,12 +142,7 @@ func (ds *CouchbaseDataSource) Run() {
 				rowdoc["doc"] = rowdoc["json"]
 				delete(rowdoc, "json")
 
-				// add as if necessary
-				if ds.As != "" {
-					doccopy := rowdoc
-					rowdoc = make(map[string]interface{})
-					rowdoc[ds.As] = doccopy
-				}
+				rowdoc = datasources.WrapDocWithDatasourceAs(ds.As, rowdoc)
 
 				ds.OutputChannel <- rowdoc
 			}

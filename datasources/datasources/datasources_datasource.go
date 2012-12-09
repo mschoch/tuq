@@ -43,7 +43,9 @@ func (ds *DataSourcesDataSource) Run() {
 	defer close(ds.OutputChannel)
 
 	for k, v := range datasources.DataSources {
-		ds.OutputChannel <- planner.Document{"name": k, "definition": v}
+	    doc := planner.Document{"name": k, "definition": v}
+	    doc = datasources.WrapDocWithDatasourceAs(ds.As, doc)
+		ds.OutputChannel <- doc
 	}
 }
 

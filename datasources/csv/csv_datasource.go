@@ -112,11 +112,7 @@ func (ds *CSVDataSource) Run() {
 					}
 				}
 			}
-			if ds.As != "" {
-				doccopy := doc
-				doc = make(planner.Document)
-				doc[ds.As] = doccopy
-			}
+			doc = datasources.WrapDocWithDatasourceAs(ds.As, doc)
 			ds.OutputChannel <- doc
 		}
 		row += 1

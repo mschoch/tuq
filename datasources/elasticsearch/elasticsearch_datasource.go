@@ -457,12 +457,7 @@ func (ds *ElasticSearchDataSource) DocsFromSearchResults(sr core.SearchResult) (
 			source["doc"] = docBodies[i]
 		}
 
-		// add as if necessary
-		if ds.As != "" {
-			doccopy := source
-			source = make(planner.Document)
-			source[ds.As] = doccopy
-		}
+		source = datasources.WrapDocWithDatasourceAs(ds.As, source)
 
 		result = append(result, source)
 	}
