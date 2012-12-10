@@ -6,6 +6,7 @@ import (
 	"github.com/mschoch/tuq/parser"
 	"github.com/mschoch/tuq/planner"
 	"log"
+	"math"
 )
 
 func init() {
@@ -43,8 +44,8 @@ func (ds *DataSourcesDataSource) Run() {
 	defer close(ds.OutputChannel)
 
 	for k, v := range datasources.DataSources {
-	    doc := planner.Document{"name": k, "definition": v}
-	    doc = datasources.WrapDocWithDatasourceAs(ds.As, doc)
+		doc := planner.Document{"name": k, "definition": v}
+		doc = datasources.WrapDocWithDatasourceAs(ds.As, doc)
 		ds.OutputChannel <- doc
 	}
 }
@@ -53,10 +54,12 @@ func (ds *DataSourcesDataSource) Explain() {
 	defer close(ds.OutputChannel)
 
 	thisStep := map[string]interface{}{
-		"_type": "FROM",
-		"impl":  "DataSources",
-		"name":  ds.Name,
-		"as":    ds.As}
+		"_type":     "FROM",
+		"impl":      "DataSources",
+		"name":      ds.Name,
+		"as":        ds.As,
+		"cost":      ds.Cost(),
+		"totalCost": ds.TotalCost()}
 
 	ds.OutputChannel <- thisStep
 }
@@ -113,4 +116,12 @@ func (ds *DataSourcesDataSource) SetHaving(having parser.Expression) error {
 
 func (ds *DataSourcesDataSource) DocsFromIds(docIds []string) ([]planner.Document, error) {
 	panic("Unexpected call to DataSources DataSource to get DocsFromIds")
+}
+
+func (ds *DataSourcesDataSource) Cost() float64 {
+	return math.Inf(1)
+}
+
+func (ds *DataSourcesDataSource) TotalCost() float64 {
+	return ds.Cost()
 }

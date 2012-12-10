@@ -6,6 +6,7 @@ import (
 	"github.com/mschoch/tuq/parser"
 	"github.com/mschoch/tuq/planner"
 	"log"
+	"math"
 	// Alias this because we call our connection couchbase
 	"encoding/json"
 	cb "github.com/couchbaselabs/go-couchbase"
@@ -156,11 +157,13 @@ func (ds *CouchbaseDataSource) Explain() {
 	defer close(ds.OutputChannel)
 
 	thisStep := map[string]interface{}{
-		"_type": "FROM",
-		"impl":  "Couchbase",
-		"name":  ds.Name,
-		"view":  ds.view,
-		"as":    ds.As}
+		"_type":     "FROM",
+		"impl":      "Couchbase",
+		"name":      ds.Name,
+		"view":      ds.view,
+		"as":        ds.As,
+		"cost":      ds.Cost(),
+		"totalCost": ds.TotalCost()}
 
 	ds.OutputChannel <- thisStep
 }
@@ -297,4 +300,12 @@ func DocFromMcResponse(mcResponse *gomemcached.MCResponse) (planner.Document, er
 	}
 
 	return doc, nil
+}
+
+func (ds *CouchbaseDataSource) Cost() float64 {
+	return math.Inf(1)
+}
+
+func (ds *CouchbaseDataSource) TotalCost() float64 {
+	return ds.Cost()
 }

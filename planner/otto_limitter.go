@@ -78,7 +78,9 @@ func (ol *OttoLimitter) Explain() {
 			"_type":      "LIMIT",
 			"impl":       "Otto",
 			"expression": fmt.Sprintf("%v", ol.Limit),
-			"source":     doc}
+			"source":     doc,
+			"cost":       ol.Cost(),
+			"totalCost":  ol.TotalCost()}
 
 		ol.OutputChannel <- thisStep
 	}
@@ -97,4 +99,12 @@ func (ol *OttoLimitter) SetLimit(l parser.Expression) {
 
 func (ol *OttoLimitter) GetLimit() parser.Expression {
 	return ol.Limit
+}
+
+func (ol *OttoLimitter) Cost() float64 {
+	return 1000
+}
+
+func (ol *OttoLimitter) TotalCost() float64 {
+	return ol.Cost() + ol.Source.TotalCost()
 }

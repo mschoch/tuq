@@ -28,7 +28,7 @@ func FormatChannelOutput(result planner.RowChannel, w io.Writer) {
 		}
 		body, err := json.MarshalIndent(row, "    ", "    ")
 		if err != nil {
-			log.Printf("Unable to format result to display %v", err)
+			log.Printf("Unable to format result to display %#v, %v", row, err)
 		} else {
 			fmt.Fprintf(w, "    %v", string(body))
 		}
@@ -49,6 +49,25 @@ func ReplaceNaNAndInfRecursive(row planner.Row) planner.Row {
 			case float64:
 				if math.IsNaN(v) {
 					row[k] = nil
+				} else if math.IsInf(v, 1) {
+					row[k] = "Infinity"
+				} else if math.IsInf(v, -1) {
+					row[k] = "-Infinity"
+				}
+			}
+		}
+	case planner.Document:
+		for k, v := range row {
+			switch v := v.(type) {
+			case planner.Row:
+				row[k] = ReplaceNaNAndInfRecursive(v)
+			case float64:
+				if math.IsNaN(v) {
+					row[k] = nil
+				} else if math.IsInf(v, 1) {
+					row[k] = "Infinity"
+				} else if math.IsInf(v, -1) {
+					row[k] = "-Infinity"
 				}
 			}
 		}
@@ -56,7 +75,17 @@ func ReplaceNaNAndInfRecursive(row planner.Row) planner.Row {
 	case float64:
 		if math.IsNaN(row) {
 			return nil
+		} else if math.IsInf(row, 1) {
+			return "Infinity"
+		} else if math.IsInf(row, -1) {
+			return "-Infinity"
 		}
+
+	case string:
+		return row
+
+	default:
+		log.Printf("unexpected type %T", row)
 	}
 	return row
 }

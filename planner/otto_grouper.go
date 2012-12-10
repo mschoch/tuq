@@ -35,7 +35,7 @@ func (og *OttoGrouper) SetSource(s PlanPipelineComponent) {
 }
 
 func (og *OttoGrouper) GetSource() PlanPipelineComponent {
-    return og.Source
+	return og.Source
 }
 
 func (og *OttoGrouper) GetDocumentChannel() DocumentChannel {
@@ -79,17 +79,17 @@ func (og *OttoGrouper) Run() {
 		// and then walk the keys
 		statsFieldMap := make(map[string]interface{})
 		for _, expr := range og.GroupBy {
-		  statsFieldMap[expr.String()] = nil
+			statsFieldMap[expr.String()] = nil
 		}
 		for _, field := range og.Stats {
-		  statsFieldMap[field] = nil
+			statsFieldMap[field] = nil
 		}
 
-        for expr, _ := range statsFieldMap {
+		for expr, _ := range statsFieldMap {
 			// find the entry in the group by map (if it exists
 			statsMap, ok := og.groupValues[groupKey]
 
-			value := evaluateExpressionInEnvironment(og.Otto, parser.NewProperty(expr)) 
+			value := evaluateExpressionInEnvironment(og.Otto, parser.NewProperty(expr))
 			if ok {
 				expr_stats, ok := statsMap[expr]
 				if ok {
@@ -160,7 +160,9 @@ func (og *OttoGrouper) Explain() {
 			"_type":      "GROUP BY",
 			"impl":       "Otto",
 			"expression": fmt.Sprintf("%v", og.GroupBy),
-			"source":     doc}
+			"source":     doc,
+			"cost":       og.Cost(),
+			"totalCost":  og.TotalCost()}
 
 		og.OutputChannel <- thisStep
 	}
@@ -184,11 +186,11 @@ func (og *OttoGrouper) GetGroupByWithStatsFields() (parser.ExpressionList, []str
 type ExpressionStatsMap map[string]ExpressionStats
 
 type ExpressionStats struct {
-	Count int               `json:"count"`
-	Sum   float64           `json:"sum"`
-	Min   float64           `json:"min"`
-	Max   float64           `json:"max"`
-	Avg   float64           `json:"avg"`
+	Count int     `json:"count"`
+	Sum   float64 `json:"sum"`
+	Min   float64 `json:"min"`
+	Max   float64 `json:"max"`
+	Avg   float64 `json:"avg"`
 }
 
 func (es ExpressionStats) MarshalJSON() ([]byte, error) {
@@ -270,4 +272,12 @@ func SetDocumentProperty(doc Document, property parser.Expression, value interfa
 			doc[prop.Head()] = value
 		}
 	}
+}
+
+func (og *OttoGrouper) Cost() float64 {
+	return 500000000 // FIXME introduce constant for in-memory penalty
+}
+
+func (og *OttoGrouper) TotalCost() float64 {
+	return og.Cost() + og.Source.TotalCost()
 }

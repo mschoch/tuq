@@ -65,7 +65,9 @@ func (ds *DefaultSelecter) Explain() {
 			"_type":      "SELECT",
 			"impl":       "Default",
 			"expression": "FULL DOCUMENTS",
-			"source":     doc}
+			"source":     doc,
+			"cost":       ds.Cost(),
+			"totalCost":  ds.TotalCost()}
 
 		ds.OutputChannel <- thisStep
 	}
@@ -77,4 +79,12 @@ func (ds *DefaultSelecter) Cancel() {
 
 func (ds *DefaultSelecter) SetSelect(e parser.Expression) {
 
+}
+
+func (ds *DefaultSelecter) Cost() float64 {
+	return 1000
+}
+
+func (ds *DefaultSelecter) TotalCost() float64 {
+	return ds.Cost() + ds.Source.TotalCost()
 }

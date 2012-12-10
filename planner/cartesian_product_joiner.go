@@ -92,10 +92,12 @@ func (cpj *CartesianProductJoiner) Explain() {
 		for _, r := range cpj.rightDocs {
 
 			thisStep := map[string]interface{}{
-				"_type": "JOIN",
-				"impl":  "Full Cartesian Product",
-				"left":  l,
-				"right": r}
+				"_type":     "JOIN",
+				"impl":      "Full Cartesian Product",
+				"left":      l,
+				"right":     r,
+				"cost":      cpj.Cost(),
+				"totalCost": cpj.TotalCost()}
 
 			cpj.OutputChannel <- thisStep
 
@@ -136,4 +138,12 @@ func combineDocs(l, r Document) Document {
 		combined[k] = v
 	}
 	return combined
+}
+
+func (cpj *CartesianProductJoiner) Cost() float64 {
+	return cpj.LeftSource.TotalCost() * cpj.RightSource.TotalCost()
+}
+
+func (cpj *CartesianProductJoiner) TotalCost() float64 {
+	return cpj.Cost() + cpj.LeftSource.TotalCost() + cpj.RightSource.TotalCost()
 }

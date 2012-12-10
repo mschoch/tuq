@@ -73,7 +73,9 @@ func (oo *OttoOffsetter) Explain() {
 			"_type":      "OFFSET",
 			"impl":       "Otto",
 			"expression": fmt.Sprintf("%v", oo.Offset),
-			"source":     doc}
+			"source":     doc,
+			"cost":       oo.Cost(),
+			"totalCost":  oo.TotalCost()}
 
 		oo.OutputChannel <- thisStep
 	}
@@ -92,4 +94,12 @@ func (oo *OttoOffsetter) SetOffset(l parser.Expression) {
 
 func (oo *OttoOffsetter) GetOffset() parser.Expression {
 	return oo.Offset
+}
+
+func (oo *OttoOffsetter) Cost() float64 {
+	return 1000
+}
+
+func (oo *OttoOffsetter) TotalCost() float64 {
+	return oo.Cost() + oo.Source.TotalCost()
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/mschoch/tuq/planner"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -123,11 +124,13 @@ func (ds *CSVDataSource) Explain() {
 	defer close(ds.OutputChannel)
 
 	thisStep := map[string]interface{}{
-		"_type":    "FROM",
-		"impl":     "CSV File",
-		"filename": ds.filename,
-		"name":     ds.Name,
-		"as":       ds.As}
+		"_type":     "FROM",
+		"impl":      "CSV File",
+		"filename":  ds.filename,
+		"name":      ds.Name,
+		"as":        ds.As,
+		"cost":      ds.Cost(),
+		"totalCost": ds.TotalCost()}
 
 	ds.OutputChannel <- thisStep
 }
@@ -184,4 +187,12 @@ func (ds *CSVDataSource) SetHaving(having parser.Expression) error {
 
 func (ds *CSVDataSource) DocsFromIds(docIds []string) ([]planner.Document, error) {
 	panic("Unexpected call to CSV DataSource to get DocsFromIds")
+}
+
+func (ds *CSVDataSource) Cost() float64 {
+	return math.Inf(1)
+}
+
+func (ds *CSVDataSource) TotalCost() float64 {
+	return ds.Cost()
 }

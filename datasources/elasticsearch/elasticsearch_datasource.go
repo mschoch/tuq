@@ -9,6 +9,7 @@ import (
 	"github.com/mschoch/tuq/parser"
 	"github.com/mschoch/tuq/planner"
 	"log"
+	"math"
 	"net/url"
 	"strings"
 )
@@ -202,14 +203,16 @@ func (ds *ElasticSearchDataSource) Explain() {
 	ds.buildQuery()
 
 	thisStep := map[string]interface{}{
-		"_type":  "FROM",
-		"impl":   "ElasticSearch",
-		"index":  ds.indexName,
-		"name":   ds.Name,
-		"as":     ds.As,
-		"query":  ds.query,
-		"limit":  ds.limit,
-		"offset": ds.offset}
+		"_type":     "FROM",
+		"impl":      "ElasticSearch",
+		"index":     ds.indexName,
+		"name":      ds.Name,
+		"as":        ds.As,
+		"query":     ds.query,
+		"limit":     ds.limit,
+		"offset":    ds.offset,
+		"cost":      ds.Cost(),
+		"totalCost": ds.TotalCost()}
 
 	ds.OutputChannel <- thisStep
 }
@@ -748,4 +751,12 @@ func (ds *ElasticSearchDataSource) SetDocBodyDataSource(datasource planner.DataS
 
 func (ds *ElasticSearchDataSource) DocsFromIds(docIds []string) ([]planner.Document, error) {
 	panic("Unexpected call to CSV DataSource to get DocsFromIds")
+}
+
+func (ds *ElasticSearchDataSource) Cost() float64 {
+	return math.Inf(1)
+}
+
+func (ds *ElasticSearchDataSource) TotalCost() float64 {
+	return ds.Cost()
 }

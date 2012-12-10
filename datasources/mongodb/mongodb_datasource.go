@@ -8,6 +8,7 @@ import (
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 	"log"
+	"math"
 	"strings"
 )
 
@@ -127,7 +128,9 @@ func (ds *MongoDBDataSource) Explain() {
 		"as":         ds.As,
 		"filter":     ds.filter,
 		"limit":      ds.limit,
-		"offset":     ds.offset}
+		"offset":     ds.offset,
+		"cost":       ds.Cost(),
+		"totalCost":  ds.TotalCost()}
 
 	ds.OutputChannel <- thisStep
 }
@@ -357,4 +360,12 @@ func (ds *MongoDBDataSource) BuildMongoDBOrderBy(sortlist parser.SortList) (bson
 		}
 	}
 	return result, nil
+}
+
+func (ds *MongoDBDataSource) Cost() float64 {
+	return math.Inf(1)
+}
+
+func (ds *MongoDBDataSource) TotalCost() float64 {
+	return ds.Cost()
 }

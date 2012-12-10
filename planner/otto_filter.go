@@ -74,7 +74,9 @@ func (of *OttoFilter) Explain() {
 			"_type":      "WHERE",
 			"impl":       "Otto",
 			"expression": fmt.Sprintf("%v", of.expr),
-			"source":     doc}
+			"source":     doc,
+			"cost":       of.Cost(),
+			"totalCost":  of.TotalCost()}
 
 		of.OutputChannel <- thisStep
 	}
@@ -93,4 +95,12 @@ func (of *OttoFilter) SetFilter(e parser.Expression) {
 
 func (of *OttoFilter) GetFilter() parser.Expression {
 	return of.expr
+}
+
+func (of *OttoFilter) Cost() float64 {
+	return 1000
+}
+
+func (of *OttoFilter) TotalCost() float64 {
+	return of.Cost() + of.Source.TotalCost()
 }

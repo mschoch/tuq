@@ -77,7 +77,9 @@ func (oo *OttoOrderer) Explain() {
 			"_type":      "ORDER BY",
 			"impl":       "Otto",
 			"expression": fmt.Sprintf("%v", oo.SortList),
-			"source":     doc}
+			"source":     doc,
+			"cost":       oo.Cost(),
+			"totalCost":  oo.TotalCost()}
 
 		oo.OutputChannel <- thisStep
 	}
@@ -170,4 +172,12 @@ func (oo *OttoOrderer) Less(i, j int) bool {
 	}
 
 	return false
+}
+
+func (oo *OttoOrderer) Cost() float64 {
+	return 500000000 // FIXME introduce constant for in-memory penalty
+}
+
+func (oo *OttoOrderer) TotalCost() float64 {
+	return oo.Cost() + oo.Source.TotalCost()
 }

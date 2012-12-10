@@ -80,7 +80,9 @@ func (os *OttoSelecter) Explain() {
 			"_type":      "SELECT",
 			"impl":       "Otto",
 			"expression": fmt.Sprintf("%v", os.expr),
-			"source":     doc}
+			"source":     doc,
+			"cost":       os.Cost(),
+			"totalCost":  os.TotalCost()}
 
 		os.OutputChannel <- thisStep
 	}
@@ -93,4 +95,12 @@ func (os *OttoSelecter) Cancel() {
 
 func (os *OttoSelecter) SetSelect(e parser.Expression) {
 	os.expr = e
+}
+
+func (os *OttoSelecter) Cost() float64 {
+	return 1000
+}
+
+func (os *OttoSelecter) TotalCost() float64 {
+	return os.Cost() + os.Source.TotalCost()
 }

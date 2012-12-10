@@ -44,32 +44,44 @@ type PlanPipelineComponent interface {
 	GetDocumentChannel() DocumentChannel
 	Run()
 	Explain()
-	Cancel() // there are times that the downstream component knows it doesn't need any more from the upstream
+	Cancel()            // there are times that the downstream component knows it doesn't need any more from the upstream
+	Cost() float64      // an estimate of the cost incurred by this component
+	TotalCost() float64 // an estimate of the cost of this component, and all its upstream components
 }
 
 type Offsetter interface {
 	SetOffset(parser.Expression)
 	GetOffset() parser.Expression
+	Cost() float64
+	TotalCost() float64
 }
 
 type Limitter interface {
 	SetLimit(parser.Expression)
 	GetLimit() parser.Expression
+	Cost() float64
+	TotalCost() float64
 }
 
 type Filter interface {
 	SetFilter(parser.Expression)
 	GetFilter() parser.Expression
+	Cost() float64
+	TotalCost() float64
 }
 
 type Grouper interface {
 	SetGroupByWithStatsFields(parser.ExpressionList, []string)
 	GetGroupByWithStatsFields() (parser.ExpressionList, []string)
+	Cost() float64
+	TotalCost() float64
 }
 
 type Orderer interface {
 	SetOrderBy(parser.SortList)
 	GetOrderBy() parser.SortList
+	Cost() float64
+	TotalCost() float64
 }
 
 type Joiner interface {
@@ -85,6 +97,8 @@ type Joiner interface {
 	GetRightSource() PlanPipelineComponent
 	SetCondition(parser.Expression) error
 	GetCondition() parser.Expression
+	Cost() float64
+	TotalCost() float64
 }
 
 type DataSource interface {
@@ -108,6 +122,8 @@ type DataSource interface {
 	// FIXME this last method is a bit of a hack
 	// it should be handled byy proper support of an IN clause
 	DocsFromIds(docIds []string) ([]Document, error)
+	Cost() float64
+	TotalCost() float64
 }
 
 type Selecter interface {
@@ -118,6 +134,8 @@ type Selecter interface {
 	Explain()
 	Cancel() // there are times that the downstream component knows it doesn't need any more from the upstream
 	SetSelect(parser.Expression)
+	Cost() float64
+	TotalCost() float64
 }
 
 // wanted these to be const, but compiler won't let me

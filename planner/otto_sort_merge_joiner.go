@@ -198,7 +198,9 @@ func (cpj *OttoSortMergeJoiner) Explain() {
 		"impl":      "Otto Sort Merge",
 		"condition": fmt.Sprintf("%v", cpj.joinExpr),
 		"left":      l,
-		"right":     r}
+		"right":     r,
+		"cost":      cpj.Cost(),
+		"totalCost": cpj.TotalCost()}
 
 	cpj.OutputChannel <- thisStep
 
@@ -231,9 +233,9 @@ func (cpj *OttoSortMergeJoiner) SetCondition(e parser.Expression) error {
 	equalsExpr, isEqualsExpression := e.(*parser.EqualsExpression)
 	if isEqualsExpression {
 
-        // only allow if left and right expressions each sort on one property
-        // previously we only allowed simple properties
-        // but i believe this is still safe, key is that we sort each side on that one property
+		// only allow if left and right expressions each sort on one property
+		// previously we only allowed simple properties
+		// but i believe this is still safe, key is that we sort each side on that one property
 		if len(equalsExpr.Left.SymbolsReferenced()) == 1 && len(equalsExpr.Right.SymbolsReferenced()) == 1 {
 			// this should be ok
 			cpj.LeftExpr = equalsExpr.Left
@@ -248,4 +250,13 @@ func (cpj *OttoSortMergeJoiner) SetCondition(e parser.Expression) error {
 
 func (cpj *OttoSortMergeJoiner) GetCondition() parser.Expression {
 	return cpj.joinExpr
+}
+
+func (cpj *OttoSortMergeJoiner) Cost() float64 {
+	// this currently overestimates, but cannot really do better without statistics
+	return cpj.LeftSource.TotalCost() * cpj.RightSource.TotalCost()
+}
+
+func (cpj *OttoSortMergeJoiner) TotalCost() float64 {
+	return cpj.Cost() + cpj.LeftSource.TotalCost() + cpj.RightSource.TotalCost()
 }

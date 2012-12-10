@@ -111,7 +111,9 @@ func (cpj *OttoCartesianProductJoiner) Explain() {
 				"impl":      "Otto Full Cartesian Product",
 				"condition": fmt.Sprintf("%v", cpj.joinExpr),
 				"left":      l,
-				"right":     r}
+				"right":     r,
+				"cost":      cpj.Cost(),
+				"totalCost": cpj.TotalCost()}
 
 			cpj.OutputChannel <- thisStep
 
@@ -149,4 +151,12 @@ func (cpj *OttoCartesianProductJoiner) SetCondition(e parser.Expression) error {
 
 func (cpj *OttoCartesianProductJoiner) GetCondition() parser.Expression {
 	return cpj.joinExpr
+}
+
+func (cpj *OttoCartesianProductJoiner) Cost() float64 {
+	return cpj.LeftSource.TotalCost() * cpj.RightSource.TotalCost()
+}
+
+func (cpj *OttoCartesianProductJoiner) TotalCost() float64 {
+	return cpj.Cost() + cpj.LeftSource.TotalCost() + cpj.RightSource.TotalCost()
 }
