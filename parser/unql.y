@@ -24,7 +24,7 @@ f float64}
 %token LIMIT OFFSET ASC DESC TRUE FALSE LBRACKET RBRACKET
 %token QUESTION COLON MAX MIN AVG COUNT SUM DOT
 %token PLUS MINUS MULT DIV MOD AND OR NOT EQ LT LTE
-%token GT GTE NE PRAGMA ASSIGN EXPLAIN NULL
+%token GT GTE NE PRAGMA ASSIGN EXPLAIN NULL OVER
 %left OR
 %left AND
 %left EQ LT LTE GT GTE NE
@@ -130,9 +130,35 @@ data_source_list:   data_source_single
 data_source_single:  data_source { ds := NewDataSource($1.s)
                                    parsingQuery.AddDataSource(ds) 
                                  }
+        |   data_source data_source_over_list { ds := NewDataSource($1.s)
+                                          nextOver := parsingStack.Pop()
+                                          for nextOver != nil {
+                                            ds.AddOver(nextOver.(*Over))
+                                            nextOver = parsingStack.Pop()
+                                          }
+                                          parsingQuery.AddDataSource(ds)
+                                        }
         |   data_source AS IDENTIFIER   { ds := NewDataSourceWithAs($1.s, $3.s) 
                                           parsingQuery.AddDataSource(ds) 
                                         }
+        |   data_source AS IDENTIFIER data_source_over_list { ds := NewDataSourceWithAs($1.s, $3.s)
+                                          nextOver := parsingStack.Pop()
+                                          for nextOver != nil {
+                                            ds.AddOver(nextOver.(*Over))
+                                            nextOver = parsingStack.Pop()
+                                          }
+                                          parsingQuery.AddDataSource(ds)
+                                        }
+;
+
+data_source_over_list:  data_source_over
+        |   data_source_over data_source_over_list
+;
+
+data_source_over:   OVER property AS IDENTIFIER {   prop := parsingStack.Pop().(*Property)
+                                                    over := NewOver(prop, $4.s)
+                                                    parsingStack.Push(over)
+                                                  }
 ;
 
 data_source:    IDENTIFIER

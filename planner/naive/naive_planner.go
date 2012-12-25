@@ -43,13 +43,24 @@ func (np *NaivePlanner) Plan(query parser.Select) []planner.Plan {
 		ds.SetName(datasource.Def)
 		ds.SetAs(datasource.As)
 
+		// handle any overs
+		var lastthis planner.PlanPipelineComponent
+		lastthis = ds
+		for _, v := range datasource.Overs {
+			over := planner.NewOttoOver()
+			over.SetPath(v.Path)
+			over.SetAs(v.As)
+			over.SetSource(lastthis)
+			lastthis = over
+		}
+
 		if last_in_pipeline != nil {
 			joiner := planner.NewOttoCartesianProductJoiner()
 			joiner.SetLeftSource(last_in_pipeline)
-			joiner.SetRightSource(ds)
+			joiner.SetRightSource(lastthis)
 			last_in_pipeline = joiner
 		} else {
-			last_in_pipeline = ds
+			last_in_pipeline = lastthis
 		}
 	}
 

@@ -42,7 +42,7 @@ func (s *Select) IsAggregateQuery() bool {
 }
 
 func (s *Select) IsExplainOnly() bool {
-    return s.isExplainOnly
+	return s.isExplainOnly
 }
 
 // NOTE: this should not be used to enforce limitations
@@ -50,25 +50,42 @@ func (s *Select) IsExplainOnly() bool {
 //       semantic problems in the query itself
 func (s *Select) Validate() error {
 
-    if len(s.From) == 0 {
-        return fmt.Errorf("Please provide at least one datasource")
-    }
+	if len(s.From) == 0 {
+		return fmt.Errorf("Please provide at least one datasource")
+	}
 
 	// datasources must be identifiable by different names
 	// (either explicitly using AS, or implicitly because they have different names)
-	dataSourceByName := make(map[string]DataSource)
+	dataSourceByName := make(map[string]interface{})
 	for _, v := range s.From {
+
+		// first check the datasource AS
 		_, exists := dataSourceByName[v.As]
 		if exists {
 			return fmt.Errorf("Ambiguous data source names, use AS clause to disambiguate")
 		} else {
 			dataSourceByName[v.As] = v
 		}
+
+		// now check any datasource OVER ... AS
+		for _, ov := range v.Overs {
+			_, oexists := dataSourceByName[ov.As]
+			if oexists {
+				return fmt.Errorf("Ambiguous data source names, use AS clause to disambiguate")
+			} else {
+				dataSourceByName[ov.As] = ov
+			}
+		}
 	}
 
-	// if there is only 1 data source, query can omit the datasource name in symbols
+	// if there is only 1 data source (each OVER AS counts here as well)
+	// then the query can omit the datasource name in symbols
 	// however, we will add it back internally for our own sanity
-	if len(s.From) == 1 {
+
+	// FIXME reading this code now, does it even allow you to
+	// manually specify the prefix, or would we prepend it a 2nd time
+	// no matter what?
+	if len(dataSourceByName) == 1 {
 		prefix := fmt.Sprintf("%v.", s.From[0].As)
 
 		if s.Sel != nil {
@@ -103,30 +120,30 @@ func (s *Select) Validate() error {
 
 	// at this point, all symbols should now start with a prefix that 
 	// identifies the data source, check this now
-	err := verifySymbolsValid(s.Sel, s.From)
+	err := verifySymbolsValid(s.Sel, dataSourceByName)
 	if err != nil {
 		return err
 	}
-	err = verifySymbolsValid(s.Where, s.From)
+	err = verifySymbolsValid(s.Where, dataSourceByName)
 	if err != nil {
 		return err
 	}
-	err = verifySymbolsValid(s.Having, s.From)
+	err = verifySymbolsValid(s.Having, dataSourceByName)
 	if err != nil {
 		return err
 	}
-	err = verifySymbolsValid(s.Limit, s.From)
+	err = verifySymbolsValid(s.Limit, dataSourceByName)
 	if err != nil {
 		return err
 	}
-	err = verifySymbolsValid(s.Offset, s.From)
+	err = verifySymbolsValid(s.Offset, dataSourceByName)
 	if err != nil {
 		return err
 	}
 
 	if s.Groupby != nil {
 		for _, groupby := range s.Groupby {
-			err = verifySymbolsValid(groupby, s.From)
+			err = verifySymbolsValid(groupby, dataSourceByName)
 			if err != nil {
 				return err
 			}
@@ -135,7 +152,7 @@ func (s *Select) Validate() error {
 
 	if s.Orderby != nil {
 		for _, order := range s.Orderby {
-			err = verifySymbolsValid(order.Sort, s.From)
+			err = verifySymbolsValid(order.Sort, dataSourceByName)
 			if err != nil {
 				return err
 			}
@@ -145,13 +162,13 @@ func (s *Select) Validate() error {
 	return nil
 }
 
-func verifySymbolsValid(e Expression, d []DataSource) error {
+func verifySymbolsValid(e Expression, d map[string]interface{}) error {
 	if e != nil {
 		exprSymbols := e.SymbolsReferenced()
 	OUTER:
 		for _, v := range exprSymbols {
-			for _, prefixFrom := range d {
-				if strings.HasPrefix(v, prefixFrom.As+".") {
+			for prefixFrom, _ := range d {
+				if strings.HasPrefix(v, prefixFrom+".") {
 					// this symbol is OK
 					continue OUTER
 				}
