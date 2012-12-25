@@ -56,6 +56,21 @@ func ReplaceNaNAndInfRecursive(row planner.Row) planner.Row {
 				}
 			}
 		}
+	case []interface{}:
+		for i, v := range row {
+			switch v := v.(type) {
+			case planner.Row:
+				row[i] = ReplaceNaNAndInfRecursive(v)
+			case float64:
+				if math.IsNaN(v) {
+					row[i] = nil
+				} else if math.IsInf(v, 1) {
+					row[i] = "Infinity"
+				} else if math.IsInf(v, -1) {
+					row[i] = "-Infinity"
+				}
+			}
+		}
 	case planner.Document:
 		for k, v := range row {
 			switch v := v.(type) {
