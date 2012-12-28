@@ -99,6 +99,9 @@ func ReplaceNaNAndInfRecursive(row planner.Row) planner.Row {
 	case string:
 		return row
 
+	case int:
+		return row
+
 	default:
 		log.Printf("unexpected type %T", row)
 	}
