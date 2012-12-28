@@ -3,7 +3,7 @@ package naive
 import (
 	"github.com/mschoch/tuq/parser"
 	"github.com/mschoch/tuq/planner"
-	//"log"
+	"log"
 	"strings"
 )
 
@@ -21,7 +21,7 @@ func (no *NaiveOptimizer) Optimize(plans []planner.Plan) planner.Plan {
 
 	// this planner will only try to optimize the plan if it contains 0 joins
 	if !PlanContainsJoin(plan) {
-
+		//log.Printf("optimizing non join")
 		no.MoveWhereToDataSource(plan)
 
 		no.MoveGroupByToDataSource(plan)
@@ -33,15 +33,17 @@ func (no *NaiveOptimizer) Optimize(plans []planner.Plan) planner.Plan {
 		no.MoveLimitToDataSource(plan)
 
 	} else {
+		//log.Printf("optimizing join")
 		// attempting to optimize through a join
 		no.MoveWhereToJoin(plan)
-
+		//log.Printf("moved where")
 		// see if we can separate any where conditions
 		// and apply them directly to the source of the join
 		no.MoveJoinConditionsUpTree(plan)
-
+		//log.Printf("moved join condition")
 		// now see if the join could be done using sort merge join
 		no.TrySortMerge(plan)
+		//log.Printf("tried sort merge")
 
 	}
 
@@ -270,7 +272,11 @@ func (no *NaiveOptimizer) MoveJoinConditionsUpTree(plan planner.Plan) {
 						leftDataSource := leftDs.(planner.DataSource)
 						if leftDataSource.GetAs() == sepDs {
 							//log.Printf("this expression goes left")
-							MoveSeparableExpressionToDataSource(leftDataSource, currJoiner, sep, rest)
+							moved := MoveSeparableExpressionToDataSource(leftDataSource, currJoiner, sep, rest)
+							if !moved {
+								// as soon as we get to something we couldnt move, we stop trying
+								return
+							}
 						}
 					}
 
@@ -280,7 +286,11 @@ func (no *NaiveOptimizer) MoveJoinConditionsUpTree(plan planner.Plan) {
 						rightDataSource := rightDs.(planner.DataSource)
 						if rightDataSource.GetAs() == sepDs {
 							//log.Printf("this expression goes right")
-							MoveSeparableExpressionToDataSource(rightDataSource, currJoiner, sep, rest)
+							moved := MoveSeparableExpressionToDataSource(rightDataSource, currJoiner, sep, rest)
+							if !moved {
+								// as soon as we get to something we couldnt move, we stop trying
+								return
+							}
 						}
 					}
 
@@ -294,7 +304,7 @@ func (no *NaiveOptimizer) MoveJoinConditionsUpTree(plan planner.Plan) {
 
 }
 
-func MoveSeparableExpressionToDataSource(dataSource planner.DataSource, joiner planner.Joiner, sep parser.Expression, rest parser.Expression) {
+func MoveSeparableExpressionToDataSource(dataSource planner.DataSource, joiner planner.Joiner, sep parser.Expression, rest parser.Expression) bool {
 	newFilterExpression := sep
 	// get the existing filter (if any)
 	filterExpression := dataSource.GetFilter()
@@ -309,6 +319,7 @@ func MoveSeparableExpressionToDataSource(dataSource planner.DataSource, joiner p
 		// this data source doesn't support this filter
 		// continue once this becomes a loop
 		//log.Printf("Datasource rejected the new filter expression, %v", err)
+		return false
 	} else {
 		// it accepted the filter, now we just updated the join condition
 		err := joiner.SetCondition(rest)
@@ -318,10 +329,12 @@ func MoveSeparableExpressionToDataSource(dataSource planner.DataSource, joiner p
 			//log.Printf("Datasource accepted, but now joiner rejected new filter expression, trying to reset")
 			err := dataSource.SetFilter(filterExpression)
 			if err != nil {
-				//log.Fatalf("Datasource rejected setting its filter back to the original value, I don't know what to do")
+				log.Fatalf("Datasource rejected setting its filter back to the original value, I don't know what to do")
 			}
+			return false
 		}
 	}
+	return true
 }
 
 func LookForSeparableExpression(expr parser.Expression) (parser.Expression, parser.Expression) {

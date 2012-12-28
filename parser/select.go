@@ -168,7 +168,7 @@ func verifySymbolsValid(e Expression, d map[string]interface{}) error {
 	OUTER:
 		for _, v := range exprSymbols {
 			for prefixFrom, _ := range d {
-				if strings.HasPrefix(v, prefixFrom+".") {
+				if strings.HasPrefix(v, prefixFrom) {
 					// this symbol is OK
 					continue OUTER
 				}
