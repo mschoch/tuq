@@ -13,11 +13,6 @@ type Element struct {
     next *Element
 }
 
-// Return the stack's length
-func (s *Stack) Len() int {
-    return s.size
-}
-
 // Push a new element onto the stack
 func (s *Stack) Push(value interface{}) {
     s.top = &Element{value, s.top}
