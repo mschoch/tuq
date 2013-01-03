@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"log"
 	"testing"
 )
 
@@ -32,6 +31,21 @@ var validQueries = []string{
 	"SELECT {\"name\":doc.name,\"literal_string\":\"string\"} FROM beer-sample WHERE doc.type == \"beer\" && doc.abv > 9",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 GROUP BY doc.type",
 	"SELECT FROM beer-sample WHERE _underscore_identifier > 4",
+	"SELECT FROM beer-sample WHERE doc[\"abv\"] > 7",
+	"SELECT FROM orders AS o OVER o.items AS item",
+	"SELECT 1+1 FROM orders",
+	"SELECT 1-1 FROM orders",
+	"SELECT 1*1 FROM orders",
+	"SELECT 1/1 FROM orders",
+	"SELECT MAX(doc.abv) FROM beer-sample",
+	"SELECT FROM beer-sample WHERE doc.abv >= 15",
+	"SELECT FROM beer-sample WHERE doc.abv <= 15",
+	"SELECT FROM beer-sample WHERE doc.abv != 15",
+	"SELECT FROM beer-sample WHERE doc.abv == 15.3",
+	"SELECT FROM beer-sample WHERE doc.abv != null",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 || doc.ibu < 3",
+	"SELECT FROM beer-sample WHERE !(doc.abv < 4)",
+	"SELECT doc.abv > 0 ? doc.abv : null FROM beer-sample",
 }
 
 var invalidQueries = []string{
@@ -48,14 +62,13 @@ var invalidQueries = []string{
 
 func TestParser(t *testing.T) {
 
-	unqlParser := NewUnqlParser(false, false)
+	unqlParser := NewUnqlParser(false, false, true)
 
 	for _, v := range validQueries {
-		sel, err := unqlParser.Parse(v)
+		_, err := unqlParser.Parse(v)
 		if err != nil {
 			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
 		}
-		log.Printf("reprinted where caluse is: %v", sel.Where)
 	}
 
 	for _, v := range invalidQueries {
