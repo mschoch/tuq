@@ -239,3 +239,117 @@ func TestPrefixSymbols(t *testing.T) {
 		t.Errorf("Expected symbol to be ds.bob, got: %v", symbols[0])
 	}
 }
+
+var testExpressions = []Expression{
+	NewIntegerLiteral(7),
+	NewFloatLiteral(5.5),
+	NewNull(),
+	NewStringLiteral("name"),
+	NewBoolLiteral(true),
+	NewProperty("bob"),
+	NewArrayLiteral(ExpressionList{NewProperty("bob"), NewProperty("jay")}),
+	NewObjectLiteral(Object{"field": NewProperty("bob"), "field2": NewProperty("jay")}),
+	NewNotExpression(NewProperty("bob")),
+	NewBracketMemberExpression(NewProperty("bob"), NewIntegerLiteral(0)),
+	NewPlusExpression(NewProperty("bob"), NewProperty("jay")),
+	NewMinusExpression(NewProperty("bob"), NewProperty("jay")),
+	NewMultiplyExpression(NewProperty("bob"), NewProperty("jay")),
+	NewDivideExpression(NewProperty("bob"), NewProperty("jay")),
+	NewOrExpression(NewProperty("bob"), NewProperty("jay")),
+	NewAndExpression(NewProperty("bob"), NewProperty("jay")),
+	NewLessThanExpression(NewProperty("bob"), NewProperty("jay")),
+	NewLessThanOrEqualExpression(NewProperty("bob"), NewProperty("jay")),
+	NewGreaterThanExpression(NewProperty("bob"), NewProperty("jay")),
+	NewGreaterThanOrEqualExpression(NewProperty("bob"), NewProperty("jay")),
+	NewEqualsExpression(NewProperty("bob"), NewProperty("jay")),
+	NewNotEqualsExpression(NewProperty("bob"), NewProperty("jay")),
+	NewTernaryExpression(NewProperty("bob"), NewProperty("jay"), NewProperty("cat")),
+}
+
+var testExpressionStrings = []string{
+	"7",
+	"5.500000",
+	"null",
+	"\"name\"",
+	"true",
+	"bob",
+	"[bob,jay]",
+	"{\"field\": bob, \"field2\": jay}",
+	"!(bob)",
+	"bob[0]",
+	"bob + jay",
+	"bob - jay",
+	"bob * jay",
+	"bob / jay",
+	"bob || jay",
+	"bob && jay",
+	"bob < jay",
+	"bob <= jay",
+	"bob > jay",
+	"bob >= jay",
+	"bob == jay",
+	"bob != jay",
+	"bob ? jay : cat",
+}
+
+func TestExpressionsToString(t *testing.T) {
+
+	for i, expr := range testExpressions {
+		exprToString := expr.String()
+		if exprToString != testExpressionStrings[i] {
+			t.Errorf("Expected expression to evalute to %v, got: %v", testExpressionStrings[i], exprToString)
+		}
+	}
+
+	// manually test function call, couldn't be set up as literal
+	f := NewFunction("sum")
+	f.AddArguments(ExpressionList{NewProperty("bob"), NewProperty("jay")})
+	fStr := f.String()
+	if fStr != "__func__.sum.bob,jay" {
+		t.Errorf("Expected expression to evalute to __func__.sum.bob,jay, got: %v", fStr)
+	}
+
+}
+
+var sortList = SortList{
+	SortItem{Sort: NewProperty("abv"),
+		Ascending: true},
+	SortItem{Sort: NewProperty("ibu"),
+		Ascending: false},
+}
+
+var sortListString = "abv ASC, ibu DESC"
+
+func TestSortListsToString(t *testing.T) {
+	slString := sortList.String()
+	if slString != sortListString {
+		t.Errorf("Expected sort list to evalute to %v, got: %v", sortListString, slString)
+	}
+}
+
+var exprList = ExpressionList{
+	NewProperty("bob"),
+	NewProperty("jay"),
+}
+
+var exprListString = "bob, jay"
+
+func TestExpressionListsToString(t *testing.T) {
+	elString := exprList.String()
+	if elString != exprListString {
+		t.Errorf("Expected expression list to evalute to %v, got: %v", exprListString, elString)
+	}
+}
+
+func TestComplexProperties(t *testing.T) {
+	cp := NewProperty("a.b.c")
+	head := cp.Head()
+	if head != "a" {
+		t.Errorf("Expected property head to be a, got %v", head)
+	}
+
+	tail := cp.Tail()
+	if tail.String() != "b.c" {
+		t.Errorf("Expected property tail to be b.c, got %v", tail)
+	}
+}

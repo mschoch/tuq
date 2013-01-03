@@ -673,7 +673,7 @@ yydefault:
 		//line unql.y:190
 		{ logDebugGrammar("EXPRESSION - TERNARY")
 	                                                    elsee := parsingStack.Pop().(Expression)
-	                                                    thenn := parsingStack.Pop().(Expression) 
+	                                                    thenn := parsingStack.Pop().(Expression)
 	                                                    iff := parsingStack.Pop().(Expression)
 	                                                    thisExpr := NewTernaryExpression(iff, thenn, elsee)
 	                                                    parsingStack.Push(thisExpr)
@@ -807,7 +807,7 @@ yydefault:
 	                 parsingStack.Push(thisExpression) }
 	case 76:
 		//line unql.y:300
-		{ thisExpression := NewIntegerLiteral(-yyS[yypt-1].n) 
+		{ thisExpression := NewIntegerLiteral(-yyS[yypt-1].n)
 	                 parsingStack.Push(thisExpression) }
 	case 77:
 		//line unql.y:302
@@ -815,7 +815,7 @@ yydefault:
 	                 parsingStack.Push(thisExpression) }
 	case 78:
 		//line unql.y:304
-		{ thisExpression := NewFloatLiteral(-yyS[yypt-1].f) 
+		{ thisExpression := NewFloatLiteral(-yyS[yypt-1].f)
 	                 parsingStack.Push(thisExpression) }
 	case 79:
 		//line unql.y:306
