@@ -18,4 +18,5 @@ func (n *Null) SymbolsReferenced() []string {
 }
 
 func (n *Null) PrefixSymbols(string) {
+	return
 }

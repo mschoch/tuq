@@ -22,5 +22,5 @@ func (il *IntegerLiteral) SymbolsReferenced() []string {
 }
 
 func (il *IntegerLiteral) PrefixSymbols(string) {
-
+	return
 }
