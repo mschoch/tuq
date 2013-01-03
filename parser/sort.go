@@ -17,7 +17,7 @@ func NewSortItem(s Expression, a bool) *SortItem {
 		Ascending: a}
 }
 
-func (si *SortItem) String() string {
+func (si SortItem) String() string {
 	if si.Ascending {
 		return fmt.Sprintf("%s ASC", si.Sort)
 	}
@@ -26,7 +26,10 @@ func (si *SortItem) String() string {
 
 func (sl SortList) String() string {
 	result := ""
-	for _, v := range sl {
+	for i, v := range sl {
+		if i != 0 {
+			result += ", "
+		}
 		result += fmt.Sprintf("%v", v)
 	}
 	return result

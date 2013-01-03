@@ -19,7 +19,10 @@ type ExpressionList []Expression
 
 func (el ExpressionList) String() string {
 	result := ""
-	for _, v := range el {
+	for i, v := range el {
+		if i != 0 {
+			result += ", "
+		}
 		result += fmt.Sprintf("%v", v)
 	}
 	return result
