@@ -187,7 +187,13 @@ select_select_tail:     /* empty */ { logDebugGrammar("SELECT SELECT TAIL - EMPT
 ;
 
 expression: expr { logDebugGrammar("EXPRESSION") }
-    |   expr QUESTION expression COLON expression { logDebugGrammar("EXPRESSION - TERNARY") }
+    |   expr QUESTION expression COLON expression { logDebugGrammar("EXPRESSION - TERNARY")
+                                                    elsee := parsingStack.Pop().(Expression)
+                                                    thenn := parsingStack.Pop().(Expression)
+                                                    iff := parsingStack.Pop().(Expression)
+                                                    thisExpr := NewTernaryExpression(iff, thenn, elsee)
+                                                    parsingStack.Push(thisExpr)
+                                                  }
 ;
 
 expr: expr PLUS expr {  logDebugGrammar("EXPR - PLUS")
@@ -267,7 +273,11 @@ expr: expr PLUS expr {  logDebugGrammar("EXPR - PLUS")
 ;
 
 
-prefix_expr: NOT prefix_expr
+prefix_expr: NOT prefix_expr { logDebugGrammar("EXPR - NOT")
+                               curr := parsingStack.Pop().(Expression)
+                               thisExpression := NewNotExpression(curr)
+                               parsingStack.Push(thisExpression)
+                             }
     | suffix_expr
 ;
 
@@ -287,7 +297,11 @@ atom: NULL { logDebugGrammar("NULL")
                                             }
     |   INT { thisExpression := NewIntegerLiteral($1.n) 
                  parsingStack.Push(thisExpression) }
+    |   MINUS INT { thisExpression := NewIntegerLiteral(-$1.n)
+                 parsingStack.Push(thisExpression) }
     |   REAL { thisExpression := NewFloatLiteral($1.f) 
+                 parsingStack.Push(thisExpression) }
+    |   MINUS REAL { thisExpression := NewFloatLiteral(-$1.f)
                  parsingStack.Push(thisExpression) }
     |   STRING { thisExpression := NewStringLiteral($1.s) 
                  parsingStack.Push(thisExpression) }
