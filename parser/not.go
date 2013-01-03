@@ -15,7 +15,7 @@ func NewNotExpression(o Expression) *NotExpression {
 }
 
 func (n *NotExpression) String() string {
-	return fmt.Sprintf("!%v", n.Oper)
+	return fmt.Sprintf("!(%v)", n.Oper)
 }
 
 func (n *NotExpression) SymbolsReferenced() []string {
