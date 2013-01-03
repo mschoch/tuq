@@ -25,8 +25,6 @@
 /GROUP|group/           { logDebugTokens("GROUP"); return GROUP }
 /BY|by/              { logDebugTokens("BY"); return BY }
 /HAVING|having/          { logDebugTokens("HAVING"); return HAVING }
-/FLATTEN|flatten/         { logDebugTokens("FLATTEN"); return FLATTEN }
-/EACH|each/            { logDebugTokens("EACH"); return EACH }
 /UNION|union/           { logDebugTokens("UNION"); return UNION }
 /INTERSECT|intersect/       { logDebugTokens("INTERSECT"); return INTERSECT }
 /EXCEPT|except/          { logDebugTokens("EXCEPT"); return EXCEPT }
@@ -91,7 +89,4 @@ func logDebugTokens(format string, v ...interface{}) {
     } else if debugTokens {
         log.Printf("DEBUG TOKEN " + format)
     }
-}
-
-func required_to_make_nex_happy_with_main_somewhere_else() {
 }

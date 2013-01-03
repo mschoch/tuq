@@ -20,7 +20,7 @@ f float64}
 %token INT REAL STRING IDENTIFIER PROPERTY NEWLINE
 %token LPAREN RPAREN COMMA LBRACE RBRACE
 %token SELECT DISTINCT ALL AS FROM WHERE GROUP BY
-%token HAVING FLATTEN EACH UNION INTERSECT EXCEPT ORDER
+%token HAVING UNION INTERSECT EXCEPT ORDER
 %token LIMIT OFFSET ASC DESC TRUE FALSE LBRACKET RBRACKET
 %token QUESTION COLON MAX MIN AVG COUNT SUM DOT
 %token PLUS MINUS MULT DIV MOD AND OR NOT EQ LT LTE
@@ -176,14 +176,6 @@ select_select_tail:     /* empty */ { logDebugGrammar("SELECT SELECT TAIL - EMPT
                             thisExpression := parsingStack.Pop()
                             parsingQuery.Sel = thisExpression.(Expression)
                           }
-        |      expression AS IDENTIFIER { logDebugGrammar("SELECT SELECT TAIL - EXPR AS IDENTIFIER")
-                                          thisExpression := parsingStack.Pop()
-                                          parsingQuery.Sel = thisExpression.(Expression)
-                                          parsingQuery.SelAs = $3.s
-                                        }
-        |      AS IDENTIFIER { logDebugGrammar("SELECT SELECT TAIL - AS IDENTIFIER")
-                               parsingQuery.SelAs = $2.s
-                             }
 ;
 
 expression: expr { logDebugGrammar("EXPRESSION") }
