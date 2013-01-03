@@ -79,3 +79,163 @@ func TestParser(t *testing.T) {
 	}
 
 }
+
+var zeroSymbolExpressions = []Expression{
+	NewIntegerLiteral(7),
+	NewFloatLiteral(5.5),
+	NewNull(),
+	NewStringLiteral("name"),
+	NewBoolLiteral(true),
+}
+
+var oneSymbolExpressions = []Expression{
+	NewProperty("bob"),
+	NewArrayLiteral(ExpressionList{NewProperty("bob")}),
+	NewObjectLiteral(Object{"field": NewProperty("bob")}),
+	NewNotExpression(NewProperty("bob")),
+	NewBracketMemberExpression(NewProperty("bob"), NewIntegerLiteral(0)),
+}
+
+var twoSymbolExpressions = []Expression{
+	NewPlusExpression(NewProperty("bob"), NewProperty("jay")),
+	NewMinusExpression(NewProperty("bob"), NewProperty("jay")),
+	NewMultiplyExpression(NewProperty("bob"), NewProperty("jay")),
+	NewDivideExpression(NewProperty("bob"), NewProperty("jay")),
+	NewOrExpression(NewProperty("bob"), NewProperty("jay")),
+	NewAndExpression(NewProperty("bob"), NewProperty("jay")),
+	NewLessThanExpression(NewProperty("bob"), NewProperty("jay")),
+	NewLessThanOrEqualExpression(NewProperty("bob"), NewProperty("jay")),
+	NewGreaterThanExpression(NewProperty("bob"), NewProperty("jay")),
+	NewGreaterThanOrEqualExpression(NewProperty("bob"), NewProperty("jay")),
+	NewEqualsExpression(NewProperty("bob"), NewProperty("jay")),
+	NewNotEqualsExpression(NewProperty("bob"), NewProperty("jay")),
+}
+
+var threeSymbolExpressions = []Expression{
+	NewTernaryExpression(NewProperty("bob"), NewProperty("jay"), NewProperty("cat")),
+}
+
+func TestSymbolsReferenced(t *testing.T) {
+
+	for _, v := range zeroSymbolExpressions {
+		symbols := v.SymbolsReferenced()
+		if len(symbols) != 0 {
+			t.Errorf("Expected 0 symbols and found: %v", symbols)
+		}
+	}
+
+	for _, v := range oneSymbolExpressions {
+		symbols := v.SymbolsReferenced()
+		if len(symbols) != 1 {
+			t.Errorf("Expected 1 symbols and found: %v", symbols)
+		}
+		if symbols[0] != "bob" {
+			t.Errorf("Expected symbol to be bob, got: %v", symbols[0])
+		}
+	}
+
+	for _, v := range twoSymbolExpressions {
+		symbols := v.SymbolsReferenced()
+		if len(symbols) != 2 {
+			t.Errorf("Expected 2 symbols and found: %v", symbols)
+		}
+		if symbols[0] != "bob" {
+			t.Errorf("Expected symbol 1 to be bob, got: %v", symbols[0])
+		}
+		if symbols[1] != "jay" {
+			t.Errorf("Expected symbol 2 to be jay, got: %v", symbols[0])
+		}
+	}
+
+	for _, v := range threeSymbolExpressions {
+		symbols := v.SymbolsReferenced()
+		if len(symbols) != 3 {
+			t.Errorf("Expected 3 symbols and found: %v", symbols)
+		}
+		if symbols[0] != "bob" {
+			t.Errorf("Expected symbol 1 to be bob, got: %v", symbols[0])
+		}
+		if symbols[1] != "jay" {
+			t.Errorf("Expected symbol 2 to be jay, got: %v", symbols[0])
+		}
+		if symbols[2] != "cat" {
+			t.Errorf("Expected symbol 3 to be cat, got: %v", symbols[0])
+		}
+	}
+
+	// manually test function call, couldn't be set up as literal
+	f := NewFunction("sum")
+	f.AddArguments(ExpressionList{NewProperty("bob")})
+	symbols := f.SymbolsReferenced()
+	if len(symbols) != 1 {
+		t.Errorf("Expected 1 symbols and found: %v", symbols)
+	}
+	if symbols[0] != "bob" {
+		t.Errorf("Expected symbol to be bob, got: %v", symbols[0])
+	}
+}
+
+func TestPrefixSymbols(t *testing.T) {
+
+	for _, v := range zeroSymbolExpressions {
+		v.PrefixSymbols("ds.")
+		symbols := v.SymbolsReferenced()
+		if len(symbols) != 0 {
+			t.Errorf("Expected 0 symbols and found: %v", symbols)
+		}
+	}
+
+	for _, v := range oneSymbolExpressions {
+		v.PrefixSymbols("ds.")
+		symbols := v.SymbolsReferenced()
+		if len(symbols) != 1 {
+			t.Errorf("Expected 1 symbols and found: %v", symbols)
+		}
+		if symbols[0] != "ds.bob" {
+			t.Errorf("Expected symbol to be ds.bob, got: %v", symbols[0])
+		}
+	}
+
+	for _, v := range twoSymbolExpressions {
+		v.PrefixSymbols("ds.")
+		symbols := v.SymbolsReferenced()
+		if len(symbols) != 2 {
+			t.Errorf("Expected 2 symbols and found: %v", symbols)
+		}
+		if symbols[0] != "ds.bob" {
+			t.Errorf("Expected symbol 1 to be ds.bob, got: %v", symbols[0])
+		}
+		if symbols[1] != "ds.jay" {
+			t.Errorf("Expected symbol 2 to be ds.jay, got: %v", symbols[0])
+		}
+	}
+
+	for _, v := range threeSymbolExpressions {
+		v.PrefixSymbols("ds.")
+		symbols := v.SymbolsReferenced()
+		if len(symbols) != 3 {
+			t.Errorf("Expected 3 symbols and found: %v", symbols)
+		}
+		if symbols[0] != "ds.bob" {
+			t.Errorf("Expected symbol 1 to be ds.bob, got: %v", symbols[0])
+		}
+		if symbols[1] != "ds.jay" {
+			t.Errorf("Expected symbol 2 to be ds.jay, got: %v", symbols[0])
+		}
+		if symbols[2] != "ds.cat" {
+			t.Errorf("Expected symbol 3 to be ds.cat, got: %v", symbols[0])
+		}
+	}
+
+	// manually test function call, couldn't be set up as literal
+	f := NewFunction("sum")
+	f.AddArguments(ExpressionList{NewProperty("bob")})
+	f.PrefixSymbols("ds.")
+	symbols := f.SymbolsReferenced()
+	if len(symbols) != 1 {
+		t.Errorf("Expected 1 symbols and found: %v", symbols)
+	}
+	if symbols[0] != "ds.bob" {
+		t.Errorf("Expected symbol to be ds.bob, got: %v", symbols[0])
+	}
+}
