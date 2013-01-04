@@ -6,11 +6,15 @@ import (
 
 var validQueries = []string{
 	"SELECT FROM beer-sample",
+	"SELECT DISTINCT FROM beer-sample",
 	"SELECT FROM beer-sample WHERE doc.abv > 5",
+	"SELECT FROM beer-sample WHERE doc.abv > -5",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\"",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" && doc.ibu < 30",
 	"SELECT FROM beer-sample ORDER BY doc.abv",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY doc.abv",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY doc.abv ASC",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY doc.abv DESC",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" ORDER BY doc.abv",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 && doc.type == \"beer\" && doc.ibu < 30 ORDER BY doc.abv",
 	"SELECT FROM beer-sample ORDER BY doc.abv LIMIT 5",
@@ -32,20 +36,34 @@ var validQueries = []string{
 	"SELECT FROM beer-sample WHERE doc.abv > 5 GROUP BY doc.type",
 	"SELECT FROM beer-sample WHERE _underscore_identifier > 4",
 	"SELECT FROM beer-sample WHERE doc[\"abv\"] > 7",
+	"SELECT FROM orders OVER orders.items AS item",
 	"SELECT FROM orders AS o OVER o.items AS item",
 	"SELECT 1+1 FROM orders",
 	"SELECT 1-1 FROM orders",
 	"SELECT 1*1 FROM orders",
 	"SELECT 1/1 FROM orders",
 	"SELECT MAX(doc.abv) FROM beer-sample",
+	"SELECT MIN(doc.abv) FROM beer-sample",
+	"SELECT COUNT(doc.abv) FROM beer-sample",
+	"SELECT AVG(doc.abv) FROM beer-sample",
+	"SELECT SUM(doc.abv) FROM beer-sample",
 	"SELECT FROM beer-sample WHERE doc.abv >= 15",
 	"SELECT FROM beer-sample WHERE doc.abv <= 15",
 	"SELECT FROM beer-sample WHERE doc.abv != 15",
 	"SELECT FROM beer-sample WHERE doc.abv == 15.3",
+	"SELECT FROM beer-sample WHERE doc.abv == -15.3",
 	"SELECT FROM beer-sample WHERE doc.abv != null",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 || doc.ibu < 3",
 	"SELECT FROM beer-sample WHERE !(doc.abv < 4)",
 	"SELECT doc.abv > 0 ? doc.abv : null FROM beer-sample",
+	"SELECT FROM beer-sample WHERE doc.abv > 5 GROUP BY doc.type HAVING doc.type != \"bob\"",
+	"SELECT FROM beer-sample WHERE doc.type == 'beer'",
+	"SELECT FROM beer-sample WHERE doc.type != 100 % 4",
+	"SELECT FROM beer-sample WHERE doc.type <> 100 % 4",
+	"SELECT FROM beer-sample AS bs UNION SELECT FROM beer-sample AS bs2",
+	"SELECT FROM beer-sample AS bs UNION ALL SELECT FROM beer-sample AS bs2",
+	"SELECT FROM beer-sample AS bs INTERSECT SELECT FROM beer-sample AS bs2",
+	"SELECT FROM beer-sample AS bs EXCEPT SELECT FROM beer-sample AS bs2",
 }
 
 var invalidQueries = []string{
@@ -58,6 +76,7 @@ var invalidQueries = []string{
 	"SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY LIMIT",
 	"SELECT FROM beer-sample WHERE doc.abv > 5 ORDER BY LIMIT GROUP",
 	"SELECT doc.abv, doc.name FROM beer-sample",
+	"@abc",
 }
 
 func TestParser(t *testing.T) {
@@ -65,9 +84,20 @@ func TestParser(t *testing.T) {
 	unqlParser := NewUnqlParser(false, false, true)
 
 	for _, v := range validQueries {
-		_, err := unqlParser.Parse(v)
+		pq, err := unqlParser.Parse(v)
 		if err != nil {
 			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
+		}
+		if !pq.WasParsedSuccessfully() {
+			t.Errorf("Valid Query was not parsed successfully: %v - %v", v, err)
+		}
+		if pq.IsExplainOnly() != false {
+			t.Errorf("Explain only should be false")
+		}
+
+		err = pq.Validate()
+		if err != nil {
+			t.Errorf("Error validating query: %v", err)
 		}
 	}
 
@@ -248,7 +278,6 @@ var testExpressions = []Expression{
 	NewBoolLiteral(true),
 	NewProperty("bob"),
 	NewArrayLiteral(ExpressionList{NewProperty("bob"), NewProperty("jay")}),
-	NewObjectLiteral(Object{"field": NewProperty("bob"), "field2": NewProperty("jay")}),
 	NewNotExpression(NewProperty("bob")),
 	NewBracketMemberExpression(NewProperty("bob"), NewIntegerLiteral(0)),
 	NewPlusExpression(NewProperty("bob"), NewProperty("jay")),
@@ -274,7 +303,6 @@ var testExpressionStrings = []string{
 	"true",
 	"bob",
 	"[bob,jay]",
-	"{\"field\": bob, \"field2\": jay}",
 	"!(bob)",
 	"bob[0]",
 	"bob + jay",
@@ -309,6 +337,13 @@ func TestExpressionsToString(t *testing.T) {
 		t.Errorf("Expected expression to evalute to __func__.sum.bob,jay, got: %v", fStr)
 	}
 
+	// manually test object literally separately, can be either of 2 strings (order not guaranteed)
+	ol := NewObjectLiteral(Object{"field": NewProperty("bob"), "field2": NewProperty("jay")})
+	olStr := ol.String()
+	if olStr != "{\"field\": bob, \"field2\": jay}" && olStr != "{\"field2\": jay, \"field\": bob}" {
+		t.Errorf("Expected expression to evalute to {\"field\": bob, \"field2\": jay} OR {\"field2\": jay, \"field\": bob}, got: %v", olStr)
+	}
+
 }
 
 var sortList = SortList{
@@ -341,6 +376,27 @@ func TestExpressionListsToString(t *testing.T) {
 	}
 }
 
+func TestSimpleProperties(t *testing.T) {
+	sp := NewProperty("a")
+	head := sp.Head()
+	if head != "a" {
+		t.Errorf("Expected property head to be a, got %v", head)
+	}
+
+	tail := sp.Tail()
+	if tail != nil {
+		t.Errorf("Expected property tail to nil got %v", tail)
+	}
+
+	if sp.HasSubProperty() != false {
+		t.Errorf("Expected property a.b.c to not have a sub property")
+	}
+
+	if sp.IsReferencingDataSource("b") != false {
+		t.Errorf("Expected property a to not refer to datasource b")
+	}
+}
+
 func TestComplexProperties(t *testing.T) {
 	cp := NewProperty("a.b.c")
 	head := cp.Head()
@@ -352,4 +408,108 @@ func TestComplexProperties(t *testing.T) {
 	if tail.String() != "b.c" {
 		t.Errorf("Expected property tail to be b.c, got %v", tail)
 	}
+
+	if cp.HasSubProperty() != true {
+		t.Errorf("Expected property a.b.c to have a sub property")
+	}
+
+	if cp.IsReferencingDataSource("a") != true {
+		t.Errorf("Expected property a.b.c to refer to datasource a")
+	}
+}
+
+var pragmaQueries = []string{
+	"PRAGMA debugTokens=true",
+	"PRAGMA debugGrammar=true",
+	"PRAGMA debugTokens=7",
+	"PRAGMA debugGrammar=7",
+	"PRAGMA debugTokens=false",
+	"PRAGMA debugGrammar=false",
+	"PRAGMA 7=debug",
+}
+
+func TestPragma(t *testing.T) {
+
+	unqlParser := NewUnqlParser(false, false, true)
+
+	for _, v := range pragmaQueries {
+		_, err := unqlParser.Parse(v)
+		if err != nil {
+			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
+		}
+	}
+
+}
+
+var aggQueries = []string{
+	"SELECT FROM beer-sample WHERE doc.abv > 5 GROUP BY doc.type",
+}
+
+func TestAggregates(t *testing.T) {
+
+	unqlParser := NewUnqlParser(false, false, true)
+
+	for _, v := range aggQueries {
+		pq, err := unqlParser.Parse(v)
+		if err != nil {
+			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
+		}
+		if !pq.IsAggregateQuery() {
+			t.Errorf("Expected query to be recognized as an aggregate")
+		}
+	}
+
+}
+
+var explainQueries = []string{
+	"EXPLAIN SELECT FROM beer-sample WHERE doc.abv > 5 GROUP BY doc.type",
+}
+
+func TestExplainQueries(t *testing.T) {
+
+	unqlParser := NewUnqlParser(false, false, true)
+
+	for _, v := range explainQueries {
+		pq, err := unqlParser.Parse(v)
+		if err != nil {
+			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
+		}
+		if !pq.IsExplainOnly() {
+			t.Errorf("Expected query to be recognized as explain only")
+		}
+	}
+
+}
+
+var parsableButInvalidQueries = []string {
+	"SELECT xyz.cat FROM beer-sample AS beer, beer-sample as brewery", //xyz is not valid datasource
+	"SELECT FROM beer-sample AS beer, beer-sample as brewery WHERE xyz.abc > 5", //xyz is not valid datasource
+	"SELECT FROM beer-sample AS beer, beer-sample as brewery GROUP BY xyz.cat", //xyz is not valid datasource
+	"SELECT FROM beer-sample AS beer, beer-sample as brewery GROUP BY beer HAVING xyz.cat > 7", //xyz is not valid datasource
+	"SELECT FROM beer-sample AS beer, beer-sample as brewery LIMIT xyz.cat", //xyz is not valid datasource
+	"SELECT FROM beer-sample AS beer, beer-sample as brewery LIMIT 1 OFFSET xyz.cat", //xyz is not valid datasource
+	"SELECT FROM beer-sample AS beer, beer-sample as brewery ORDER BY xyz.cat", //xyz is not valid datasource
+	"SELECT WHERE abc > 5", // 0 from clauses (allowed by UNQL grammar)
+	"SELECT FROM beer-sample, beer-sample", // ambiguous datasource names
+	"SELECT FROM beer-sample AS bs OVER bs.beers AS bs", // ambiguous datasource in OVER
+	//"SELECT xyz.cat FROM beer-sample AS beer, beer-sample AS breweries", // xyz invalid reference
+}
+
+func TestParsableButInvalidQueries(t *testing.T) {
+
+	unqlParser := NewUnqlParser(false, false, true)
+
+	for _, v := range parsableButInvalidQueries {
+		pq, err := unqlParser.Parse(v)
+		if err != nil {
+			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
+			continue
+		}
+
+		err = pq.Validate()
+		if err == nil {
+			t.Errorf("Expected validation error, got none")
+		}
+	}
+
 }
