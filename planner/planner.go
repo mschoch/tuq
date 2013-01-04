@@ -174,3 +174,17 @@ func FindNextPipelineComponentOfTypeFollowedbyType(root PlanPipelineComponent, t
 	}
 	return nil, nil, nil
 }
+
+// in theory, when joining, all datasources have already "named" their documents "as"
+// something unique.  so we'd expect to only have 1 top-level element in each
+// and that would be the name
+func combineDocs(l, r Document) Document {
+	combined := make(Document)
+	for k, v := range l {
+		combined[k] = v
+	}
+	for k, v := range r {
+		combined[k] = v
+	}
+	return combined
+}

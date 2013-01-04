@@ -3,509 +3,306 @@ package planner
 import (
 	//"encoding/json"
 	"github.com/mschoch/tuq/parser"
-	"github.com/robertkrimen/otto"
-	"log"
+	//"github.com/robertkrimen/otto"
+	//"log"
 	"testing"
 )
 
-func TestCSVReadEmployees(t *testing.T) {
+type StubDataSource struct {
+	Name          string
+	As            string
+	OutputChannel DocumentChannel
+	cancelled     bool
+}
 
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
+func (ds *StubDataSource) Cancel() {
+	return
+}
 
-	plan := Plan{}
-	plan.Root = employeesCSV
+func (ds *StubDataSource) Cost() float64 {
+	return 10.0
+}
 
-	documentChannel := plan.Run()
-	rows := 0
-	for _ = range documentChannel {
-		rows += 1
+func (ds *StubDataSource) TotalCost() float64 {
+	return ds.Cost()
+}
+
+func (ds *StubDataSource) GetDocumentChannel() DocumentChannel {
+	return ds.OutputChannel
+}
+
+func (ds *StubDataSource) GetSource() PlanPipelineComponent {
+	return nil
+}
+
+func (ds *StubDataSource) SetSource(source PlanPipelineComponent) {
+	return
+}
+
+func (ds *StubDataSource) Explain() {
+	defer close(ds.OutputChannel)
+
+	thisStep := map[string]interface{}{
+		"_type":     "FROM",
+		"impl":      "Stub",
+		"name":      ds.Name,
+		"as":        ds.As,
+		"cost":      ds.Cost(),
+		"totalCost": ds.TotalCost()}
+
+	ds.OutputChannel <- thisStep
+}
+
+func (ds *StubDataSource) Run() {
+	defer close(ds.OutputChannel)
+
+	docs := []Document{
+		Document{
+			"name":  "Marty",
+			"age":   34,
+			"type":  "employee",
+			"roles": []string{"it", "qa"}},
+		Document{
+			"name":  "Tom",
+			"age":   29,
+			"type":  "employee",
+			"roles": []string{"it", "sales"}},
+		Document{
+			"name":  "Rajiv",
+			"age":   44,
+			"type":  "employee",
+			"roles": []string{"it", "engineering"}},
+		Document{
+			"name":  "Chris",
+			"age":   38,
+			"type":  "employee",
+			"roles": []string{"it", "engineering"}},
+		Document{
+			"name":  "Amit",
+			"age":   22,
+			"type":  "contract",
+			"roles": []string{"marketing", "sales"}},
+		Document{
+			"name":  "Divya",
+			"age":   30,
+			"type":  "contract",
+			"roles": []string{"it", "sales"}},
 	}
 
-	if rows != 10 {
-		t.Errorf("Expected 10 rows, got %d", rows)
+	for _, doc := range docs {
+		ds.OutputChannel <- Document{ds.As: doc}
+	}
+
+}
+
+func NewStubDataSource(name, as string) *StubDataSource {
+	return &StubDataSource{
+		OutputChannel: make(DocumentChannel),
+		cancelled:     false,
+		Name:          name,
+		As:            as}
+}
+
+func TestFilter(t *testing.T) {
+
+	ds := NewStubDataSource("stub", "stub")
+
+	f := NewOttoFilter()
+	f.SetSource(ds)
+	f.SetFilter(parser.NewGreaterThanExpression(parser.NewProperty("stub.age"), parser.NewIntegerLiteral(30)))
+
+	go f.Run()
+
+	output := f.GetDocumentChannel()
+
+	for doc := range output {
+		if doc["stub"].(Document)["age"].(int) <= 30 {
+			t.Errorf("Row does not match expected filter output")
+		}
+
 	}
 }
 
-func TestLimit3Employees(t *testing.T) {
+func TestGrouper(t *testing.T) {
+	ds := NewStubDataSource("stub", "stub")
 
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
+	g := NewOttoGrouper()
+	g.SetSource(ds)
+	g.SetGroupByWithStatsFields(parser.ExpressionList{parser.NewProperty("stub.type")}, []string{})
 
-	limit3 := NewOttoLimitter()
-	limit3.SetLimit(parser.NewIntegerLiteral(3))
-	limit3.SetSource(employeesCSV)
+	go g.Run()
 
-	plan := Plan{}
-	plan.Root = limit3
+	output := g.GetDocumentChannel()
 
-	documentChannel := plan.Run()
+	for doc := range output {
+		group := doc["stub"].(Document)["type"].(string)
+		count := doc["__func__"].(Document)["count"].(Document)["stub"].(Document)["type"].(int)
+		if group == "contract" && count != 2 {
+			t.Errorf("Expected 2 contract workers, got %v", count)
+		}
+		if group == "employee" && count != 4 {
+			t.Errorf("Expected 4 contract workers, got %v", count)
+		}
+	}
+}
+
+func TestLimit(t *testing.T) {
+
+	ds := NewStubDataSource("stub", "stub")
+
+	l := NewOttoLimitter()
+	l.SetSource(ds)
+	l.SetLimit(parser.NewIntegerLiteral(3))
+
+	go l.Run()
+
+	output := l.GetDocumentChannel()
+
 	rows := 0
-	for _ = range documentChannel {
+	for _ = range output {
 		rows += 1
 	}
 
 	if rows != 3 {
-		t.Errorf("Expected 3 rows, got %d", rows)
+		t.Errorf("Expected only 3 rows, got %v", rows)
 	}
 }
 
-func TestOffset3Employees(t *testing.T) {
+func TestOffset(t *testing.T) {
 
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
+	ds := NewStubDataSource("stub", "stub")
 
-	offset3 := NewOttoOffsetter()
-	offset3.SetOffset(parser.NewIntegerLiteral(3))
-	offset3.SetSource(employeesCSV)
+	l := NewOttoOffsetter()
+	l.SetSource(ds)
+	l.SetOffset(parser.NewIntegerLiteral(3))
 
-	plan := Plan{}
-	plan.Root = offset3
+	go l.Run()
 
-	documentChannel := plan.Run()
+	output := l.GetDocumentChannel()
+
 	rows := 0
-	for _ = range documentChannel {
+	for _ = range output {
 		rows += 1
 	}
 
-	if rows != 7 {
-		t.Errorf("Expected 7 rows, got %d", rows)
+	if rows != 3 {
+		t.Errorf("Expected only 3 rows, got %v", rows)
 	}
 }
 
-func TestOffsetAndLimitEmployees(t *testing.T) {
+func TestOrder(t *testing.T) {
 
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
+	ds := NewStubDataSource("stub", "stub")
 
-	offset3 := NewOttoOffsetter()
-	offset3.SetOffset(parser.NewIntegerLiteral(3))
-	offset3.SetSource(employeesCSV)
+	o := NewOttoOrderer()
+	o.SetSource(ds)
+	o.SetOrderBy(parser.SortList{parser.SortItem{Sort: parser.NewProperty("stub.age"), Ascending: true}})
 
-	limit1 := NewOttoLimitter()
-	limit1.SetLimit(parser.NewIntegerLiteral(1))
-	limit1.SetSource(offset3)
+	go o.Run()
 
-	plan := Plan{}
-	plan.Root = limit1
+	output := o.GetDocumentChannel()
 
-	documentChannel := plan.Run()
-	rows := 0
-	for _ = range documentChannel {
-		rows += 1
-	}
-
-	if rows != 1 {
-		t.Errorf("Expected 1 rows, got %d", rows)
+	lastAge := 0
+	for doc := range output {
+		age := doc["stub"].(Document)["age"].(int)
+		if !(age > lastAge) {
+			t.Errorf("Results not ordered correctly")
+		}
+		lastAge = age
 	}
 }
 
-func TestOttoFilterEmployeesNamedMarty(t *testing.T) {
+func TestOver(t *testing.T) {
 
-	name := parser.NewProperty("name")
-	marty := parser.NewStringLiteral("Marty")
-	eq := parser.NewEqualsExpression(name, marty)
+	ds := NewStubDataSource("stub", "stub")
 
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
+	o := NewOttoOver()
+	o.SetSource(ds)
+	o.SetPath(parser.NewProperty("stub.roles"))
+	o.SetAs("role")
 
-	ottoFilter := NewOttoFilter()
-	ottoFilter.SetSource(employeesCSV)
-	ottoFilter.SetFilter(eq)
+	go o.Run()
 
-	plan := Plan{}
-	plan.Root = ottoFilter
-
-	documentChannel := plan.Run()
+	output := o.GetDocumentChannel()
 
 	rows := 0
-	for doc := range documentChannel {
+	for doc := range output {
 		rows += 1
-		if doc["name"] != "Marty" {
-			t.Errorf("Expected name Marty, got %v", doc["name"])
+		_, ok := doc["role"].(string)
+		if !ok {
+			t.Errorf("Row should have string role")
 		}
 	}
 
-	if rows != 1 {
-		t.Errorf("Expected 1 rows, got %d", rows)
+	if rows != 12 {
+		t.Errorf("Expected 12 rows, got %v", rows)
 	}
-
 }
 
-func TestOttoFilterEmployeesOver30(t *testing.T) {
+func TestOttoSelect(t *testing.T) {
 
-	name := parser.NewProperty("age")
-	thirty := parser.NewIntegerLiteral(30)
-	gt := parser.NewGreaterThanExpression(name, thirty)
+	ds := NewStubDataSource("stub", "stub")
 
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
+	s := NewOttoSelecter()
+	s.SetSource(ds)
+	s.SetSelect(parser.NewProperty("stub.age"))
 
-	ottoFilter := NewOttoFilter()
-	ottoFilter.SetSource(employeesCSV)
-	ottoFilter.SetFilter(gt)
+	go s.Run()
 
-	plan := Plan{}
-	plan.Root = ottoFilter
+	output := s.GetRowChannel()
 
-	documentChannel := plan.Run()
+	for row := range output {
+		_, ok := row.(float64)
+		if !ok {
+			t.Errorf("Row should be float64")
+		}
+	}
+}
+
+func TestDefaultSelect(t *testing.T) {
+
+	ds := NewStubDataSource("stub", "stub")
+
+	s := NewDefaultSelecter()
+	s.SetSource(ds)
+
+	go s.Run()
+
+	output := s.GetRowChannel()
+
+	for doc := range output {
+		_, ok := doc.(Document)["stub"]
+		if !ok {
+			t.Errorf("Default select should be map containing alias stub")
+		}
+	}
+}
+
+func TestCartesianProductJoiner(t *testing.T) {
+
+	ds1 := NewStubDataSource("stub", "stub1")
+	ds2 := NewStubDataSource("stub", "stub2")
+
+	j := NewOttoCartesianProductJoiner()
+	j.SetLeftSource(ds1)
+	j.SetRightSource(ds2)
+	j.SetCondition(parser.NewBoolLiteral(true))
+
+	go j.Run()
+
+	output := j.GetDocumentChannel()
 
 	rows := 0
-	for _ = range documentChannel {
+	for doc := range output {
 		rows += 1
-	}
-
-	if rows != 8 {
-		t.Errorf("Expected 8 rows, got %d", rows)
-	}
-
-}
-
-func TestOttoOrdererEmployeesByName(t *testing.T) {
-
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
-
-	sortExpression := parser.NewProperty("name")
-	sortItem := parser.NewSortItem(sortExpression, true)
-	sortList := parser.SortList{*sortItem}
-
-	ottoOrderer := NewOttoOrderer()
-	ottoOrderer.SetSource(employeesCSV)
-	ottoOrderer.SetOrderBy(sortList)
-
-	plan := Plan{}
-	plan.Root = ottoOrderer
-
-	documentChannel := plan.Run()
-
-	row := 0
-	for doc := range documentChannel {
-		if row == 0 && doc["name"] != "Adam" {
-			t.Errorf("Expected row 0 name Adam, got %v", doc["name"])
-		} else if row == 4 && doc["name"] != "Jamie" {
-			t.Errorf("Expected row 4 name Jamie, got %v", doc["name"])
-		}
-		row += 1
-	}
-}
-
-func TestOttoOrdererEmployeesByAgeDescending(t *testing.T) {
-
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
-
-	sortExpression := parser.NewProperty("age")
-	sortItem := parser.NewSortItem(sortExpression, false)
-	sortList := parser.SortList{*sortItem}
-
-	ottoOrderer := NewOttoOrderer()
-	ottoOrderer.SetSource(employeesCSV)
-	ottoOrderer.SetOrderBy(sortList)
-
-	plan := Plan{}
-	plan.Root = ottoOrderer
-
-	documentChannel := plan.Run()
-
-	row := 0
-	for doc := range documentChannel {
-		if row == 0 && doc["age"].(int64) != 64 {
-			t.Errorf("Expected row 0 age 64, got %v", doc["age"])
-		} else if row == 9 && doc["age"].(int64) != 2 {
-			t.Errorf("Expected row 9 age 2, got %v", doc["age"])
-		}
-		row += 1
-	}
-}
-
-func TestOttoOrdererEmployeesByAgeAscAndNameDesc(t *testing.T) {
-
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
-
-	sortExpression := parser.NewProperty("age")
-	sortItem := parser.NewSortItem(sortExpression, true)
-
-	sortExpression2 := parser.NewProperty("name")
-	sortItem2 := parser.NewSortItem(sortExpression2, false)
-
-	sortList := parser.SortList{*sortItem, *sortItem2}
-
-	ottoOrderer := NewOttoOrderer()
-	ottoOrderer.SetSource(employeesCSV)
-	ottoOrderer.SetOrderBy(sortList)
-
-	plan := Plan{}
-	plan.Root = ottoOrderer
-
-	documentChannel := plan.Run()
-
-	row := 0
-	for doc := range documentChannel {
-		if row == 3 && doc["name"] != "Marty" {
-			t.Errorf("Expected row 3 name Marty, got %v", doc["name"])
-		} else if row == 4 && doc["name"] != "Dan" {
-			t.Errorf("Expected row 4 name Dan, got %v", doc["name"])
-		}
-		row += 1
-	}
-}
-
-func TestOttoOrdererEmployeesByAgeAscAndNameAsc(t *testing.T) {
-
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
-
-	sortExpression := parser.NewProperty("age")
-	sortItem := parser.NewSortItem(sortExpression, true)
-
-	sortExpression2 := parser.NewProperty("name")
-	sortItem2 := parser.NewSortItem(sortExpression2, true)
-
-	sortList := parser.SortList{*sortItem, *sortItem2}
-
-	ottoOrderer := NewOttoOrderer()
-	ottoOrderer.SetSource(employeesCSV)
-	ottoOrderer.SetOrderBy(sortList)
-
-	plan := Plan{}
-	plan.Root = ottoOrderer
-
-	documentChannel := plan.Run()
-
-	row := 0
-	for doc := range documentChannel {
-		if row == 3 && doc["name"] != "Marty" {
-			t.Errorf("Expected row 3 name Marty, got %v", doc["name"])
-		} else if row == 2 && doc["name"] != "Dan" {
-			t.Errorf("Expected row 2 name Dan, got %v", doc["name"])
-		}
-		row += 1
-	}
-}
-
-func TestOttoGrouperByAge(t *testing.T) {
-
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
-
-	groupExpression := parser.NewProperty("age")
-	//groupExpression2 := parser.NewProperty("name")
-	//expList := parser.ExpressionList{groupExpression, groupExpression2}
-	expList := parser.ExpressionList{groupExpression}
-
-	ottoGrouper := NewOttoGrouper()
-	ottoGrouper.SetGroupBy(expList)
-	ottoGrouper.SetSource(employeesCSV)
-
-	plan := Plan{}
-	plan.Root = ottoGrouper
-
-	documentChannel := plan.Run()
-
-	for doc := range documentChannel {
-		if doc["age"].(float64) == 34 {
-			stats := doc["stats"].(ExpressionStatsMap)
-			age := stats["age"]
-			if age.Count != 3 {
-				t.Errorf("Expected 3 people aged 34, got %d", age.Count)
-			}
+		_, lok := doc["stub1"]
+		_, rok := doc["stub2"]
+		if !lok || !rok {
+			t.Errorf("Expected row to contain stub1 and stub2")
 		}
 	}
 
-}
-
-func TestOttoGrouperByCity(t *testing.T) {
-
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
-
-	groupExpression := parser.NewProperty("city")
-	//groupExpression2 := parser.NewProperty("name")
-	//expList := parser.ExpressionList{groupExpression, groupExpression2}
-	expList := parser.ExpressionList{groupExpression}
-
-	ottoGrouper := NewOttoGrouper()
-	ottoGrouper.SetGroupBy(expList)
-	ottoGrouper.SetSource(employeesCSV)
-
-	plan := Plan{}
-	plan.Root = ottoGrouper
-
-	documentChannel := plan.Run()
-
-	for doc := range documentChannel {
-		if doc["city"] == "San Francisco" {
-			stats := doc["stats"].(ExpressionStatsMap)
-			city := stats["city"]
-			if city.Count != 4 {
-				t.Errorf("Expected 4 people from San Francisco, got %d", city.Count)
-			}
-		}
+	if rows != 36 {
+		t.Errorf("Expected 36 rows from full cartesian product, got %v", rows)
 	}
-
-}
-
-func TestOttoGrouperByCityAndAge(t *testing.T) {
-
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
-
-	groupExpression := parser.NewProperty("city")
-	groupExpression2 := parser.NewProperty("age")
-	expList := parser.ExpressionList{groupExpression, groupExpression2}
-
-	ottoGrouper := NewOttoGrouper()
-	ottoGrouper.SetGroupBy(expList)
-	ottoGrouper.SetSource(employeesCSV)
-
-	plan := Plan{}
-	plan.Root = ottoGrouper
-
-	documentChannel := plan.Run()
-
-	for doc := range documentChannel {
-		if doc["city"] == "San Francisco" && doc["age"].(float64) == 39 {
-			stats := doc["stats"].(ExpressionStatsMap)
-			city := stats["city"]
-			if city.Count != 2 {
-				t.Errorf("Expected 2 people from San Francisco, got %d", city.Count)
-			}
-		}
-	}
-
-}
-
-//func TestCPJoinerEmployeesAndDepartments(t *testing.T) {
-//
-//	employeesCSV := NewCSVDataSource()
-//	employeesCSV.SetName("test_csv_datasources/employees.csv")
-//	employeesCSV.SetAs("emp")
-//
-//	departmentsCSV := NewCSVDataSource()
-//	departmentsCSV.SetName("test_csv_datasources/departments.csv")
-//	departmentsCSV.SetAs("dept")
-//
-//	joiner := NewCartesianProductJoiner()
-//	joiner.SetLeftSource(employeesCSV)
-//	joiner.SetRightSource(departmentsCSV)
-//
-//	plan := Plan{}
-//	plan.Root = joiner
-//
-//	documentChannel := plan.Run()
-//
-//	row := 0
-//	for _ = range documentChannel {
-//		row += 1
-//	}
-//
-//	if row != 50 {
-//		t.Errorf("Expected cartesian product to contain 50 rows, got %d", row)
-//	}
-//}
-
-func TestCPJoinerEmployeesAndDepartmentsWithWhereClause(t *testing.T) {
-	log.Printf("testing join")
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
-	employeesCSV.SetAs("emp")
-
-	departmentsCSV := NewCSVDataSource()
-	departmentsCSV.SetName("test_csv_datasources/departments.csv")
-	departmentsCSV.SetAs("dept")
-
-	joiner := NewCartesianProductJoiner()
-	joiner.SetLeftSource(employeesCSV)
-	joiner.SetRightSource(departmentsCSV)
-
-	name := parser.NewProperty("emp.name")
-	marty := parser.NewStringLiteral("Marty")
-	eq := parser.NewEqualsExpression(name, marty)
-
-	ottoFilter := NewOttoFilter()
-	ottoFilter.SetSource(joiner)
-	ottoFilter.SetFilter(eq)
-
-	plan := Plan{}
-	plan.Root = ottoFilter
-
-	documentChannel := plan.Run()
-
-	row := 0
-	for _ = range documentChannel {
-		row += 1
-	}
-
-	if row != 5 {
-		t.Errorf("Expected cartesian product to contain 5 rows, got %d", row)
-	}
-}
-
-func TestCPJoinerEmployeesAndDepartmentsWithWhereDepartmentIdMatch(t *testing.T) {
-	log.Printf("testing join")
-
-	employeesCSV := NewCSVDataSource()
-	employeesCSV.SetName("test_csv_datasources/employees.csv")
-	employeesCSV.SetAs("emp")
-
-	departmentsCSV := NewCSVDataSource()
-	departmentsCSV.SetName("test_csv_datasources/departments.csv")
-	departmentsCSV.SetAs("dept")
-
-	joiner := NewCartesianProductJoiner()
-	joiner.SetLeftSource(employeesCSV)
-	joiner.SetRightSource(departmentsCSV)
-
-	name := parser.NewProperty("emp.department_id")
-	marty := parser.NewProperty("dept.department_id")
-	eq := parser.NewEqualsExpression(name, marty)
-
-	ottoFilter := NewOttoFilter()
-	ottoFilter.SetSource(joiner)
-	ottoFilter.SetFilter(eq)
-
-	plan := Plan{}
-	plan.Root = ottoFilter
-
-	documentChannel := plan.Run()
-
-	row := 0
-	for doc := range documentChannel {
-		log.Printf("%v", doc)
-		row += 1
-	}
-
-	if row != 10 {
-		t.Errorf("Expected cartesian product to contain 10 rows, got %d", row)
-	}
-}
-
-func TestOttoExport(t *testing.T) {
-	o := otto.New()
-
-	//o.Run("x = {'bob': 'cat'}")
-	//x, err := o.Get("x")
-	_, err := o.Run("y = {'string': 'cat', 'number': 7.4, 'bool': true}")
-	if err != nil {
-		log.Printf("run y error %v", err)
-	}
-
-	x, err := o.Run("x = {'string': 'cat', 'number': 7.4, 'bool': true, 'object': y}")
-	if err != nil {
-		log.Printf("run x error %v", err)
-	}
-
-	asmap, err := x.Export()
-	if err != nil {
-		log.Printf("export error %v", err)
-	}
-
-	log.Printf("%#v", asmap)
-
-//	err = o.Set("z", asmap)
-//	if err != nil {
-//		log.Printf("Set error %v", err)
-//	}
 }
