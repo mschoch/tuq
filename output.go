@@ -96,14 +96,10 @@ func ReplaceNaNAndInfRecursive(row planner.Row) planner.Row {
 			return "-Infinity"
 		}
 
-	case string:
-		return row
-
-	case int:
-		return row
-
+	// various other types can occur here
+	// but there is no other processing required
 	default:
-		log.Printf("unexpected type %T", row)
+		return row
 	}
 	return row
 }
