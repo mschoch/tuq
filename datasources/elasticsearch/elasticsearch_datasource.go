@@ -587,7 +587,7 @@ func ESSupportedLiteralValue(expr parser.Expression) (interface{}, error) {
 func (ds *ElasticSearchDataSource) ESSupportedProperty(expr parser.Expression) (string, error) {
 	prop, ok := expr.(*parser.Property)
 	if !ok {
-		return "", fmt.Errorf("ElasticSearch LHS must be property")
+		return "", fmt.Errorf("ElasticSearch LHS must be property, was %T", expr)
 	}
 	if strings.HasPrefix(prop.Symbol, ds.As+".") {
 		return prop.Symbol[len(ds.As)+1:], nil
