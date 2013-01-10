@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	// Alias this because we call our connection couchbase
+	"encoding/base64"
 	"encoding/json"
 	cb "github.com/couchbaselabs/go-couchbase"
 	"github.com/dustin/gomemcached"
@@ -296,7 +297,7 @@ func DocFromMcResponse(mcResponse *gomemcached.MCResponse) (planner.Document, er
 	// marshall into json
 	jsonErr := json.Unmarshal(mcResponse.Body, &doc)
 	if jsonErr != nil {
-		return nil, jsonErr
+		doc = planner.Document{"base64": base64.StdEncoding.EncodeToString(mcResponse.Body)}
 	}
 
 	return doc, nil
