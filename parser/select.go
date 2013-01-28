@@ -16,17 +16,17 @@ type Select struct {
 	Orderby            SortList
 	Limit              Expression
 	Offset             Expression
-	parsedSuccessfully bool
-	isAggregateQuery   bool
-	isExplainOnly      bool
+	ParsedSuccessfully bool
+	IsAggregateQuery   bool
+	IsExplainOnly      bool
 }
 
 func NewSelect() *Select {
 	return &Select{
 		Distinct:           false,
-		parsedSuccessfully: false,
-		isAggregateQuery:   false,
-		isExplainOnly:      false}
+		ParsedSuccessfully: false,
+		IsAggregateQuery:   false,
+		IsExplainOnly:      false}
 }
 
 func (s *Select) AddDataSource(ds *DataSource) {
@@ -34,15 +34,7 @@ func (s *Select) AddDataSource(ds *DataSource) {
 }
 
 func (s *Select) WasParsedSuccessfully() bool {
-	return s.parsedSuccessfully
-}
-
-func (s *Select) IsAggregateQuery() bool {
-	return s.isAggregateQuery
-}
-
-func (s *Select) IsExplainOnly() bool {
-	return s.isExplainOnly
+	return s.ParsedSuccessfully
 }
 
 // NOTE: this should not be used to enforce limitations

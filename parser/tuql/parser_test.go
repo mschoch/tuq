@@ -1,7 +1,8 @@
-package parser
+package tuql
 
 import (
 	"testing"
+	"github.com/mschoch/tuq/parser"
 )
 
 var validQueries = []string{
@@ -81,17 +82,17 @@ var invalidQueries = []string{
 
 func TestParser(t *testing.T) {
 
-	unqlParser := NewUnqlParser(false, false, true)
+	tuqlParser := NewTuqlParser(false, false, true)
 
 	for _, v := range validQueries {
-		pq, err := unqlParser.Parse(v)
+		pq, err := tuqlParser.Parse(v)
 		if err != nil {
 			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
 		}
 		if !pq.WasParsedSuccessfully() {
 			t.Errorf("Valid Query was not parsed successfully: %v - %v", v, err)
 		}
-		if pq.IsExplainOnly() != false {
+		if pq.IsExplainOnly != false {
 			t.Errorf("Explain only should be false")
 		}
 
@@ -102,7 +103,7 @@ func TestParser(t *testing.T) {
 	}
 
 	for _, v := range invalidQueries {
-		_, err := unqlParser.Parse(v)
+		_, err := tuqlParser.Parse(v)
 		if err == nil {
 			t.Errorf("Invalid Query Parsed Successfully: %v - %v", v, err)
 		}
@@ -110,39 +111,39 @@ func TestParser(t *testing.T) {
 
 }
 
-var zeroSymbolExpressions = []Expression{
-	NewIntegerLiteral(7),
-	NewFloatLiteral(5.5),
-	NewNull(),
-	NewStringLiteral("name"),
-	NewBoolLiteral(true),
+var zeroSymbolExpressions = []parser.Expression{
+	parser.NewIntegerLiteral(7),
+	parser.NewFloatLiteral(5.5),
+	parser.NewNull(),
+	parser.NewStringLiteral("name"),
+	parser.NewBoolLiteral(true),
 }
 
-var oneSymbolExpressions = []Expression{
-	NewProperty("bob"),
-	NewArrayLiteral(ExpressionList{NewProperty("bob")}),
-	NewObjectLiteral(Object{"field": NewProperty("bob")}),
-	NewNotExpression(NewProperty("bob")),
-	NewBracketMemberExpression(NewProperty("bob"), NewIntegerLiteral(0)),
+var oneSymbolExpressions = []parser.Expression{
+	parser.NewProperty("bob"),
+	parser.NewArrayLiteral(parser.ExpressionList{parser.NewProperty("bob")}),
+	parser.NewObjectLiteral(parser.Object{"field": parser.NewProperty("bob")}),
+	parser.NewNotExpression(parser.NewProperty("bob")),
+	parser.NewBracketMemberExpression(parser.NewProperty("bob"), parser.NewIntegerLiteral(0)),
 }
 
-var twoSymbolExpressions = []Expression{
-	NewPlusExpression(NewProperty("bob"), NewProperty("jay")),
-	NewMinusExpression(NewProperty("bob"), NewProperty("jay")),
-	NewMultiplyExpression(NewProperty("bob"), NewProperty("jay")),
-	NewDivideExpression(NewProperty("bob"), NewProperty("jay")),
-	NewOrExpression(NewProperty("bob"), NewProperty("jay")),
-	NewAndExpression(NewProperty("bob"), NewProperty("jay")),
-	NewLessThanExpression(NewProperty("bob"), NewProperty("jay")),
-	NewLessThanOrEqualExpression(NewProperty("bob"), NewProperty("jay")),
-	NewGreaterThanExpression(NewProperty("bob"), NewProperty("jay")),
-	NewGreaterThanOrEqualExpression(NewProperty("bob"), NewProperty("jay")),
-	NewEqualsExpression(NewProperty("bob"), NewProperty("jay")),
-	NewNotEqualsExpression(NewProperty("bob"), NewProperty("jay")),
+var twoSymbolExpressions = []parser.Expression{
+	parser.NewPlusExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewMinusExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewMultiplyExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewDivideExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewOrExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewAndExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewLessThanExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewLessThanOrEqualExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewGreaterThanExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewGreaterThanOrEqualExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewEqualsExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewNotEqualsExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
 }
 
-var threeSymbolExpressions = []Expression{
-	NewTernaryExpression(NewProperty("bob"), NewProperty("jay"), NewProperty("cat")),
+var threeSymbolExpressions = []parser.Expression{
+	parser.NewTernaryExpression(parser.NewProperty("bob"), parser.NewProperty("jay"), parser.NewProperty("cat")),
 }
 
 func TestSymbolsReferenced(t *testing.T) {
@@ -194,8 +195,8 @@ func TestSymbolsReferenced(t *testing.T) {
 	}
 
 	// manually test function call, couldn't be set up as literal
-	f := NewFunction("sum")
-	f.AddArguments(ExpressionList{NewProperty("bob")})
+	f := parser.NewFunction("sum")
+	f.AddArguments(parser.ExpressionList{parser.NewProperty("bob")})
 	symbols := f.SymbolsReferenced()
 	if len(symbols) != 1 {
 		t.Errorf("Expected 1 symbols and found: %v", symbols)
@@ -258,8 +259,8 @@ func TestPrefixSymbols(t *testing.T) {
 	}
 
 	// manually test function call, couldn't be set up as literal
-	f := NewFunction("sum")
-	f.AddArguments(ExpressionList{NewProperty("bob")})
+	f := parser.NewFunction("sum")
+	f.AddArguments(parser.ExpressionList{parser.NewProperty("bob")})
 	f.PrefixSymbols("ds.")
 	symbols := f.SymbolsReferenced()
 	if len(symbols) != 1 {
@@ -270,29 +271,29 @@ func TestPrefixSymbols(t *testing.T) {
 	}
 }
 
-var testExpressions = []Expression{
-	NewIntegerLiteral(7),
-	NewFloatLiteral(5.5),
-	NewNull(),
-	NewStringLiteral("name"),
-	NewBoolLiteral(true),
-	NewProperty("bob"),
-	NewArrayLiteral(ExpressionList{NewProperty("bob"), NewProperty("jay")}),
-	NewNotExpression(NewProperty("bob")),
-	NewBracketMemberExpression(NewProperty("bob"), NewIntegerLiteral(0)),
-	NewPlusExpression(NewProperty("bob"), NewProperty("jay")),
-	NewMinusExpression(NewProperty("bob"), NewProperty("jay")),
-	NewMultiplyExpression(NewProperty("bob"), NewProperty("jay")),
-	NewDivideExpression(NewProperty("bob"), NewProperty("jay")),
-	NewOrExpression(NewProperty("bob"), NewProperty("jay")),
-	NewAndExpression(NewProperty("bob"), NewProperty("jay")),
-	NewLessThanExpression(NewProperty("bob"), NewProperty("jay")),
-	NewLessThanOrEqualExpression(NewProperty("bob"), NewProperty("jay")),
-	NewGreaterThanExpression(NewProperty("bob"), NewProperty("jay")),
-	NewGreaterThanOrEqualExpression(NewProperty("bob"), NewProperty("jay")),
-	NewEqualsExpression(NewProperty("bob"), NewProperty("jay")),
-	NewNotEqualsExpression(NewProperty("bob"), NewProperty("jay")),
-	NewTernaryExpression(NewProperty("bob"), NewProperty("jay"), NewProperty("cat")),
+var testExpressions = []parser.Expression{
+	parser.NewIntegerLiteral(7),
+	parser.NewFloatLiteral(5.5),
+	parser.NewNull(),
+	parser.NewStringLiteral("name"),
+	parser.NewBoolLiteral(true),
+	parser.NewProperty("bob"),
+	parser.NewArrayLiteral(parser.ExpressionList{parser.NewProperty("bob"), parser.NewProperty("jay")}),
+	parser.NewNotExpression(parser.NewProperty("bob")),
+	parser.NewBracketMemberExpression(parser.NewProperty("bob"), parser.NewIntegerLiteral(0)),
+	parser.NewPlusExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewMinusExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewMultiplyExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewDivideExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewOrExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewAndExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewLessThanExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewLessThanOrEqualExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewGreaterThanExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewGreaterThanOrEqualExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewEqualsExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewNotEqualsExpression(parser.NewProperty("bob"), parser.NewProperty("jay")),
+	parser.NewTernaryExpression(parser.NewProperty("bob"), parser.NewProperty("jay"), parser.NewProperty("cat")),
 }
 
 var testExpressionStrings = []string{
@@ -330,15 +331,15 @@ func TestExpressionsToString(t *testing.T) {
 	}
 
 	// manually test function call, couldn't be set up as literal
-	f := NewFunction("sum")
-	f.AddArguments(ExpressionList{NewProperty("bob"), NewProperty("jay")})
+	f := parser.NewFunction("sum")
+	f.AddArguments(parser.ExpressionList{parser.NewProperty("bob"), parser.NewProperty("jay")})
 	fStr := f.String()
 	if fStr != "__func__.sum.bob,jay" {
 		t.Errorf("Expected expression to evalute to __func__.sum.bob,jay, got: %v", fStr)
 	}
 
 	// manually test object literally separately, can be either of 2 strings (order not guaranteed)
-	ol := NewObjectLiteral(Object{"field": NewProperty("bob"), "field2": NewProperty("jay")})
+	ol := parser.NewObjectLiteral(parser.Object{"field": parser.NewProperty("bob"), "field2": parser.NewProperty("jay")})
 	olStr := ol.String()
 	if olStr != "{\"field\": bob, \"field2\": jay}" && olStr != "{\"field2\": jay, \"field\": bob}" {
 		t.Errorf("Expected expression to evalute to {\"field\": bob, \"field2\": jay} OR {\"field2\": jay, \"field\": bob}, got: %v", olStr)
@@ -346,10 +347,10 @@ func TestExpressionsToString(t *testing.T) {
 
 }
 
-var sortList = SortList{
-	SortItem{Sort: NewProperty("abv"),
+var sortList = parser.SortList{
+	parser.SortItem{Sort: parser.NewProperty("abv"),
 		Ascending: true},
-	SortItem{Sort: NewProperty("ibu"),
+	parser.SortItem{Sort: parser.NewProperty("ibu"),
 		Ascending: false},
 }
 
@@ -362,9 +363,9 @@ func TestSortListsToString(t *testing.T) {
 	}
 }
 
-var exprList = ExpressionList{
-	NewProperty("bob"),
-	NewProperty("jay"),
+var exprList = parser.ExpressionList{
+	parser.NewProperty("bob"),
+	parser.NewProperty("jay"),
 }
 
 var exprListString = "bob, jay"
@@ -377,7 +378,7 @@ func TestExpressionListsToString(t *testing.T) {
 }
 
 func TestSimpleProperties(t *testing.T) {
-	sp := NewProperty("a")
+	sp := parser.NewProperty("a")
 	head := sp.Head()
 	if head != "a" {
 		t.Errorf("Expected property head to be a, got %v", head)
@@ -398,7 +399,7 @@ func TestSimpleProperties(t *testing.T) {
 }
 
 func TestComplexProperties(t *testing.T) {
-	cp := NewProperty("a.b.c")
+	cp := parser.NewProperty("a.b.c")
 	head := cp.Head()
 	if head != "a" {
 		t.Errorf("Expected property head to be a, got %v", head)
@@ -430,10 +431,10 @@ var pragmaQueries = []string{
 
 func TestPragma(t *testing.T) {
 
-	unqlParser := NewUnqlParser(false, false, true)
+	tuqlParser := NewTuqlParser(false, false, true)
 
 	for _, v := range pragmaQueries {
-		_, err := unqlParser.Parse(v)
+		_, err := tuqlParser.Parse(v)
 		if err != nil {
 			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
 		}
@@ -447,14 +448,14 @@ var aggQueries = []string{
 
 func TestAggregates(t *testing.T) {
 
-	unqlParser := NewUnqlParser(false, false, true)
+	tuqlParser := NewTuqlParser(false, false, true)
 
 	for _, v := range aggQueries {
-		pq, err := unqlParser.Parse(v)
+		pq, err := tuqlParser.Parse(v)
 		if err != nil {
 			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
 		}
-		if !pq.IsAggregateQuery() {
+		if !pq.IsAggregateQuery {
 			t.Errorf("Expected query to be recognized as an aggregate")
 		}
 	}
@@ -467,14 +468,14 @@ var explainQueries = []string{
 
 func TestExplainQueries(t *testing.T) {
 
-	unqlParser := NewUnqlParser(false, false, true)
+	tuqlParser := NewTuqlParser(false, false, true)
 
 	for _, v := range explainQueries {
-		pq, err := unqlParser.Parse(v)
+		pq, err := tuqlParser.Parse(v)
 		if err != nil {
 			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
 		}
-		if !pq.IsExplainOnly() {
+		if !pq.IsExplainOnly {
 			t.Errorf("Expected query to be recognized as explain only")
 		}
 	}
@@ -497,10 +498,10 @@ var parsableButInvalidQueries = []string {
 
 func TestParsableButInvalidQueries(t *testing.T) {
 
-	unqlParser := NewUnqlParser(false, false, true)
+	tuqlParser := NewTuqlParser(false, false, true)
 
 	for _, v := range parsableButInvalidQueries {
-		pq, err := unqlParser.Parse(v)
+		pq, err := tuqlParser.Parse(v)
 		if err != nil {
 			t.Errorf("Valid Query Parse Failed: %v - %v", v, err)
 			continue

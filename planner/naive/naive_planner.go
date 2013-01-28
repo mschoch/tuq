@@ -72,7 +72,7 @@ func (np *NaivePlanner) Plan(query parser.Select) []planner.Plan {
 		last_in_pipeline = ottoFilter
 	}
 
-	if query.IsAggregateQuery() {
+	if query.IsAggregateQuery {
 		// in an aggregate query we sometimes need to collect stats
 		// on fields that we're not aggregating on
 		// the full list will be the symbols from the SELECT clause

@@ -1,0 +1,2063 @@
+
+state 0
+	$accept: .input $end 
+	select_explain: .    (5)
+
+	PRAGMA  shift 5
+	EXPLAIN  shift 6
+	.  reduce 5 (src line 51)
+
+	input  goto 1
+	select_stmt  goto 2
+	pragma_stmt  goto 3
+	select_explain  goto 4
+
+state 1
+	$accept:  input.$end 
+
+	$end  accept
+	.  error
+
+
+state 2
+	input:  select_stmt.    (1)
+
+	.  reduce 1 (src line 36)
+
+
+state 3
+	input:  pragma_stmt.    (2)
+
+	.  reduce 2 (src line 37)
+
+
+state 4
+	select_stmt:  select_explain.select_compound select_order select_limit_offset 
+
+	SELECT  shift 11
+	.  error
+
+	select_compound  goto 7
+	select_core  goto 8
+	select_select  goto 9
+	select_select_head  goto 10
+
+state 5
+	pragma_stmt:  PRAGMA.expression ASSIGN expression 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 12
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 6
+	select_explain:  EXPLAIN.    (6)
+
+	.  reduce 6 (src line 52)
+
+
+state 7
+	select_stmt:  select_explain select_compound.select_order select_limit_offset 
+	select_order: .    (7)
+
+	ORDER  shift 37
+	.  reduce 7 (src line 55)
+
+	select_order  goto 36
+
+state 8
+	select_compound:  select_core.    (19)
+	select_compound:  select_core.compound_operator select_compound 
+
+	UNION  shift 39
+	INTERSECT  shift 40
+	EXCEPT  shift 41
+	.  reduce 19 (src line 89)
+
+	compound_operator  goto 38
+
+state 9
+	select_core:  select_select.select_from select_where select_group_having 
+	select_from: .    (33)
+
+	FROM  shift 43
+	.  reduce 33 (src line 123)
+
+	select_from  goto 42
+
+state 10
+	select_select:  select_select_head.select_select_tail 
+	select_select_tail: .    (49)
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  reduce 49 (src line 175)
+
+	expression  goto 45
+	property  goto 19
+	select_select_tail  goto 44
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 11
+	select_select_head:  SELECT.    (46)
+	select_select_head:  SELECT.ALL 
+	select_select_head:  SELECT.DISTINCT 
+
+	DISTINCT  shift 47
+	ALL  shift 46
+	.  reduce 46 (src line 170)
+
+
+state 12
+	pragma_stmt:  PRAGMA expression.ASSIGN expression 
+
+	ASSIGN  shift 48
+	.  error
+
+
+state 13
+	expression:  expr.    (51)
+	expression:  expr.QUESTION expression COLON expression 
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	QUESTION  shift 49
+	PLUS  shift 50
+	MINUS  shift 51
+	MULT  shift 52
+	DIV  shift 53
+	MOD  shift 62
+	AND  shift 54
+	OR  shift 55
+	EQ  shift 56
+	LT  shift 57
+	LTE  shift 58
+	GT  shift 59
+	GTE  shift 60
+	NE  shift 61
+	.  reduce 51 (src line 182)
+
+
+state 14
+	expr:  prefix_expr.    (66)
+
+	.  reduce 66 (src line 265)
+
+
+state 15
+	prefix_expr:  NOT.prefix_expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	prefix_expr  goto 63
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 16
+	prefix_expr:  suffix_expr.    (68)
+
+	.  reduce 68 (src line 274)
+
+
+state 17
+	suffix_expr:  atom.    (69)
+
+	.  reduce 69 (src line 277)
+
+
+state 18
+	atom:  NULL.    (70)
+
+	.  reduce 70 (src line 280)
+
+
+state 19
+	atom:  property.    (71)
+	atom:  property.LBRACKET expression RBRACKET 
+
+	LBRACKET  shift 64
+	.  reduce 71 (src line 284)
+
+
+state 20
+	atom:  INT.    (73)
+
+	.  reduce 73 (src line 291)
+
+
+state 21
+	atom:  MINUS.INT 
+	atom:  MINUS.REAL 
+
+	INT  shift 65
+	REAL  shift 66
+	.  error
+
+
+state 22
+	atom:  REAL.    (75)
+
+	.  reduce 75 (src line 295)
+
+
+state 23
+	atom:  STRING.    (77)
+
+	.  reduce 77 (src line 299)
+
+
+state 24
+	atom:  TRUE.    (78)
+
+	.  reduce 78 (src line 301)
+
+
+state 25
+	atom:  FALSE.    (79)
+
+	.  reduce 79 (src line 303)
+
+
+state 26
+	atom:  LBRACE.named_expression_list RBRACE 
+
+	STRING  shift 69
+	.  error
+
+	named_expression_list  goto 67
+	named_expression_single  goto 68
+
+state 27
+	atom:  LBRACKET.expression_list RBRACKET 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 71
+	expression_list  goto 70
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 28
+	atom:  function_name.LPAREN expression_list RPAREN 
+
+	LPAREN  shift 72
+	.  error
+
+
+state 29
+	atom:  LPAREN.expression RPAREN 
+	atom:  LPAREN.select_stmt RPAREN 
+	select_explain: .    (5)
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	EXPLAIN  shift 6
+	NULL  shift 18
+	.  reduce 5 (src line 51)
+
+	select_stmt  goto 74
+	expression  goto 73
+	select_explain  goto 4
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 30
+	property:  IDENTIFIER.    (90)
+	property:  IDENTIFIER.DOT property 
+
+	DOT  shift 75
+	.  reduce 90 (src line 354)
+
+
+state 31
+	function_name:  MIN.    (92)
+
+	.  reduce 92 (src line 365)
+
+
+state 32
+	function_name:  MAX.    (93)
+
+	.  reduce 93 (src line 370)
+
+
+state 33
+	function_name:  AVG.    (94)
+
+	.  reduce 94 (src line 375)
+
+
+state 34
+	function_name:  COUNT.    (95)
+
+	.  reduce 95 (src line 380)
+
+
+state 35
+	function_name:  SUM.    (96)
+
+	.  reduce 96 (src line 385)
+
+
+state 36
+	select_stmt:  select_explain select_compound select_order.select_limit_offset 
+	select_limit_offset: .    (9)
+
+	LIMIT  shift 78
+	.  reduce 9 (src line 59)
+
+	select_limit_offset  goto 76
+	select_limit  goto 77
+
+state 37
+	select_order:  ORDER.BY sorting_list 
+
+	BY  shift 79
+	.  error
+
+
+state 38
+	select_compound:  select_core compound_operator.select_compound 
+
+	SELECT  shift 11
+	.  error
+
+	select_compound  goto 80
+	select_core  goto 8
+	select_select  goto 9
+	select_select_head  goto 10
+
+state 39
+	compound_operator:  UNION.    (21)
+	compound_operator:  UNION.ALL 
+
+	ALL  shift 81
+	.  reduce 21 (src line 93)
+
+
+state 40
+	compound_operator:  INTERSECT.    (23)
+
+	.  reduce 23 (src line 95)
+
+
+state 41
+	compound_operator:  EXCEPT.    (24)
+
+	.  reduce 24 (src line 96)
+
+
+state 42
+	select_core:  select_select select_from.select_where select_group_having 
+	select_where: .    (31)
+
+	WHERE  shift 83
+	.  reduce 31 (src line 117)
+
+	select_where  goto 82
+
+state 43
+	select_from:  FROM.data_source_list 
+
+	IDENTIFIER  shift 87
+	.  error
+
+	data_source_list  goto 84
+	data_source_single  goto 85
+	data_source  goto 86
+
+state 44
+	select_select:  select_select_head select_select_tail.    (45)
+
+	.  reduce 45 (src line 167)
+
+
+state 45
+	select_select_tail:  expression.    (50)
+
+	.  reduce 50 (src line 176)
+
+
+state 46
+	select_select_head:  SELECT ALL.    (47)
+
+	.  reduce 47 (src line 171)
+
+
+state 47
+	select_select_head:  SELECT DISTINCT.    (48)
+
+	.  reduce 48 (src line 172)
+
+
+state 48
+	pragma_stmt:  PRAGMA expression ASSIGN.expression 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 88
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 49
+	expression:  expr QUESTION.expression COLON expression 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 89
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 50
+	expr:  expr PLUS.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 90
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 51
+	expr:  expr MINUS.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 91
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 52
+	expr:  expr MULT.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 92
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 53
+	expr:  expr DIV.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 93
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 54
+	expr:  expr AND.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 94
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 55
+	expr:  expr OR.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 95
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 56
+	expr:  expr EQ.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 96
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 57
+	expr:  expr LT.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 97
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 58
+	expr:  expr LTE.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 98
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 59
+	expr:  expr GT.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 99
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 60
+	expr:  expr GTE.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 100
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 61
+	expr:  expr NE.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 101
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 62
+	expr:  expr MOD.expr 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	property  goto 19
+	expr  goto 102
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 63
+	prefix_expr:  NOT prefix_expr.    (67)
+
+	.  reduce 67 (src line 269)
+
+
+state 64
+	atom:  property LBRACKET.expression RBRACKET 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 103
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 65
+	atom:  MINUS INT.    (74)
+
+	.  reduce 74 (src line 293)
+
+
+state 66
+	atom:  MINUS REAL.    (76)
+
+	.  reduce 76 (src line 297)
+
+
+state 67
+	atom:  LBRACE named_expression_list.RBRACE 
+
+	RBRACE  shift 104
+	.  error
+
+
+state 68
+	named_expression_list:  named_expression_single.    (87)
+	named_expression_list:  named_expression_single.COMMA named_expression_list 
+
+	COMMA  shift 105
+	.  reduce 87 (src line 339)
+
+
+state 69
+	named_expression_single:  STRING.COLON expression 
+
+	COLON  shift 106
+	.  error
+
+
+state 70
+	atom:  LBRACKET expression_list.RBRACKET 
+
+	RBRACKET  shift 107
+	.  error
+
+
+state 71
+	expression_list:  expression.    (85)
+	expression_list:  expression.COMMA expression_list 
+
+	COMMA  shift 108
+	.  reduce 85 (src line 322)
+
+
+state 72
+	atom:  function_name LPAREN.expression_list RPAREN 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 71
+	expression_list  goto 109
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 73
+	atom:  LPAREN expression.RPAREN 
+
+	RPAREN  shift 110
+	.  error
+
+
+state 74
+	atom:  LPAREN select_stmt.RPAREN 
+
+	RPAREN  shift 111
+	.  error
+
+
+state 75
+	property:  IDENTIFIER DOT.property 
+
+	IDENTIFIER  shift 30
+	.  error
+
+	property  goto 112
+
+state 76
+	select_stmt:  select_explain select_compound select_order select_limit_offset.    (4)
+
+	.  reduce 4 (src line 47)
+
+
+state 77
+	select_limit_offset:  select_limit.    (10)
+	select_limit_offset:  select_limit.select_offset 
+
+	OFFSET  shift 114
+	.  reduce 10 (src line 60)
+
+	select_offset  goto 113
+
+state 78
+	select_limit:  LIMIT.expression 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 115
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 79
+	select_order:  ORDER BY.sorting_list 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 118
+	sorting_list  goto 116
+	sorting_single  goto 117
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 80
+	select_compound:  select_core compound_operator select_compound.    (20)
+
+	.  reduce 20 (src line 90)
+
+
+state 81
+	compound_operator:  UNION ALL.    (22)
+
+	.  reduce 22 (src line 94)
+
+
+state 82
+	select_core:  select_select select_from select_where.select_group_having 
+	select_group_having: .    (27)
+
+	GROUP  shift 121
+	.  reduce 27 (src line 107)
+
+	select_group_having  goto 119
+	select_group  goto 120
+
+state 83
+	select_where:  WHERE.expression 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 122
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 84
+	select_from:  FROM data_source_list.    (34)
+
+	.  reduce 34 (src line 124)
+
+
+state 85
+	data_source_list:  data_source_single.    (35)
+	data_source_list:  data_source_single.COMMA data_source_list 
+
+	COMMA  shift 123
+	.  reduce 35 (src line 127)
+
+
+state 86
+	data_source_single:  data_source.    (37)
+	data_source_single:  data_source.data_source_over_list 
+	data_source_single:  data_source.AS IDENTIFIER 
+	data_source_single:  data_source.AS IDENTIFIER data_source_over_list 
+
+	AS  shift 125
+	OVER  shift 127
+	.  reduce 37 (src line 131)
+
+	data_source_over_list  goto 124
+	data_source_over  goto 126
+
+state 87
+	data_source:  IDENTIFIER.    (44)
+
+	.  reduce 44 (src line 165)
+
+
+state 88
+	pragma_stmt:  PRAGMA expression ASSIGN expression.    (3)
+
+	.  reduce 3 (src line 40)
+
+
+state 89
+	expression:  expr QUESTION expression.COLON expression 
+
+	COLON  shift 128
+	.  error
+
+
+state 90
+	expr:  expr.PLUS expr 
+	expr:  expr PLUS expr.    (53)
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	.  reduce 53 (src line 192)
+
+
+state 91
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr MINUS expr.    (54)
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	.  reduce 54 (src line 198)
+
+
+state 92
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr MULT expr.    (55)
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	.  reduce 55 (src line 204)
+
+
+state 93
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr DIV expr.    (56)
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	.  reduce 56 (src line 210)
+
+
+state 94
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr AND expr.    (57)
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	PLUS  shift 50
+	MINUS  shift 51
+	MULT  shift 52
+	DIV  shift 53
+	MOD  shift 62
+	EQ  shift 56
+	LT  shift 57
+	LTE  shift 58
+	GT  shift 59
+	GTE  shift 60
+	NE  shift 61
+	.  reduce 57 (src line 216)
+
+
+state 95
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr OR expr.    (58)
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	PLUS  shift 50
+	MINUS  shift 51
+	MULT  shift 52
+	DIV  shift 53
+	MOD  shift 62
+	AND  shift 54
+	EQ  shift 56
+	LT  shift 57
+	LTE  shift 58
+	GT  shift 59
+	GTE  shift 60
+	NE  shift 61
+	.  reduce 58 (src line 222)
+
+
+state 96
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr EQ expr.    (59)
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	PLUS  shift 50
+	MINUS  shift 51
+	MULT  shift 52
+	DIV  shift 53
+	MOD  shift 62
+	.  reduce 59 (src line 228)
+
+
+state 97
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr LT expr.    (60)
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	PLUS  shift 50
+	MINUS  shift 51
+	MULT  shift 52
+	DIV  shift 53
+	MOD  shift 62
+	.  reduce 60 (src line 234)
+
+
+state 98
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr LTE expr.    (61)
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	PLUS  shift 50
+	MINUS  shift 51
+	MULT  shift 52
+	DIV  shift 53
+	MOD  shift 62
+	.  reduce 61 (src line 240)
+
+
+state 99
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr GT expr.    (62)
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	PLUS  shift 50
+	MINUS  shift 51
+	MULT  shift 52
+	DIV  shift 53
+	MOD  shift 62
+	.  reduce 62 (src line 246)
+
+
+state 100
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr GTE expr.    (63)
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+
+	PLUS  shift 50
+	MINUS  shift 51
+	MULT  shift 52
+	DIV  shift 53
+	MOD  shift 62
+	.  reduce 63 (src line 252)
+
+
+state 101
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr NE expr.    (64)
+	expr:  expr.MOD expr 
+
+	PLUS  shift 50
+	MINUS  shift 51
+	MULT  shift 52
+	DIV  shift 53
+	MOD  shift 62
+	.  reduce 64 (src line 258)
+
+
+state 102
+	expr:  expr.PLUS expr 
+	expr:  expr.MINUS expr 
+	expr:  expr.MULT expr 
+	expr:  expr.DIV expr 
+	expr:  expr.AND expr 
+	expr:  expr.OR expr 
+	expr:  expr.EQ expr 
+	expr:  expr.LT expr 
+	expr:  expr.LTE expr 
+	expr:  expr.GT expr 
+	expr:  expr.GTE expr 
+	expr:  expr.NE expr 
+	expr:  expr.MOD expr 
+	expr:  expr MOD expr.    (65)
+
+	.  reduce 65 (src line 264)
+
+
+state 103
+	atom:  property LBRACKET expression.RBRACKET 
+
+	RBRACKET  shift 129
+	.  error
+
+
+state 104
+	atom:  LBRACE named_expression_list RBRACE.    (80)
+
+	.  reduce 80 (src line 305)
+
+
+state 105
+	named_expression_list:  named_expression_single COMMA.named_expression_list 
+
+	STRING  shift 69
+	.  error
+
+	named_expression_list  goto 130
+	named_expression_single  goto 68
+
+state 106
+	named_expression_single:  STRING COLON.expression 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 131
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 107
+	atom:  LBRACKET expression_list RBRACKET.    (81)
+
+	.  reduce 81 (src line 307)
+
+
+state 108
+	expression_list:  expression COMMA.expression_list 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 71
+	expression_list  goto 132
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 109
+	atom:  function_name LPAREN expression_list.RPAREN 
+
+	RPAREN  shift 133
+	.  error
+
+
+state 110
+	atom:  LPAREN expression RPAREN.    (83)
+
+	.  reduce 83 (src line 318)
+
+
+state 111
+	atom:  LPAREN select_stmt RPAREN.    (84)
+
+	.  reduce 84 (src line 319)
+
+
+state 112
+	property:  IDENTIFIER DOT property.    (91)
+
+	.  reduce 91 (src line 358)
+
+
+state 113
+	select_limit_offset:  select_limit select_offset.    (11)
+
+	.  reduce 11 (src line 61)
+
+
+state 114
+	select_offset:  OFFSET.expression 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 134
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 115
+	select_limit:  LIMIT expression.    (12)
+
+	.  reduce 12 (src line 64)
+
+
+state 116
+	select_order:  ORDER BY sorting_list.    (8)
+
+	.  reduce 8 (src line 56)
+
+
+state 117
+	sorting_list:  sorting_single.    (14)
+	sorting_list:  sorting_single.COMMA sorting_list 
+
+	COMMA  shift 135
+	.  reduce 14 (src line 74)
+
+
+state 118
+	sorting_single:  expression.    (16)
+	sorting_single:  expression.ASC 
+	sorting_single:  expression.DESC 
+
+	ASC  shift 136
+	DESC  shift 137
+	.  reduce 16 (src line 78)
+
+
+state 119
+	select_core:  select_select select_from select_where select_group_having.    (25)
+
+	.  reduce 25 (src line 99)
+
+
+state 120
+	select_group_having:  select_group.    (28)
+	select_group_having:  select_group.select_having 
+
+	HAVING  shift 139
+	.  reduce 28 (src line 108)
+
+	select_having  goto 138
+
+state 121
+	select_group:  GROUP.BY expression_list 
+
+	BY  shift 140
+	.  error
+
+
+state 122
+	select_where:  WHERE expression.    (32)
+
+	.  reduce 32 (src line 118)
+
+
+state 123
+	data_source_list:  data_source_single COMMA.data_source_list 
+
+	IDENTIFIER  shift 87
+	.  error
+
+	data_source_list  goto 141
+	data_source_single  goto 85
+	data_source  goto 86
+
+state 124
+	data_source_single:  data_source data_source_over_list.    (38)
+
+	.  reduce 38 (src line 134)
+
+
+state 125
+	data_source_single:  data_source AS.IDENTIFIER 
+	data_source_single:  data_source AS.IDENTIFIER data_source_over_list 
+
+	IDENTIFIER  shift 142
+	.  error
+
+
+state 126
+	data_source_over_list:  data_source_over.    (41)
+	data_source_over_list:  data_source_over.data_source_over_list 
+
+	OVER  shift 127
+	.  reduce 41 (src line 155)
+
+	data_source_over_list  goto 143
+	data_source_over  goto 126
+
+state 127
+	data_source_over:  OVER.property AS IDENTIFIER 
+
+	IDENTIFIER  shift 30
+	.  error
+
+	property  goto 144
+
+state 128
+	expression:  expr QUESTION expression COLON.expression 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 145
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 129
+	atom:  property LBRACKET expression RBRACKET.    (72)
+
+	.  reduce 72 (src line 285)
+
+
+state 130
+	named_expression_list:  named_expression_single COMMA named_expression_list.    (88)
+
+	.  reduce 88 (src line 340)
+
+
+state 131
+	named_expression_single:  STRING COLON expression.    (89)
+
+	.  reduce 89 (src line 347)
+
+
+state 132
+	expression_list:  expression COMMA expression_list.    (86)
+
+	.  reduce 86 (src line 327)
+
+
+state 133
+	atom:  function_name LPAREN expression_list RPAREN.    (82)
+
+	.  reduce 82 (src line 312)
+
+
+state 134
+	select_offset:  OFFSET expression.    (13)
+
+	.  reduce 13 (src line 69)
+
+
+state 135
+	sorting_list:  sorting_single COMMA.sorting_list 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 118
+	sorting_list  goto 146
+	sorting_single  goto 117
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 136
+	sorting_single:  expression ASC.    (17)
+
+	.  reduce 17 (src line 81)
+
+
+state 137
+	sorting_single:  expression DESC.    (18)
+
+	.  reduce 18 (src line 84)
+
+
+state 138
+	select_group_having:  select_group select_having.    (29)
+
+	.  reduce 29 (src line 109)
+
+
+state 139
+	select_having:  HAVING.expression 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 147
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 140
+	select_group:  GROUP BY.expression_list 
+
+	INT  shift 20
+	REAL  shift 22
+	STRING  shift 23
+	IDENTIFIER  shift 30
+	LPAREN  shift 29
+	LBRACE  shift 26
+	TRUE  shift 24
+	FALSE  shift 25
+	LBRACKET  shift 27
+	MAX  shift 32
+	MIN  shift 31
+	AVG  shift 33
+	COUNT  shift 34
+	SUM  shift 35
+	MINUS  shift 21
+	NOT  shift 15
+	NULL  shift 18
+	.  error
+
+	expression  goto 71
+	expression_list  goto 148
+	property  goto 19
+	expr  goto 13
+	prefix_expr  goto 14
+	suffix_expr  goto 16
+	atom  goto 17
+	function_name  goto 28
+
+state 141
+	data_source_list:  data_source_single COMMA data_source_list.    (36)
+
+	.  reduce 36 (src line 128)
+
+
+state 142
+	data_source_single:  data_source AS IDENTIFIER.    (39)
+	data_source_single:  data_source AS IDENTIFIER.data_source_over_list 
+
+	OVER  shift 127
+	.  reduce 39 (src line 142)
+
+	data_source_over_list  goto 149
+	data_source_over  goto 126
+
+state 143
+	data_source_over_list:  data_source_over data_source_over_list.    (42)
+
+	.  reduce 42 (src line 156)
+
+
+state 144
+	data_source_over:  OVER property.AS IDENTIFIER 
+
+	AS  shift 150
+	.  error
+
+
+state 145
+	expression:  expr QUESTION expression COLON expression.    (52)
+
+	.  reduce 52 (src line 183)
+
+
+state 146
+	sorting_list:  sorting_single COMMA sorting_list.    (15)
+
+	.  reduce 15 (src line 75)
+
+
+state 147
+	select_having:  HAVING expression.    (30)
+
+	.  reduce 30 (src line 114)
+
+
+state 148
+	select_group:  GROUP BY expression_list.    (26)
+
+	.  reduce 26 (src line 102)
+
+
+state 149
+	data_source_single:  data_source AS IDENTIFIER data_source_over_list.    (40)
+
+	.  reduce 40 (src line 145)
+
+
+state 150
+	data_source_over:  OVER property AS.IDENTIFIER 
+
+	IDENTIFIER  shift 151
+	.  error
+
+
+state 151
+	data_source_over:  OVER property AS IDENTIFIER.    (43)
+
+	.  reduce 43 (src line 159)
+
+
+62 terminals, 37 nonterminals
+97 grammar rules, 152/2000 states
+0 shift/reduce, 0 reduce/reduce conflicts reported
+86 working sets used
+memory: parser 319/30000
+128 extra closures
+664 shift entries, 1 exceptions
+76 goto entries
+184 entries saved by goto default
+Optimizer space used: output 200/30000
+200 table entries, 0 zero
+maximum spread: 62, maximum offset: 142

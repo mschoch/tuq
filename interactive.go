@@ -3,7 +3,7 @@ package main
 import (
 	naiveoptimizer "github.com/mschoch/tuq/optimizer/naive"
 	nulloptimizer "github.com/mschoch/tuq/optimizer/null"
-	"github.com/mschoch/tuq/parser"
+	"github.com/mschoch/tuq/parser/tuql"
 	"github.com/mschoch/tuq/planner"
 	naiveplanner "github.com/mschoch/tuq/planner/naive"
 	"github.com/sbinet/liner"
@@ -16,7 +16,7 @@ import (
 
 func handleInteractiveMode() {
 
-	unqlParser := parser.NewUnqlParser(*debugTokens, *debugGrammar, *crashHard)
+	unqlParser := tuql.NewTuqlParser(*debugTokens, *debugGrammar, *crashHard)
 	naivePlanner := naiveplanner.NewNaivePlanner()
 	naiveOptimizer := naiveoptimizer.NewNaiveOptimizer()
 	nullOptimizer := nulloptimizer.NewNullOptimizer()
@@ -68,7 +68,7 @@ func handleInteractiveMode() {
 							plan = naiveOptimizer.Optimize(plans)
 						}
 
-						if query.IsExplainOnly() {
+						if query.IsExplainOnly {
 							result := plan.Explain()
 							if err != nil {
 								log.Printf("Error: %v", err)

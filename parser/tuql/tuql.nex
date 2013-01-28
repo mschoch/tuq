@@ -78,15 +78,16 @@
 /[ \t\n]+/        { logDebugTokens("WHITESPACE (count=%d)", len(yylex.Text())) /* eat up whitespace */ }
 /./               { log.Printf("see problem: %v", yylex.Text()); return int(yylex.Text()[0]) }
 //
-package parser
+package tuql
 
 import("strconv")
 import("log")
+import ("github.com/mschoch/tuq/parser")
 
 func logDebugTokens(format string, v ...interface{}) {
-    if debugTokens && len(v) > 0 {
+    if parser.DebugTokens && len(v) > 0 {
         log.Printf("DEBUG TOKEN " + format, v)
-    } else if debugTokens {
+    } else if parser.DebugTokens {
         log.Printf("DEBUG TOKEN " + format)
     }
 }

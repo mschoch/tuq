@@ -5,7 +5,7 @@ import (
 	"fmt"
 	naiveoptimizer "github.com/mschoch/tuq/optimizer/naive"
 	nulloptimizer "github.com/mschoch/tuq/optimizer/null"
-	"github.com/mschoch/tuq/parser"
+	"github.com/mschoch/tuq/parser/tuql"
 	"github.com/mschoch/tuq/planner"
 	naiveplanner "github.com/mschoch/tuq/planner/naive"
 	"log"
@@ -64,7 +64,7 @@ func doPost(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	unqlParser := parser.NewUnqlParser(false, false, *crashHard)
+	unqlParser := tuql.NewTuqlParser(false, false, *crashHard)
 	naiveOptimizer := naiveoptimizer.NewNaiveOptimizer()
 	nullOptimizer := nulloptimizer.NewNullOptimizer()
 	query, err := unqlParser.Parse(line)
@@ -94,7 +94,7 @@ func doPost(w http.ResponseWriter, req *http.Request) {
 						plan = naiveOptimizer.Optimize(plans)
 					}
 
-					if query.IsExplainOnly() {
+					if query.IsExplainOnly {
 						result := plan.Explain()
 						if err != nil {
 							w.WriteHeader(500)

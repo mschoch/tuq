@@ -1,18 +1,19 @@
 
-//line unql.y:2
-package parser
+//line tuql.y:2
+package tuql
 import "fmt"
 import "log"
+import "github.com/mschoch/tuq/parser"
 
 func logDebugGrammar(format string, v ...interface{}) {
-    if debugGrammar && len(v) > 0 {
+    if parser.DebugGrammar && len(v) > 0 {
         log.Printf("DEBUG GRAMMAR " + format, v)
-    } else if debugGrammar {
+    } else if parser.DebugGrammar {
         log.Printf("DEBUG GRAMMAR " + format)
     }
 }
 
-//line unql.y:15
+//line tuql.y:16
 type yySymType struct {
 	yys int 
 s string 
@@ -146,7 +147,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line unql.y:390
+//line tuql.y:391
 
 
 //line yacctab:1
@@ -520,393 +521,393 @@ yydefault:
 	switch yynt {
 
 	case 1:
-		//line unql.y:35
+		//line tuql.y:36
 		{ logDebugGrammar("INPUT") }
 	case 3:
-		//line unql.y:39
+		//line tuql.y:40
 		{ logDebugGrammar("PRAGMA: %v", yyS[yypt-3])
 	                                                       right := parsingStack.Pop()
 	                                                       left := parsingStack.Pop()
-	                                                       ProcessPragma(left.(Expression), right.(Expression))
+	                                                       parser.ProcessPragma(left.(parser.Expression), right.(parser.Expression))
 	                                                     }
 	case 4:
-		//line unql.y:46
+		//line tuql.y:47
 		{ logDebugGrammar("SELECT_STMT")
-	                                                                    parsingQuery.parsedSuccessfully = true }
+	                                                                    parsingQuery.ParsedSuccessfully = true }
 	case 6:
-		//line unql.y:51
-		{  parsingQuery.isExplainOnly = true  }
+		//line tuql.y:52
+		{  parsingQuery.IsExplainOnly = true  }
 	case 12:
-		//line unql.y:63
+		//line tuql.y:64
 		{ thisExpression := parsingStack.Pop()
-	                                   parsingQuery.Limit = thisExpression.(Expression)
+	                                   parsingQuery.Limit = thisExpression.(parser.Expression)
 	                                 }
 	case 13:
-		//line unql.y:68
+		//line tuql.y:69
 		{ thisExpression := parsingStack.Pop()
-	                                   parsingQuery.Offset = thisExpression.(Expression)
+	                                   parsingQuery.Offset = thisExpression.(parser.Expression)
 	                                 }
 	case 16:
-		//line unql.y:77
-		{ thisExpression := NewSortItem(parsingStack.Pop().(Expression), true)
+		//line tuql.y:78
+		{ thisExpression := parser.NewSortItem(parsingStack.Pop().(parser.Expression), true)
 	                            parsingQuery.Orderby = append(parsingQuery.Orderby, *thisExpression)
 	                           }
 	case 17:
-		//line unql.y:80
-		{ thisExpression := NewSortItem(parsingStack.Pop().(Expression), true)
+		//line tuql.y:81
+		{ thisExpression := parser.NewSortItem(parsingStack.Pop().(parser.Expression), true)
 	                            parsingQuery.Orderby = append(parsingQuery.Orderby, *thisExpression)
 	                           }
 	case 18:
-		//line unql.y:83
-		{ thisExpression := NewSortItem(parsingStack.Pop().(Expression), false)
+		//line tuql.y:84
+		{ thisExpression := parser.NewSortItem(parsingStack.Pop().(parser.Expression), false)
 	                            parsingQuery.Orderby = append(parsingQuery.Orderby, *thisExpression)
 	                           }
 	case 19:
-		//line unql.y:88
+		//line tuql.y:89
 		{ logDebugGrammar("SELECT_COMPOUND") }
 	case 25:
-		//line unql.y:98
+		//line tuql.y:99
 		{ logDebugGrammar("SELECT_CORE") }
 	case 26:
-		//line unql.y:101
+		//line tuql.y:102
 		{ logDebugGrammar("SELECT GROUP")
-	                                         parsingQuery.isAggregateQuery = true 
-	                                         parsingQuery.Groupby = parsingStack.Pop().(ExpressionList) }
+	                                         parsingQuery.IsAggregateQuery = true 
+	                                         parsingQuery.Groupby = parsingStack.Pop().(parser.ExpressionList) }
 	case 27:
-		//line unql.y:106
+		//line tuql.y:107
 		{ logDebugGrammar("SELECT GROUP HAVING - EMPTY") }
 	case 28:
-		//line unql.y:107
+		//line tuql.y:108
 		{ logDebugGrammar("SELECT GROUP HAVING - SELECT GROUP") }
 	case 29:
-		//line unql.y:108
+		//line tuql.y:109
 		{ logDebugGrammar("SELECT GROUP HAVING - SELECT GROUP SELECT HAVING") }
 	case 30:
-		//line unql.y:113
-		{ parsingQuery.Having = parsingStack.Pop().(Expression) }
+		//line tuql.y:114
+		{ parsingQuery.Having = parsingStack.Pop().(parser.Expression) }
 	case 31:
-		//line unql.y:116
+		//line tuql.y:117
 		{ logDebugGrammar("SELECT WHERE - EMPTY") }
 	case 32:
-		//line unql.y:117
+		//line tuql.y:118
 		{ logDebugGrammar("SELECT WHERE - EXPR")
 	                               where_part := parsingStack.Pop()
-	                               parsingQuery.Where = where_part.(Expression) }
+	                               parsingQuery.Where = where_part.(parser.Expression) }
 	case 34:
-		//line unql.y:123
+		//line tuql.y:124
 		{ logDebugGrammar("SELECT_FROM") }
 	case 37:
-		//line unql.y:130
-		{ ds := NewDataSource(yyS[yypt-0].s)
+		//line tuql.y:131
+		{ ds := parser.NewDataSource(yyS[yypt-0].s)
 	                                   parsingQuery.AddDataSource(ds) 
 	                                 }
 	case 38:
-		//line unql.y:133
-		{ ds := NewDataSource(yyS[yypt-1].s)
+		//line tuql.y:134
+		{ ds := parser.NewDataSource(yyS[yypt-1].s)
 	                                          nextOver := parsingStack.Pop()
 	                                          for nextOver != nil {
-	                                            ds.AddOver(nextOver.(*Over))
+	                                            ds.AddOver(nextOver.(*parser.Over))
 	                                            nextOver = parsingStack.Pop()
 	                                          }
 	                                          parsingQuery.AddDataSource(ds)
 	                                        }
 	case 39:
-		//line unql.y:141
-		{ ds := NewDataSourceWithAs(yyS[yypt-2].s, yyS[yypt-0].s) 
+		//line tuql.y:142
+		{ ds := parser.NewDataSourceWithAs(yyS[yypt-2].s, yyS[yypt-0].s) 
 	                                          parsingQuery.AddDataSource(ds) 
 	                                        }
 	case 40:
-		//line unql.y:144
-		{ ds := NewDataSourceWithAs(yyS[yypt-3].s, yyS[yypt-1].s)
+		//line tuql.y:145
+		{ ds := parser.NewDataSourceWithAs(yyS[yypt-3].s, yyS[yypt-1].s)
 	                                          nextOver := parsingStack.Pop()
 	                                          for nextOver != nil {
-	                                            ds.AddOver(nextOver.(*Over))
+	                                            ds.AddOver(nextOver.(*parser.Over))
 	                                            nextOver = parsingStack.Pop()
 	                                          }
 	                                          parsingQuery.AddDataSource(ds)
 	                                        }
 	case 43:
-		//line unql.y:158
-		{   prop := parsingStack.Pop().(*Property)
-	                                                    over := NewOver(prop, yyS[yypt-0].s)
+		//line tuql.y:159
+		{   prop := parsingStack.Pop().(*parser.Property)
+	                                                    over := parser.NewOver(prop, yyS[yypt-0].s)
 	                                                    parsingStack.Push(over)
 	                                                  }
 	case 45:
-		//line unql.y:166
+		//line tuql.y:167
 		{ logDebugGrammar("SELECT_SELECT") }
 	case 46:
-		//line unql.y:169
+		//line tuql.y:170
 		{ logDebugGrammar("SELECT_SELECT_HEAD") }
 	case 49:
-		//line unql.y:174
+		//line tuql.y:175
 		{ logDebugGrammar("SELECT SELECT TAIL - EMPTY") }
 	case 50:
-		//line unql.y:175
+		//line tuql.y:176
 		{ logDebugGrammar("SELECT SELECT TAIL - EXPR")
 	                            thisExpression := parsingStack.Pop()
-	                            parsingQuery.Sel = thisExpression.(Expression)
+	                            parsingQuery.Sel = thisExpression.(parser.Expression)
 	                          }
 	case 51:
-		//line unql.y:181
+		//line tuql.y:182
 		{ logDebugGrammar("EXPRESSION") }
 	case 52:
-		//line unql.y:182
+		//line tuql.y:183
 		{ logDebugGrammar("EXPRESSION - TERNARY")
-	                                                    elsee := parsingStack.Pop().(Expression)
-	                                                    thenn := parsingStack.Pop().(Expression)
-	                                                    iff := parsingStack.Pop().(Expression)
-	                                                    thisExpr := NewTernaryExpression(iff, thenn, elsee)
+	                                                    elsee := parsingStack.Pop().(parser.Expression)
+	                                                    thenn := parsingStack.Pop().(parser.Expression)
+	                                                    iff := parsingStack.Pop().(parser.Expression)
+	                                                    thisExpr := parser.NewTernaryExpression(iff, thenn, elsee)
 	                                                    parsingStack.Push(thisExpr)
 	                                                  }
 	case 53:
-		//line unql.y:191
+		//line tuql.y:192
 		{  logDebugGrammar("EXPR - PLUS")
 	                        right := parsingStack.Pop()
 	                        left := parsingStack.Pop()
-	                        thisExpression := NewPlusExpression(left.(Expression), right.(Expression)) 
+	                        thisExpression := parser.NewPlusExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                        parsingStack.Push(thisExpression)
 	                     }
 	case 54:
-		//line unql.y:197
+		//line tuql.y:198
 		{  logDebugGrammar("EXPR - MINUS")
 	                               right := parsingStack.Pop()
 	                               left := parsingStack.Pop()
-	                               thisExpression := NewMinusExpression(left.(Expression), right.(Expression)) 
+	                               thisExpression := parser.NewMinusExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                               parsingStack.Push(thisExpression)
 	                            }
 	case 55:
-		//line unql.y:203
+		//line tuql.y:204
 		{  logDebugGrammar("EXPR - MULT")
 	                              right := parsingStack.Pop()
 	                              left := parsingStack.Pop()
-	                              thisExpression := NewMultiplyExpression(left.(Expression), right.(Expression)) 
+	                              thisExpression := parser.NewMultiplyExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                              parsingStack.Push(thisExpression)
 	                           }
 	case 56:
-		//line unql.y:209
+		//line tuql.y:210
 		{  logDebugGrammar("EXPR - DIV")
 	                             right := parsingStack.Pop()
 	                             left := parsingStack.Pop()
-	                             thisExpression := NewDivideExpression(left.(Expression), right.(Expression)) 
+	                             thisExpression := parser.NewDivideExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                             parsingStack.Push(thisExpression)
 	                          }
 	case 57:
-		//line unql.y:215
+		//line tuql.y:216
 		{  logDebugGrammar("EXPR - AND")
 	                             right := parsingStack.Pop()
 	                             left := parsingStack.Pop()
-	                             thisExpression := NewAndExpression(left.(Expression), right.(Expression)) 
+	                             thisExpression := parser.NewAndExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                             parsingStack.Push(thisExpression)
 	                         }
 	case 58:
-		//line unql.y:221
+		//line tuql.y:222
 		{  logDebugGrammar("EXPR - OR")
 	                            right := parsingStack.Pop()
 	                            left := parsingStack.Pop()
-	                            thisExpression := NewOrExpression(left.(Expression), right.(Expression)) 
+	                            thisExpression := parser.NewOrExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                            parsingStack.Push(thisExpression)
 	                         }
 	case 59:
-		//line unql.y:227
+		//line tuql.y:228
 		{  logDebugGrammar("EXPR - EQ")
 	                            right := parsingStack.Pop()
 	                            left := parsingStack.Pop()
-	                            thisExpression := NewEqualsExpression(left.(Expression), right.(Expression)) 
+	                            thisExpression := parser.NewEqualsExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                            parsingStack.Push(thisExpression)
 	                         }
 	case 60:
-		//line unql.y:233
+		//line tuql.y:234
 		{  logDebugGrammar("EXPR - LT")
 	                            right := parsingStack.Pop()
 	                            left := parsingStack.Pop()
-	                            thisExpression := NewLessThanExpression(left.(Expression), right.(Expression)) 
+	                            thisExpression := parser.NewLessThanExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                            parsingStack.Push(thisExpression)
 	                         }
 	case 61:
-		//line unql.y:239
+		//line tuql.y:240
 		{  logDebugGrammar("EXPR - LTE")
 	                             right := parsingStack.Pop()
 	                             left := parsingStack.Pop()
-	                             thisExpression := NewLessThanOrEqualExpression(left.(Expression), right.(Expression)) 
+	                             thisExpression := parser.NewLessThanOrEqualExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                             parsingStack.Push(thisExpression)
 	                         }
 	case 62:
-		//line unql.y:245
+		//line tuql.y:246
 		{  logDebugGrammar("EXPR - GT")
 	                            right := parsingStack.Pop()
 	                            left := parsingStack.Pop()
-	                            thisExpression := NewGreaterThanExpression(left.(Expression), right.(Expression)) 
+	                            thisExpression := parser.NewGreaterThanExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                            parsingStack.Push(thisExpression)
 	                         }
 	case 63:
-		//line unql.y:251
+		//line tuql.y:252
 		{  logDebugGrammar("EXPR - GTE")
 	                             right := parsingStack.Pop()
 	                             left := parsingStack.Pop()
-	                             thisExpression := NewGreaterThanOrEqualExpression(left.(Expression), right.(Expression)) 
+	                             thisExpression := parser.NewGreaterThanOrEqualExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                             parsingStack.Push(thisExpression)
 	                         }
 	case 64:
-		//line unql.y:257
+		//line tuql.y:258
 		{  logDebugGrammar("EXPR - NE")
 	                            right := parsingStack.Pop()
 	                            left := parsingStack.Pop()
-	                            thisExpression := NewNotEqualsExpression(left.(Expression), right.(Expression)) 
+	                            thisExpression := parser.NewNotEqualsExpression(left.(parser.Expression), right.(parser.Expression)) 
 	                            parsingStack.Push(thisExpression)
 	                         }
 	case 67:
-		//line unql.y:268
+		//line tuql.y:269
 		{ logDebugGrammar("EXPR - NOT")
-	                               curr := parsingStack.Pop().(Expression)
-	                               thisExpression := NewNotExpression(curr)
+	                               curr := parsingStack.Pop().(parser.Expression)
+	                               thisExpression := parser.NewNotExpression(curr)
 	                               parsingStack.Push(thisExpression)
 	                             }
 	case 69:
-		//line unql.y:276
+		//line tuql.y:277
 		{ logDebugGrammar("SUFFIX_EXPR") }
 	case 70:
-		//line unql.y:279
+		//line tuql.y:280
 		{ logDebugGrammar("NULL")
-	             thisExpression := NewNull()
+	             thisExpression := parser.NewNull()
 	             parsingStack.Push(thisExpression)
 	           }
 	case 71:
-		//line unql.y:283
+		//line tuql.y:284
 		{  }
 	case 72:
-		//line unql.y:284
+		//line tuql.y:285
 		{     logDebugGrammar("ATOM - prop[]")
-	                                                  rightExpr := parsingStack.Pop().(Expression)
-	                                                  leftProp := parsingStack.Pop().(*Property)
-	                                                  thisExpression := NewBracketMemberExpression(leftProp, rightExpr)
+	                                                  rightExpr := parsingStack.Pop().(parser.Expression)
+	                                                  leftProp := parsingStack.Pop().(*parser.Property)
+	                                                  thisExpression := parser.NewBracketMemberExpression(leftProp, rightExpr)
 	                                                  parsingStack.Push(thisExpression)
 	                                            }
 	case 73:
-		//line unql.y:290
-		{ thisExpression := NewIntegerLiteral(yyS[yypt-0].n) 
+		//line tuql.y:291
+		{ thisExpression := parser.NewIntegerLiteral(yyS[yypt-0].n) 
 	                 parsingStack.Push(thisExpression) }
 	case 74:
-		//line unql.y:292
-		{ thisExpression := NewIntegerLiteral(-yyS[yypt-1].n)
+		//line tuql.y:293
+		{ thisExpression := parser.NewIntegerLiteral(-yyS[yypt-1].n)
 	                 parsingStack.Push(thisExpression) }
 	case 75:
-		//line unql.y:294
-		{ thisExpression := NewFloatLiteral(yyS[yypt-0].f) 
+		//line tuql.y:295
+		{ thisExpression := parser.NewFloatLiteral(yyS[yypt-0].f) 
 	                 parsingStack.Push(thisExpression) }
 	case 76:
-		//line unql.y:296
-		{ thisExpression := NewFloatLiteral(-yyS[yypt-1].f)
+		//line tuql.y:297
+		{ thisExpression := parser.NewFloatLiteral(-yyS[yypt-1].f)
 	                 parsingStack.Push(thisExpression) }
 	case 77:
-		//line unql.y:298
-		{ thisExpression := NewStringLiteral(yyS[yypt-0].s) 
+		//line tuql.y:299
+		{ thisExpression := parser.NewStringLiteral(yyS[yypt-0].s) 
 	                 parsingStack.Push(thisExpression) }
 	case 78:
-		//line unql.y:300
-		{ thisExpression := NewBoolLiteral(true) 
+		//line tuql.y:301
+		{ thisExpression := parser.NewBoolLiteral(true) 
 	                 parsingStack.Push(thisExpression) }
 	case 79:
-		//line unql.y:302
-		{ thisExpression := NewBoolLiteral(false) 
+		//line tuql.y:303
+		{ thisExpression := parser.NewBoolLiteral(false) 
 	                 parsingStack.Push(thisExpression)}
 	case 80:
-		//line unql.y:304
+		//line tuql.y:305
 		{ logDebugGrammar("ATOM - {}")
 	                                            }
 	case 81:
-		//line unql.y:306
+		//line tuql.y:307
 		{ logDebugGrammar("ATOM - []")
-	                                            exp_list := parsingStack.Pop().(ExpressionList)
-	                                            thisExpression := NewArrayLiteral(exp_list)
+	                                            exp_list := parsingStack.Pop().(parser.ExpressionList)
+	                                            thisExpression := parser.NewArrayLiteral(exp_list)
 	                                            parsingStack.Push(thisExpression)
 	                                          }
 	case 82:
-		//line unql.y:311
+		//line tuql.y:312
 		{ logDebugGrammar("FUNCTION - $1.s")
-	                                                      exp_list := parsingStack.Pop().(ExpressionList)
-	                                                      function := parsingStack.Pop().(*Function)
+	                                                      exp_list := parsingStack.Pop().(parser.ExpressionList)
+	                                                      function := parsingStack.Pop().(*parser.Function)
 	                                                      function.AddArguments(exp_list)
 	                                                      parsingStack.Push(function)
 	                                                    }
 	case 85:
-		//line unql.y:321
+		//line tuql.y:322
 		{ logDebugGrammar("EXPRESSION_LIST - EXPRESSION")
-	                               exp_list := make(ExpressionList, 0)
-	                               exp_list = append(exp_list, parsingStack.Pop().(Expression))
+	                               exp_list := make(parser.ExpressionList, 0)
+	                               exp_list = append(exp_list, parsingStack.Pop().(parser.Expression))
 	                               parsingStack.Push(exp_list)
 	                             }
 	case 86:
-		//line unql.y:326
+		//line tuql.y:327
 		{ logDebugGrammar("EXPRESSION_LIST - EXPRESSION COMMA EXPRESSION_LIST")
-	                                               rest := parsingStack.Pop().(ExpressionList)
+	                                               rest := parsingStack.Pop().(parser.ExpressionList)
 	                                               last := parsingStack.Pop()
-	                                               new_list := make(ExpressionList, 0)
-	                                               new_list = append(new_list, last.(Expression))
+	                                               new_list := make(parser.ExpressionList, 0)
+	                                               new_list = append(new_list, last.(parser.Expression))
 	                                               for _, v := range rest {
 	                                                new_list = append(new_list, v)
 	                                               }
 	                                               parsingStack.Push(new_list)
 	                                             }
 	case 88:
-		//line unql.y:339
-		{ last := parsingStack.Pop().(*ObjectLiteral)
-	                                                                  rest := parsingStack.Pop().(*ObjectLiteral)
+		//line tuql.y:340
+		{ last := parsingStack.Pop().(*parser.ObjectLiteral)
+	                                                                  rest := parsingStack.Pop().(*parser.ObjectLiteral)
 	                                                                  rest.AddAll(last)
 	                                                                  parsingStack.Push(rest)
 	                                                                }
 	case 89:
-		//line unql.y:346
+		//line tuql.y:347
 		{ thisKey := yyS[yypt-2].s
-	                                                     thisValue := parsingStack.Pop().(Expression)
-	                                                     thisExpression := NewObjectLiteral(Object{thisKey: thisValue})
+	                                                     thisValue := parsingStack.Pop().(parser.Expression)
+	                                                     thisExpression := parser.NewObjectLiteral(parser.Object{thisKey: thisValue})
 	                                                     parsingStack.Push(thisExpression) 
 	                                                   }
 	case 90:
-		//line unql.y:353
+		//line tuql.y:354
 		{
-	                         thisExpression := NewProperty(yyS[yypt-0].s) 
+	                         thisExpression := parser.NewProperty(yyS[yypt-0].s) 
 	                         parsingStack.Push(thisExpression) 
 	                       }
 	case 91:
-		//line unql.y:357
+		//line tuql.y:358
 		{
-	                                    thisValue := parsingStack.Pop().(*Property)
-	                                    thisExpression := NewProperty(yyS[yypt-2].s + "." + thisValue.Symbol)
+	                                    thisValue := parsingStack.Pop().(*parser.Property)
+	                                    thisExpression := parser.NewProperty(yyS[yypt-2].s + "." + thisValue.Symbol)
 	                                    parsingStack.Push(thisExpression)
 	                                  }
 	case 92:
-		//line unql.y:364
+		//line tuql.y:365
 		{ 
-	                     parsingQuery.isAggregateQuery = true
-	                     thisExpression := NewFunction("min")
+	                     parsingQuery.IsAggregateQuery = true
+	                     thisExpression := parser.NewFunction("min")
 	                     parsingStack.Push(thisExpression)
 	                   }
 	case 93:
-		//line unql.y:369
+		//line tuql.y:370
 		{ 
-	                  parsingQuery.isAggregateQuery = true
-	                  thisExpression := NewFunction("max")
+	                  parsingQuery.IsAggregateQuery = true
+	                  thisExpression := parser.NewFunction("max")
 	                  parsingStack.Push(thisExpression)
 	                }
 	case 94:
-		//line unql.y:374
+		//line tuql.y:375
 		{ 
-	                  parsingQuery.isAggregateQuery = true
-	                  thisExpression := NewFunction("avg")
+	                  parsingQuery.IsAggregateQuery = true
+	                  thisExpression := parser.NewFunction("avg")
 	                  parsingStack.Push(thisExpression)
 	                }
 	case 95:
-		//line unql.y:379
+		//line tuql.y:380
 		{ 
-	                   parsingQuery.isAggregateQuery = true
-	                   thisExpression := NewFunction("count")
+	                   parsingQuery.IsAggregateQuery = true
+	                   thisExpression := parser.NewFunction("count")
 	                   parsingStack.Push(thisExpression)
 	                  }
 	case 96:
-		//line unql.y:384
+		//line tuql.y:385
 		{ 
-	                  parsingQuery.isAggregateQuery = true
-	                  thisExpression := NewFunction("sum")
+	                  parsingQuery.IsAggregateQuery = true
+	                  thisExpression := parser.NewFunction("sum")
 	                  parsingStack.Push(thisExpression)
 	                }
 	}

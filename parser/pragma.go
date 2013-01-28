@@ -11,14 +11,14 @@ func ProcessPragma(left, right Expression) {
 		if l.Symbol == "debugTokens" {
 			switch r := right.(type) {
 			case *BoolLiteral:
-				debugTokens = r.Val
+				DebugTokens = r.Val
 			default:
 				fmt.Printf("Pragma debugTokens only supports boolean value")
 			}
 		} else if l.Symbol == "debugGrammar" {
 			switch r := right.(type) {
 			case *BoolLiteral:
-				debugGrammar = r.Val
+				DebugGrammar = r.Val
 			default:
 				fmt.Printf("Pragma debugGrammar only supports boolean value")
 			}

@@ -1,10 +1,10 @@
 #! /bin/sh
 
-cd parser
+cd parser/tuql
 echo Running nex...
-nex unql.nex 
+nex tuql.nex
 echo Running goyacc...
-goyacc unql.y
-cd ..
+goyacc tuql.y
+cd ../..
 echo Running go build...
 go build
